@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>La grande transmission</title>
+  <meta name="description" content="Simulateur citoyen : ce que changerait l'impôt sur les grandes successions pour votre héritage et, si ses recettes étaient reversées aux actifs, pour votre salaire.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,700;1,400&display=swap">
+  <link rel="stylesheet" href="styles/tokens.css">
+  <link rel="stylesheet" href="styles/base.css">
+  <link rel="stylesheet" href="styles/composants.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='3' fill='%23eef2ec'/%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%23b3261e' stroke-width='3'/%3E%3C/svg%3E">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <a class="evitement" href="#contenu">Aller au contenu</a>
+
+  <header class="entete">
+    <div class="entete__interieur">
+      <a class="marque" href="#haut" aria-label="La grande transmission, retour en haut">La grande transmission</a>
+      <nav class="nav" aria-label="Sections">
+        <a href="#reforme">La réforme</a>
+        <a href="#heritage">Mon héritage</a>
+        <a href="#salaire">Mon salaire</a>
+        <a href="#methode">Méthode</a>
+      </nav>
+      <button class="bouton-theme" type="button" data-module="theme" aria-label="Changer de thème">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="contenu">
+    <section class="ouverture" id="haut" aria-labelledby="titre-ouverture">
+      <div class="page">
+        <h1 id="titre-ouverture" class="affiche">D'ici 2040, 9&nbsp;000&nbsp;milliards d'euros vont changer de&nbsp;mains.</h1>
+        <p class="chapeau">
+          C'est la « grande transmission » : le patrimoine de la génération du baby-boom passe à ses enfants.
+          Jamais la France n'a vu un tel transfert de richesse. Il sera aussi très inégal.
+        </p>
+
+        <figure class="ruban" data-module="ruban" aria-labelledby="ruban-titre">
+          <figcaption id="ruban-titre" class="ruban__titre">Sur 100&nbsp;€ de patrimoine en France aujourd'hui</figcaption>
+          <div class="ruban__barre" data-ruban-barre></div>
+          <ul class="ruban__legende" data-ruban-legende></ul>
+          <p class="note">
+            Si les héritages suivent la répartition du patrimoine, la moitié des Français se partagera environ
+            <strong data-ruban-bas></strong> sur les 9&nbsp;059&nbsp;Md€ transmis d'ici 2040.
+            Source : Banque de France, comptes distributionnels de patrimoine, 2023, cités par l'étude.
+          </p>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section" id="reforme" aria-labelledby="titre-reforme" data-module="reforme">
+      <div class="page">
+        <h2 id="titre-reforme" class="titre-section">Une proposition : l'impôt sur les grandes successions</h2>
+        <div class="texte">
+          <p>
+            En novembre 2024, la Fondation Jean-Jaurès a proposé de réformer les droits de succession pour que
+            la grande transmission finance l'avenir du pays. Selon ses auteurs, l'impôt ne changerait rien pour
+            99&nbsp;% des héritiers, et les plus grandes successions contribueraient davantage.
+          </p>
+        </div>
+
+        <dl class="chiffres">
+          <div class="chiffre">
+            <dt>Recettes supplémentaires dès 2025</dt>
+            <dd data-chiffre="premiere-annee"></dd>
+          </div>
+          <div class="chiffre">
+            <dt>Cumul de 2025 à 2040</dt>
+            <dd data-chiffre="cumul"></dd>
+          </div>
+          <div class="chiffre">
+            <dt>Part des transmissions prélevée par l'impôt</dt>
+            <dd data-chiffre="taux-effectif"></dd>
+          </div>
+        </dl>
+
+        <ol class="piliers" data-piliers></ol>
+
+        <figure class="graphique" aria-labelledby="titre-trajectoire">
+          <figcaption>
+            <h3 id="titre-trajectoire" class="titre-graphique">Ce que rapporterait l'impôt chaque année</h3>
+            <p class="sous-titre">Recettes supplémentaires estimées par l'étude, en milliards d'euros courants</p>
+          </figcaption>
+          <div class="legende" data-legende-trajectoire></div>
+          <div class="graphique__zone" data-graphique="trajectoire"></div>
+          <details class="table-donnees">
+            <summary>Voir les données en tableau</summary>
+            <div data-table="trajectoire"></div>
+          </details>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section section--feuille" id="heritage" aria-labelledby="titre-heritage" data-module="simulateur-heritage">
+      <div class="page">
+        <h2 id="titre-heritage" class="titre-section">Et moi, combien paierais-je sur mon héritage ?</h2>
+        <p class="texte">Indiquez ce que vous recevez de vos parents. Le calcul se fait dans votre navigateur : rien n'est envoyé.</p>
+
+        <div class="simulateur">
+          <form class="formulaire" data-formulaire novalidate>
+            <div class="champ">
+              <label for="h-montant">Patrimoine reçu, hors assurance-vie</label>
+              <div class="case"><input id="h-montant" name="montant" inputmode="decimal" autocomplete="off" value="300 000"><span aria-hidden="true">€</span></div>
+              <p class="aide">Maison, placements, comptes… pour votre part uniquement.</p>
+            </div>
+
+            <div class="champ">
+              <label for="h-av">Dont assurance-vie reçue</label>
+              <div class="case"><input id="h-av" name="assuranceVie" inputmode="decimal" autocomplete="off" value="0"><span aria-hidden="true">€</span></div>
+            </div>
+
+            <fieldset class="champ">
+              <legend>Vous héritez</legend>
+              <div class="choix">
+                <label><input type="radio" name="nbParents" value="1"> d'un parent</label>
+                <label><input type="radio" name="nbParents" value="2" checked> de vos deux parents</label>
+              </div>
+            </fieldset>
+
+            <details class="avance">
+              <summary>Très grandes successions</summary>
+              <div class="champ">
+                <label for="h-pv">Plus-values latentes comprises dans ce patrimoine</label>
+                <div class="case"><input id="h-pv" name="plusValuesLatentes" inputmode="decimal" autocomplete="off" value="0"><span aria-hidden="true">€</span></div>
+                <p class="aide">Gain accumulé et jamais taxé sur des actions ou des parts d'entreprise. La réforme ne le vise que pour les successions du top 1&nbsp;%.</p>
+              </div>
+            </details>
+          </form>
+
+          <div class="resultat" aria-live="polite" data-resultat></div>
+        </div>
+
+        <figure class="graphique" aria-labelledby="titre-courbe">
+          <figcaption>
+            <h3 id="titre-courbe" class="titre-graphique">À montant égal, le nouveau barème est plus doux, sauf tout en haut</h3>
+            <p class="sous-titre" data-sous-titre-courbe></p>
+          </figcaption>
+          <div class="legende" data-legende-courbe></div>
+          <div class="graphique__zone" data-graphique="courbe"></div>
+          <details class="table-donnees">
+            <summary>Voir les données en tableau</summary>
+            <div data-table="courbe"></div>
+          </details>
+        </figure>
+
+        <aside class="encadre">
+          <h3>Alors, d'où viennent les recettes ?</h3>
+          <p>
+            Aujourd'hui, une grande partie des très gros patrimoines échappe au barème : assurance-vie, donations
+            renouvelées tous les quinze ans, démembrement de propriété, pacte Dutreil sur les entreprises,
+            plus-values effacées au décès. La réforme fait entrer ces sommes dans l'impôt. Ce simulateur ne modélise
+            encore que l'assurance-vie et les plus-values latentes.
+          </p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" id="salaire" aria-labelledby="titre-salaire" data-module="simulateur-salaire">
+      <div class="page">
+        <h2 id="titre-salaire" class="titre-section">Et si cet argent revenait à celles et ceux qui travaillent ?</h2>
+        <p class="texte">
+          L'étude consacre les recettes à la transition écologique, à la recherche et à l'éducation.
+          Ce simulateur explore aussi une autre voie : en reverser une part aux actifs, pour soutenir leur pouvoir d'achat.
+        </p>
+
+        <div class="simulateur">
+          <form class="formulaire" data-formulaire novalidate>
+            <div class="champ">
+              <label for="s-salaire">Votre salaire net mensuel</label>
+              <div class="case"><input id="s-salaire" name="salaire" inputmode="decimal" autocomplete="off" value="2 100"><span aria-hidden="true">€</span></div>
+            </div>
+
+            <fieldset class="champ">
+              <legend>Que faire des recettes ?</legend>
+              <div class="options" data-scenarios></div>
+            </fieldset>
+
+            <div class="champ" data-champ-part>
+              <label for="s-part">Part des recettes reversée aux actifs : <output data-part-sortie for="s-part"></output></label>
+              <input id="s-part" name="part" type="range" min="0" max="100" step="5" value="50">
+              <p class="aide">Le reste finance les priorités retenues par l'étude.</p>
+            </div>
+
+            <div class="champ">
+              <label for="s-annee">Année</label>
+              <select id="s-annee" name="annee" data-annees></select>
+            </div>
+          </form>
+
+          <div class="resultat" aria-live="polite" data-resultat></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--methode" id="methode" aria-labelledby="titre-methode">
+      <div class="page">
+        <h2 id="titre-methode" class="titre-section">Méthode, sources et limites</h2>
+        <div class="colonnes-methode">
+          <div>
+            <h3>Ce qui vient de l'étude</h3>
+            <p>
+              Le barème, les trois piliers, le flux successoral et les recettes année par année sont repris tels quels de
+              <a data-lien-etude href="#">l'étude de la Fondation Jean-Jaurès</a>
+              (Ouizille, Iberrakene, Julien-Vauzelle, novembre 2024). Le barème s'appuie lui-même sur une proposition
+              du Conseil d'analyse économique (2021).
+            </p>
+          </div>
+          <div>
+            <h3>Ce qu'ajoute ce simulateur</h3>
+            <p>
+              Le calcul individuel suppose un héritage en ligne directe, sans donation antérieure, avec une assurance-vie
+              alimentée avant 70&nbsp;ans. La redistribution aux actifs est une variante du simulateur : elle ne figure pas
+              dans l'étude. Elle répartit les recettes entre les 30,4&nbsp;millions de personnes en emploi, ou au prorata des
+              1&nbsp;108&nbsp;Md€ de salaires bruts versés en 2024 (Insee), sans effet de comportement.
+            </p>
+          </div>
+          <div>
+            <h3>Ce qui n'est pas encore pris en compte</h3>
+            <p>
+              Donations au cours de la vie, pacte Dutreil, démembrement, héritages hors ligne directe, effets de la réforme
+              sur les comportements (exil fiscal, optimisation). Ces points pourront être ajoutés au simulateur.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pied">
+    <div class="page">
+      <p>Outil citoyen et pédagogique. Les montants sont des ordres de grandeur, pas un calcul fiscal opposable.</p>
+    </div>
+  </footer>
+</body>
+</html>

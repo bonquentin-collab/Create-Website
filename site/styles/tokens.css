@@ -1,0 +1,96 @@
+/* Jetons de design. Toute couleur, police ou espacement du site vient d'ici.
+   Voir DESIGN.md pour les intentions derrière chaque valeur. */
+
+:root {
+  /* Surfaces : papier de formulaire administratif, légèrement vert-de-gris */
+  --papier: #eef2ec;
+  --papier-case: #f8faf6;
+  --trame: #c9d2c7;
+  --trame-legere: #dde4db;
+
+  /* Encre */
+  --encre: #17223b;
+  --encre-2: #3d4a63;
+  --encre-3: #5b6679;
+
+  /* Accents : chacun a un rôle fixe */
+  --tampon: #b3261e;        /* ce que paient les plus grandes successions */
+  --actifs: #16735a;        /* ce qui revient aux actifs */
+  --focus: #1d4ed8;
+
+  /* Séries de graphiques (validées : dataviz/validate_palette, clair) */
+  --serie-actuel: #3a67b5;
+  --serie-actifs: #1a8c6c;
+  --serie-tampon: #c8372d;
+  --serie-neutre: #9aa59a;
+
+  /* Typographie */
+  --police-affiche: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --police-texte: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, sans-serif;
+
+  --t-xs: 0.8125rem;
+  --t-s: 0.9375rem;
+  --t-m: 1.0625rem;
+  --t-l: 1.3125rem;
+  --t-xl: clamp(1.625rem, 1.2rem + 1.6vw, 2.25rem);
+  --t-xxl: clamp(2.5rem, 1.4rem + 4.6vw, 5.25rem);
+
+  /* Rythme */
+  --e-1: 0.25rem;
+  --e-2: 0.5rem;
+  --e-3: 0.75rem;
+  --e-4: 1rem;
+  --e-5: 1.5rem;
+  --e-6: 2rem;
+  --e-7: 3rem;
+  --e-8: 5rem;
+
+  --largeur-texte: 68ch;
+  --largeur-page: 72rem;
+  --gouttiere: clamp(1rem, 0.5rem + 2.5vw, 2.5rem);
+
+  --rayon-case: 2px;
+  --ombre-feuille: 0 1px 0 var(--trame), 0 12px 32px -18px rgb(23 34 59 / 0.35);
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --papier: #141b2d;
+    --papier-case: #1b2338;
+    --trame: #34405a;
+    --trame-legere: #26304a;
+    --encre: #e8ecf3;
+    --encre-2: #bcc5d6;
+    --encre-3: #95a0b5;
+    --tampon: #f07368;
+    --actifs: #4cc29d;
+    --focus: #93b4ff;
+    --serie-actuel: #5e86d6;
+    --serie-actifs: #2a9d7b;
+    --serie-tampon: #e0584a;
+    --serie-neutre: #6b768c;
+    --ombre-feuille: 0 1px 0 var(--trame), 0 12px 32px -18px rgb(0 0 0 / 0.6);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --papier: #141b2d;
+  --papier-case: #1b2338;
+  --trame: #34405a;
+  --trame-legere: #26304a;
+  --encre: #e8ecf3;
+  --encre-2: #bcc5d6;
+  --encre-3: #95a0b5;
+  --tampon: #f07368;
+  --actifs: #4cc29d;
+  --focus: #93b4ff;
+  --serie-actuel: #5e86d6;
+  --serie-actifs: #2a9d7b;
+  --serie-tampon: #e0584a;
+  --serie-neutre: #6b768c;
+  --ombre-feuille: 0 1px 0 var(--trame), 0 12px 32px -18px rgb(0 0 0 / 0.6);
+  color-scheme: dark;
+}
