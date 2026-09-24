@@ -158,3 +158,76 @@ test("répartitions toutes faites : ne visent que des destinations connues", () 
   const ids = new Set(destinations.map((d) => d.id));
   for (const m of repartitions) for (const id of Object.keys(m.parts)) assert.ok(ids.has(id), `${m.id} → ${id}`);
 });
+
+// ---------- Retraites ----------
+import { retraites } from "../site/js/params/retraites.js";
+import { totalRessources, ressourcesRetirees, comblerTrou, pensionApres, perteSalaire } from "../site/js/engine/retraites.js";
+
+test("retraites : les ressources 2025 bouclent sur les dépenses, à l'arrondi près", () => {
+  proche(totalRessources(retraites.ressources), retraites.depenses.valeur, 0.3);
+  assert.equal(new Set(retraites.ressources.map((r) => r.id)).size, retraites.ressources.length);
+  const groupes = new Set(retraites.groupes.map((g) => g.id));
+  for (const r of retraites.ressources) assert.ok(groupes.has(r.groupe), r.id);
+});
+
+test("retraites : près d'un tiers des ressources ne sont pas des cotisations (COR 2026)", () => {
+  const horsCotisations = retraites.ressources.filter((r) => ["etat", "impots", "transferts"].includes(r.groupe));
+  const part = totalRessources(horsCotisations) / (totalRessources(retraites.ressources) - 7.0);
+  proche(part, 0.332, 0.005);
+});
+
+test("retraites : les ressources fixes ne sont jamais retirées", () => {
+  const { retire } = ressourcesRetirees(retraites.ressources, []);
+  const nonFixes = totalRessources(retraites.ressources.filter((r) => !r.fixe));
+  proche(retire, nonFixes, 1e-9);
+  assert.equal(ressourcesRetirees(retraites.ressources, retraites.ressources.map((r) => r.id)).retire, 0);
+});
+
+test("retraites : combler le trou entre pensions et cotisations", () => {
+  const c = comblerTrou(40, 0.25, 400, 1000);
+  proche(c.parPensions, 10, 1e-9);
+  proche(c.baissePensions, 0.025, 1e-9);
+  proche(c.hausseCotisations, 0.03, 1e-9);
+  assert.equal(comblerTrou(40, 2, 400, 1000).parCotisations, 0);
+  proche(pensionApres(1500, 0.1), 1350, 1e-9);
+  proche(perteSalaire(1560, 0.01, 0.78), 20, 1e-9);
+});
+
+// ---------- TVA sociale et CSG ----------
+import { tva, csg } from "../site/js/params/prelevements.js";
+import { tvaSociale, gainBaisseCsg, tauxCsgRetraite, alignementCsg, perteRetraite } from "../site/js/engine/prelevements.js";
+
+test("TVA sociale : 1 point de taux normal finance 0,6 point de CSG des actifs", () => {
+  const r = tvaSociale(1, "normal", 1, tva, csg);
+  proche(r.recettes, 7.5, 1e-9);
+  proche(r.baisseCsg, 0.625, 1e-3);
+  proche(r.pertePrix, 0.005 * 8.9 / 13.7, 1e-9);
+  assert.equal(tvaSociale(0, "tousTaux", 1, tva, csg).recettes, 0);
+});
+
+test("TVA sociale : la baisse de CSG ne peut pas dépasser 9,2 points", () => {
+  assert.ok(tvaSociale(200, "tousTaux", 1, tva, csg).baisseCsg <= 9.2 + 1e-9);
+});
+
+test("TVA sociale : gain d'un salarié", () => {
+  // 2 340 € net ≈ 3 000 € brut ; 1 point de CSG sur 98,25 % du brut = 29,475 €
+  proche(gainBaisseCsg(2340, 1, csg, 0.78), 29.475, 1e-6);
+});
+
+test("CSG retraités : taux selon le revenu fiscal de référence (seuils 2025)", () => {
+  const b = csg.retraites.taux;
+  assert.equal(tauxCsgRetraite(12000, b).id, "exonere");
+  assert.equal(tauxCsgRetraite(16000, b).id, "reduit");
+  assert.equal(tauxCsgRetraite(20000, b).id, "median");
+  assert.equal(tauxCsgRetraite(40000, b).id, "normal");
+});
+
+test("CSG retraités : alignement sur 9,2 %", () => {
+  proche(alignementCsg("normal", csg).recettes, 2.0, 0.05);
+  proche(alignementCsg("tous", csg).recettes, 5.8, 0.1);
+  const a = alignementCsg("normal", csg);
+  assert.equal(a.nouveauTaux("median"), 0.066);
+  assert.equal(alignementCsg("tous", csg).nouveauTaux("exonere"), 0);
+  proche(perteRetraite(2000, 0.083, 0.092), 18, 1e-9);
+  assert.equal(perteRetraite(2000, 0.092, 0.083), 0);
+});

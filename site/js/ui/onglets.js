@@ -1,6 +1,6 @@
 // Onglets accessibles (motif ARIA « tabs ») : clic, flèches gauche/droite, Début/Fin.
 // Tout bouton portant data-ouvrir-onglet="<id de l'onglet>" ouvre aussi l'onglet visé.
-// Un lien de répartition partagé (#repartition=…) ouvre directement l'onglet « Salaire ou services publics ».
+// Un onglet portant data-cle-lien="x" s'ouvre directement quand l'adresse contient #x=… (lien partagé).
 
 export function monter(racine) {
   const onglets = [...racine.querySelectorAll('[role="tab"]')];
@@ -39,11 +39,10 @@ export function monter(racine) {
     onglet.scrollIntoView({ block: "start" });
   });
 
-  if (new URLSearchParams(location.hash.slice(1)).has("repartition")) {
-    const onglet = onglets.find((o) => o.id === "onglet-repartition");
-    if (onglet) {
-      activer(onglet);
-      requestAnimationFrame(() => racine.closest("section")?.scrollIntoView({ block: "start" }));
-    }
+  const params = new URLSearchParams(location.hash.slice(1));
+  const onglet = onglets.find((o) => o.dataset.cleLien && params.has(o.dataset.cleLien));
+  if (onglet) {
+    activer(onglet);
+    requestAnimationFrame(() => racine.closest("section")?.scrollIntoView({ block: "start" }));
   }
 }

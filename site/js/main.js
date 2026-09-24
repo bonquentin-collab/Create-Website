@@ -10,6 +10,11 @@ import { monter as simulateurHeritage } from "./ui/simulateur-heritage.js";
 import { monter as simulateurSalaire } from "./ui/simulateur-salaire.js";
 import { monter as repartition } from "./ui/repartition.js";
 import { monter as onglets } from "./ui/onglets.js";
+import { monter as rubanRetraites } from "./ui/ruban-retraites.js";
+import { monter as tvaSociale } from "./ui/tva-sociale.js";
+import { monter as csgRetraites } from "./ui/csg-retraites.js";
+import { monter as financementRetraites } from "./ui/financement-retraites.js";
+import { monter as methodeRetraites } from "./ui/methode-retraites.js";
 
 const modules = {
   theme,
@@ -19,6 +24,11 @@ const modules = {
   "simulateur-salaire": simulateurSalaire,
   repartition,
   onglets,
+  "ruban-retraites": rubanRetraites,
+  "tva-sociale": tvaSociale,
+  "csg-retraites": csgRetraites,
+  "financement-retraites": financementRetraites,
+  "methode-retraites": methodeRetraites,
 };
 
 const contexte = {

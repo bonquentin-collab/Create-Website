@@ -71,6 +71,12 @@ et, dans les jauges de budget, la somme ajoutée par la répartition (le budget 
 
 Tout est aligné à gauche. Sur mobile, une seule colonne et la navigation disparaît.
 
+### Page retraites
+
+Même système. L'ouverture reprend le ruban « sur 100 € » : vert pour les cotisations, bleu pour l'État,
+rouge pour les impôts, gris pour le reste. Trois onglets (TVA sociale, CSG des retraités, retraites sans
+impôts) ; le dernier enchaîne sur le répartiteur de l'argent public libéré.
+
 ## Principes
 
 1. **Un seul élément appuyé** : le tampon. On n'ajoute pas d'autre effet visuel fort.
