@@ -5,7 +5,8 @@ On le publie tel quel (GitHub Pages) et on le teste avec `node --test`.
 
 ```
 site/
-├── index.html                  structure de la page ; chaque section active porte data-module="…"
+├── index.html                  page héritage ; chaque section active porte data-module="…"
+├── retraites.html              page retraites : TVA sociale, CSG des retraités, financement des retraites
 ├── styles/
 │   ├── tokens.css              couleurs, polices, espacements (clair et sombre) ; voir DESIGN.md
 │   ├── base.css                éléments de base
@@ -16,18 +17,24 @@ site/
     │   ├── bareme.js           barèmes progressifs
     │   ├── succession.js       impôt d'un héritier : droit actuel, barème sur la vie entière
     │   ├── repartition.js      répartition d'une enveloppe, effet sur un budget, lien de partage
+    │   ├── retraites.js        retraites financées par des ressources propres : trou, pensions, cotisations
+    │   ├── prelevements.js     TVA sociale, taux et alignement de la CSG des retraités
     │   └── format.js           nombres et euros à la française
     ├── params/                 paramètres sourcés
     │   ├── droit-actuel.js     CGI : barème, abattements, assurance-vie
     │   ├── macro.js            Insee : emploi, masse salariale
-    │   └── budgets.js          destinations possibles et budget actuel de chacune (PLF/PLFSS 2025)
+    │   ├── budgets.js          destinations possibles et budget actuel de chacune (PLF/PLFSS 2025)
+    │   ├── retraites.js        ressources des retraites 2025 par nature (COR 2026), pensions, controverse
+    │   └── prelevements.js     TVA et CSG : taux, rendements, effets sur les prix (Trésor, CCSS, Insee)
     ├── reforms/                une réforme par fichier, plus le registre index.js
     │   └── igs-jean-jaures.js  données de l'étude (barème, piliers, recettes 2025-2040)
     ├── redistribution/
     │   ├── scenarios.js        façons de verser aux actifs la part qui leur revient
     │   └── repartitions.js     répartitions toutes faites (celle de l'étude, tout aux salaires…)
-    └── ui/                     un module par section ou onglet (simulateur-salaire, repartition,
-                                onglets…), plus les graphiques SVG
+    └── ui/                     un module par section ou onglet, plus les graphiques SVG
+        └── composants/
+            └── repartiteur.js  répartiteur réutilisable (salaires ou services publics) : il sert aux
+                                recettes de l'IGS et à l'argent public libéré sur la page retraites
 ```
 
 ## Règles
@@ -45,6 +52,10 @@ un barème sur la vie entière, écrire sa fonction dans `engine/succession.js` 
 
 **Un service public** (culture, sport, défense…) : ajouter un objet au tableau de `js/params/budgets.js`,
 avec son budget actuel et sa source. L'outil « Ma répartition » affiche automatiquement son curseur et sa jauge.
+
+**Une nouvelle page** : copier `retraites.html` (en-tête, pied, styles et `js/main.js` sont partagés),
+poser ses sections avec `data-module`, inscrire les modules dans `main.js` et ajouter le lien dans la
+navigation des autres pages.
 
 **Une répartition toute faite** : ajouter un objet à `js/redistribution/repartitions.js` (parts relatives).
 

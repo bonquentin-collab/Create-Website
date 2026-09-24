@@ -97,6 +97,7 @@
 }
 .ruban__segment:first-child { border-radius: 4px 0 0 4px; }
 .ruban__segment:last-child { border-radius: 0 4px 4px 0; }
+.ruban__segment > span { white-space: nowrap; }
 .ruban__segment[data-trop-etroit] > span { visibility: hidden; }
 .ruban__legende {
   list-style: none;
@@ -557,3 +558,37 @@ select {
   cursor: pointer;
 }
 .lien-bouton:hover { text-decoration-thickness: 2px; }
+
+/* ---------- Page retraites ---------- */
+.ressources { display: grid; gap: var(--e-2); margin-top: var(--e-3); }
+.ressource {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--e-1) var(--e-3);
+  align-items: start;
+  padding: var(--e-2) 0;
+  border-bottom: 1px solid var(--trame-legere);
+}
+.ressource input { margin-top: 0.2rem; width: 1.1rem; height: 1.1rem; accent-color: var(--encre); }
+.ressource label { display: flex; justify-content: space-between; gap: var(--e-3); cursor: pointer; }
+.ressource__montant { font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.ressource__note { grid-column: 2; font-size: var(--t-xs); color: var(--encre-3); margin: 0; }
+.ressource--fixe label { cursor: default; color: var(--encre-2); }
+
+.curseur-double { display: grid; grid-template-columns: auto 1fr auto; gap: var(--e-3); align-items: center; font-size: var(--t-s); }
+.curseur-double input[type="range"] { max-width: none; accent-color: var(--encre); }
+.curseur-double__valeurs { display: block; font-size: var(--t-s); color: var(--encre-2); margin-top: var(--e-2); }
+
+.table-pensions { width: 100%; border-collapse: collapse; margin-top: var(--e-4); font-size: var(--t-s); font-variant-numeric: tabular-nums; }
+.table-pensions caption { text-align: left; font-weight: 700; margin-bottom: var(--e-2); }
+.table-pensions th, .table-pensions td { padding: var(--e-1) var(--e-2) var(--e-1) 0; border-bottom: 1px solid var(--trame-legere); text-align: right; }
+.table-pensions th[scope="row"], .table-pensions thead th:first-child { text-align: left; font-weight: 400; }
+
+.controverse { margin: var(--e-5) 0 0; max-width: var(--largeur-texte); font-size: var(--t-s); }
+.controverse summary { cursor: pointer; font-weight: 700; }
+.controverse ul { padding-left: var(--e-5); display: grid; gap: var(--e-2); margin-top: var(--e-3); }
+
+.liberation { margin-top: var(--e-7); padding-top: var(--e-6); border-top: 3px solid var(--actifs); }
+.liberation .texte { margin-top: var(--e-2); }
+
+.sources { padding-left: var(--e-5); display: grid; gap: var(--e-2); margin: 0; }

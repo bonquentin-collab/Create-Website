@@ -25,6 +25,7 @@
         <a href="#heritage">Mon héritage</a>
         <a href="#salaire">Mon salaire</a>
         <a href="#methode">Méthode</a>
+        <a href="retraites.html">Retraites</a>
       </nav>
       <button class="bouton-theme" type="button" data-module="theme" aria-label="Changer de thème">
         <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>
@@ -168,7 +169,7 @@
         <div class="onglets" data-module="onglets">
           <div class="onglets__liste" role="tablist" aria-label="Deux façons d'utiliser les recettes">
             <button type="button" role="tab" class="onglet" id="onglet-salaire" aria-controls="panneau-salaire" aria-selected="true">Mon gain sur le salaire</button>
-            <button type="button" role="tab" class="onglet" id="onglet-repartition" aria-controls="panneau-repartition" aria-selected="false" tabindex="-1">Salaire ou services publics</button>
+            <button type="button" role="tab" class="onglet" id="onglet-repartition" data-cle-lien="repartition" aria-controls="panneau-repartition" aria-selected="false" tabindex="-1">Salaire ou services publics</button>
           </div>
 
           <div class="onglets__panneau" role="tabpanel" id="panneau-salaire" aria-labelledby="onglet-salaire" tabindex="0" data-module="simulateur-salaire">
@@ -215,38 +216,7 @@
               Chaque montant est comparé au budget que l'État y consacre aujourd'hui.
             </p>
 
-            <div class="repartition__barre-outils">
-              <div class="champ">
-                <label for="r-annee">Recettes de l'année</label>
-                <select id="r-annee" data-annees></select>
-              </div>
-              <div class="champ">
-                <p class="etiquette-champ" id="r-modeles">Partir d'une répartition toute faite</p>
-                <div class="modeles" role="group" aria-labelledby="r-modeles" data-modeles></div>
-              </div>
-            </div>
-
-            <div class="simulateur simulateur--repartition">
-              <form class="postes" data-postes novalidate></form>
-              <div class="resultat" data-resultat>
-                <div aria-live="polite" data-bilan></div>
-                <div class="votre-salaire" data-votre-salaire hidden>
-                  <div class="champ">
-                    <label for="r-salaire">Votre salaire net mensuel</label>
-                    <div class="case"><input id="r-salaire" name="salaire" inputmode="decimal" autocomplete="off" value="2 100"><span aria-hidden="true">€</span></div>
-                  </div>
-                  <fieldset class="champ">
-                    <legend>Comment verser la part des actifs ?</legend>
-                    <div class="choix choix--colonne" data-modes-versement></div>
-                  </fieldset>
-                  <div aria-live="polite" data-gain-salaire></div>
-                </div>
-                <div class="partage">
-                  <button type="button" class="bouton" data-partager>Copier le lien de ma répartition</button>
-                  <p class="aide" data-partage-message aria-live="polite"></p>
-                </div>
-              </div>
-            </div>
+            <div data-repartiteur></div>
           </div>
         </div>
       </div>
