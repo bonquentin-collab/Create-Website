@@ -26,7 +26,8 @@ site/
     ├── redistribution/
     │   ├── scenarios.js        façons de verser aux actifs la part qui leur revient
     │   └── repartitions.js     répartitions toutes faites (celle de l'étude, tout aux salaires…)
-    └── ui/                     un module par section, plus les graphiques SVG
+    └── ui/                     un module par section ou onglet (simulateur-salaire, repartition,
+                                onglets…), plus les graphiques SVG
 ```
 
 ## Règles

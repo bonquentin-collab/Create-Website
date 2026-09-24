@@ -60,8 +60,10 @@ et, dans les jauges de budget, la somme ajoutée par la répartition (le budget 
 │ Mon héritage   [formulaire]        [résultat collant+tampon] │
 │                courbe « taux moyen selon le montant reçu »   │
 ├──────────────────────────────────────────────────────────────┤
-│ Ma répartition [curseurs + jauges] [bilan collant+tampon]    │
-│                (mobile : bandeau « reste à répartir » collé) │
+│ Mon salaire, deux onglets (intercalaires de dossier) :       │
+│  1. Mon gain sur le salaire [formulaire] [résultat+tampon]   │
+│  2. Salaire ou services publics [curseurs + jauges] [bilan]  │
+│     (mobile : bandeau « reste à répartir » collé en bas)     │
 ├──────────────────────────────────────────────────────────────┤
 │ Méthode : 3 colonnes (étude / simulateur / limites)          │
 └──────────────────────────────────────────────────────────────┘
@@ -73,12 +75,14 @@ Tout est aligné à gauche. Sur mobile, une seule colonne et la navigation dispa
 
 1. **Un seul élément appuyé** : le tampon. On n'ajoute pas d'autre effet visuel fort.
 2. **La numérotation est réservée aux vraies séquences**. Les piliers 1, 2, 3 sont ceux de l'étude.
-3. **Mouvement** : un seul déroulé à l'ouverture (le ruban), et la frappe du tampon quand le verdict change.
+3. **Onglets** : des intercalaires de dossier, l'onglet actif prolonge la feuille. Le premier onglet
+   reste le simulateur de salaire, le plus direct ; le second élargit le choix aux services publics.
+4. **Mouvement** : un seul déroulé à l'ouverture (le ruban), et la frappe du tampon quand le verdict change.
    Les deux respectent `prefers-reduced-motion`.
-4. **Ce qu'on évite** : étiquettes en capitales, mots isolés en couleur dans un titre, flèches ajoutées aux
+5. **Ce qu'on évite** : étiquettes en capitales, mots isolés en couleur dans un titre, flèches ajoutées aux
    liens, cartes identiques avec ombre partout, fond crème et accent terracotta.
-5. **Graphiques** : un seul axe, traits de 2 px, colonnes ≤ 24 px, légende dès deux séries, infobulle au
+6. **Graphiques** : un seul axe, traits de 2 px, colonnes ≤ 24 px, légende dès deux séries, infobulle au
    survol et au clavier, et **toujours** une table de données jumelle.
-6. **Honnêteté** : toute hypothèse qui ne vient pas de l'étude est signalée comme « variante du simulateur ».
-7. **Socle d'accessibilité** : focus visible, contraste AA, thème sombre, lien d'évitement, calcul local
+7. **Honnêteté** : toute hypothèse qui ne vient pas de l'étude est signalée comme « variante du simulateur ».
+8. **Socle d'accessibilité** : focus visible, contraste AA, thème sombre, lien d'évitement, calcul local
    sans envoi de données.

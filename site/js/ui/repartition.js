@@ -7,6 +7,9 @@ import { fixerMontant, depuisParts, reechelonner, totalReparti, effetService, en
 import { destinations } from "../params/budgets.js";
 import { repartitions } from "../redistribution/repartitions.js";
 import { scenarios, trouverScenario } from "../redistribution/scenarios.js";
+
+// Façons de verser la part des actifs (le scénario « etude » n'en est pas une).
+const versements = scenarios.filter((s) => s.extension);
 import { macro } from "../params/macro.js";
 
 const MOYENNE = "moyenne";
@@ -39,7 +42,7 @@ export function monter(racine, { reforme }) {
   let repartition = lu.repartition
     ? depuisParts(lu.repartition, Math.min(enveloppe, totalReparti(lu.repartition)))
     : depuisParts(repartitions[0].parts, enveloppe);
-  let mode = scenarios[0].id;
+  let mode = versements[0].id;
 
   selectAnnee.replaceChildren(
     h("option", { value: MOYENNE }, `Moyenne ${recettes.annees[0]}-${recettes.annees.at(-1)}`),
@@ -52,7 +55,7 @@ export function monter(racine, { reforme }) {
   );
 
   racine.querySelector("[data-modes-versement]").replaceChildren(
-    ...scenarios.map((sc) =>
+    ...versements.map((sc) =>
       h("label", {}, h("input", { type: "radio", name: "mode", value: sc.id, checked: sc.id === mode }), sc.label),
     ),
   );

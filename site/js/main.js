@@ -7,14 +7,18 @@ import { monter as theme } from "./ui/theme.js";
 import { monter as ruban } from "./ui/ruban.js";
 import { monter as reforme } from "./ui/reforme.js";
 import { monter as simulateurHeritage } from "./ui/simulateur-heritage.js";
+import { monter as simulateurSalaire } from "./ui/simulateur-salaire.js";
 import { monter as repartition } from "./ui/repartition.js";
+import { monter as onglets } from "./ui/onglets.js";
 
 const modules = {
   theme,
   ruban,
   reforme,
   "simulateur-heritage": simulateurHeritage,
+  "simulateur-salaire": simulateurSalaire,
   repartition,
+  onglets,
 };
 
 const contexte = {

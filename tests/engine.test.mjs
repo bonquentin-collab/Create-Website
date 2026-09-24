@@ -77,6 +77,14 @@ test("données de l'étude : totaux conformes aux tableaux publiés", () => {
   for (const s of igsJeanJaures.recettes.series) assert.equal(s.valeurs.length, igsJeanJaures.recettes.annees.length);
 });
 
+test("redistribution : scénario de l'étude sans gain direct", () => {
+  assert.equal(trouverScenario("etude").calculer({ recettes: 25e9, part: 1, profil: {}, macro }).annuel, 0);
+});
+
+test("redistribution : part à 1 par défaut", () => {
+  proche(trouverScenario("dividende").calculer({ recettes: 30.4e9, macro }).annuel, 1000, 0.01);
+});
+
 test("redistribution : dividende égal", () => {
   const r = trouverScenario("dividende").calculer({ recettes: 30.4e9, part: 1, profil: {}, macro });
   proche(r.annuel, 1000, 0.01);

@@ -4,7 +4,8 @@ Simulateur citoyen sur l'héritage et la redistribution vers les actifs. Il part
 successions (IGS) proposé par la Fondation Jean-Jaurès en novembre 2024 et répond à deux questions :
 
 - **Mon héritage** : combien paierais-je avec le droit actuel, et avec la réforme ?
-- **Ma répartition** : chacun répartit les recettes entre le salaire net des actifs et des services publics
+- **Mon salaire**, en deux onglets. D'abord le gain direct sur le salaire si une part des recettes allait
+  aux actifs. Ensuite **salaire ou services publics** : chacun répartit les recettes entre le salaire net des actifs et des services publics
   (école, hôpital, recherche, transition écologique, logement, justice), comparés à leur budget actuel.
   La répartition se partage par un lien. L'étude, elle, affecte les recettes à la transition écologique,
   à la recherche et à l'éducation : le reste est une variante du simulateur.

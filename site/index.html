@@ -23,7 +23,7 @@
       <nav class="nav" aria-label="Sections">
         <a href="#reforme">La réforme</a>
         <a href="#heritage">Mon héritage</a>
-        <a href="#repartition">Ma répartition</a>
+        <a href="#salaire">Mon salaire</a>
         <a href="#methode">Méthode</a>
       </nav>
       <button class="bouton-theme" type="button" data-module="theme" aria-label="Changer de thème">
@@ -161,44 +161,91 @@
       </div>
     </section>
 
-    <section class="section" id="repartition" aria-labelledby="titre-repartition" data-module="repartition">
+    <section class="section" id="salaire" aria-labelledby="titre-salaire">
       <div class="page">
-        <h2 id="titre-repartition" class="titre-section">Et vous, où mettriez-vous cet argent ?</h2>
-        <p class="texte">
-          L'étude consacre les recettes à la transition écologique, à la recherche et à l'éducation.
-          Ici, c'est vous qui choisissez : les salaires des actifs, des services publics, ou un peu des deux.
-          Chaque montant est comparé au budget que l'État y consacre aujourd'hui.
-        </p>
+        <h2 id="titre-salaire" class="titre-section">Et si cet argent revenait à celles et ceux qui travaillent ?</h2>
 
-        <div class="repartition__barre-outils">
-          <div class="champ">
-            <label for="r-annee">Recettes de l'année</label>
-            <select id="r-annee" data-annees></select>
+        <div class="onglets" data-module="onglets">
+          <div class="onglets__liste" role="tablist" aria-label="Deux façons d'utiliser les recettes">
+            <button type="button" role="tab" class="onglet" id="onglet-salaire" aria-controls="panneau-salaire" aria-selected="true">Mon gain sur le salaire</button>
+            <button type="button" role="tab" class="onglet" id="onglet-repartition" aria-controls="panneau-repartition" aria-selected="false" tabindex="-1">Salaire ou services publics</button>
           </div>
-          <div class="champ">
-            <p class="etiquette-champ" id="r-modeles">Partir d'une répartition toute faite</p>
-            <div class="modeles" role="group" aria-labelledby="r-modeles" data-modeles></div>
-          </div>
-        </div>
 
-        <div class="simulateur simulateur--repartition">
-          <form class="postes" data-postes novalidate></form>
-          <div class="resultat" data-resultat>
-            <div aria-live="polite" data-bilan></div>
-            <div class="votre-salaire" data-votre-salaire hidden>
-              <div class="champ">
-                <label for="r-salaire">Votre salaire net mensuel</label>
-                <div class="case"><input id="r-salaire" name="salaire" inputmode="decimal" autocomplete="off" value="2 100"><span aria-hidden="true">€</span></div>
-              </div>
-              <fieldset class="champ">
-                <legend>Comment verser la part des actifs ?</legend>
-                <div class="choix choix--colonne" data-modes-versement></div>
-              </fieldset>
-              <div aria-live="polite" data-gain-salaire></div>
+          <div class="onglets__panneau" role="tabpanel" id="panneau-salaire" aria-labelledby="onglet-salaire" tabindex="0" data-module="simulateur-salaire">
+            <p class="texte">
+              L'étude consacre les recettes à la transition écologique, à la recherche et à l'éducation.
+              Ce simulateur explore aussi une autre voie : en reverser une part aux actifs, pour soutenir leur pouvoir d'achat.
+            </p>
+
+            <div class="simulateur">
+              <form class="formulaire" data-formulaire novalidate>
+                <div class="champ">
+                  <label for="s-salaire">Votre salaire net mensuel</label>
+                  <div class="case"><input id="s-salaire" name="salaire" inputmode="decimal" autocomplete="off" value="2 100"><span aria-hidden="true">€</span></div>
+                </div>
+
+                <fieldset class="champ">
+                  <legend>Que faire des recettes ?</legend>
+                  <div class="options" data-scenarios></div>
+                </fieldset>
+
+                <div class="champ" data-champ-part>
+                  <label for="s-part">Part des recettes reversée aux actifs : <output data-part-sortie for="s-part"></output></label>
+                  <input id="s-part" name="part" type="range" min="0" max="100" step="5" value="50">
+                  <p class="aide">Le reste finance les priorités retenues par l'étude.</p>
+                </div>
+
+                <div class="champ">
+                  <label for="s-annee">Année</label>
+                  <select id="s-annee" name="annee" data-annees></select>
+                </div>
+              </form>
+
+              <div class="resultat" aria-live="polite" data-resultat></div>
             </div>
-            <div class="partage">
-              <button type="button" class="bouton" data-partager>Copier le lien de ma répartition</button>
-              <p class="aide" data-partage-message aria-live="polite"></p>
+            <p class="relance">
+              Et si une partie allait plutôt à l'école, à l'hôpital ou à la justice ?
+              <button type="button" class="lien-bouton" data-ouvrir-onglet="onglet-repartition">Comparer avec les services publics</button>
+            </p>
+          </div>
+
+          <div class="onglets__panneau" role="tabpanel" id="panneau-repartition" aria-labelledby="onglet-repartition" tabindex="0" hidden data-module="repartition">
+            <p class="texte">
+              Ici, c'est vous qui choisissez : les salaires des actifs, des services publics, ou un peu des deux.
+              Chaque montant est comparé au budget que l'État y consacre aujourd'hui.
+            </p>
+
+            <div class="repartition__barre-outils">
+              <div class="champ">
+                <label for="r-annee">Recettes de l'année</label>
+                <select id="r-annee" data-annees></select>
+              </div>
+              <div class="champ">
+                <p class="etiquette-champ" id="r-modeles">Partir d'une répartition toute faite</p>
+                <div class="modeles" role="group" aria-labelledby="r-modeles" data-modeles></div>
+              </div>
+            </div>
+
+            <div class="simulateur simulateur--repartition">
+              <form class="postes" data-postes novalidate></form>
+              <div class="resultat" data-resultat>
+                <div aria-live="polite" data-bilan></div>
+                <div class="votre-salaire" data-votre-salaire hidden>
+                  <div class="champ">
+                    <label for="r-salaire">Votre salaire net mensuel</label>
+                    <div class="case"><input id="r-salaire" name="salaire" inputmode="decimal" autocomplete="off" value="2 100"><span aria-hidden="true">€</span></div>
+                  </div>
+                  <fieldset class="champ">
+                    <legend>Comment verser la part des actifs ?</legend>
+                    <div class="choix choix--colonne" data-modes-versement></div>
+                  </fieldset>
+                  <div aria-live="polite" data-gain-salaire></div>
+                </div>
+                <div class="partage">
+                  <button type="button" class="bouton" data-partager>Copier le lien de ma répartition</button>
+                  <p class="aide" data-partage-message aria-live="polite"></p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
