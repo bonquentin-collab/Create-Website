@@ -404,3 +404,105 @@ select {
 .colonnes-methode h3 { font-size: var(--t-m); font-variation-settings: "wdth" 100; margin-bottom: var(--e-3); }
 
 .pied { padding-block: var(--e-6); border-top: 1px solid var(--trame); font-size: var(--t-s); color: var(--encre-3); }
+
+/* ---------- Répartition des recettes ---------- */
+.repartition__barre-outils {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-5) var(--e-6);
+  align-items: flex-end;
+  margin-top: var(--e-6);
+}
+.etiquette-champ { font-weight: 700; margin-bottom: var(--e-2); }
+.modeles { display: flex; flex-wrap: wrap; gap: var(--e-2); }
+.puce {
+  font: inherit;
+  font-size: var(--t-s);
+  color: var(--encre);
+  background: transparent;
+  border: 1px solid var(--encre-3);
+  border-radius: 999px;
+  padding: var(--e-1) var(--e-4);
+  cursor: pointer;
+}
+.puce:hover { border-color: var(--encre); background: var(--papier-case); }
+
+.simulateur--repartition { margin-top: var(--e-5); }
+.postes { display: grid; gap: var(--e-5); }
+.poste { border-top: 1px solid var(--trame); padding-top: var(--e-4); min-width: 0; }
+.poste--actifs { border-top: 3px solid var(--actifs); }
+.poste__tete { display: flex; justify-content: space-between; align-items: baseline; gap: var(--e-3); }
+.poste__tete label { font-weight: 700; }
+.poste__montant {
+  font-family: var(--police-affiche);
+  font-variation-settings: "wdth" 90;
+  font-weight: 800;
+  font-size: var(--t-l);
+  white-space: nowrap;
+}
+.poste__resume { font-size: var(--t-xs); color: var(--encre-3); margin: 0 0 var(--e-2); }
+.poste input[type="range"] { max-width: none; display: block; }
+.poste--actifs input[type="range"] { accent-color: var(--actifs); }
+.poste__effet { font-size: var(--t-s); color: var(--encre-2); margin-top: var(--e-2); }
+
+.jauge {
+  display: flex;
+  gap: 2px;
+  height: 0.625rem;
+  margin-top: var(--e-3);
+  background: var(--trame-legere);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.jauge span { display: block; height: 100%; transition: width 160ms ease-out; }
+.jauge__actuel { background: var(--serie-neutre); }
+.jauge__ajout { background: var(--serie-actifs); }
+.jauge__ajout[style*="width: 0%"] { display: none; }
+
+.bilan { list-style: none; padding: 0; margin: var(--e-4) 0 0; display: grid; gap: var(--e-2); font-size: var(--t-s); }
+.bilan li { display: flex; justify-content: space-between; gap: var(--e-3); border-bottom: 1px solid var(--trame-legere); padding-bottom: var(--e-2); }
+.bilan__valeur { text-align: right; color: var(--encre-2); }
+
+.votre-salaire {
+  margin-top: var(--e-4);
+  padding: var(--e-4);
+  background: var(--papier-case);
+  border: 1px solid var(--trame);
+  border-radius: var(--rayon-case);
+  display: grid;
+  gap: var(--e-4);
+}
+.votre-salaire .gain { font-size: clamp(2rem, 1.6rem + 1.6vw, 2.75rem); }
+.votre-salaire[hidden] { display: none; }
+.choix--colonne { flex-direction: column; align-items: flex-start; }
+
+.partage { margin-top: var(--e-5); }
+.bouton {
+  font: inherit;
+  font-weight: 700;
+  color: var(--papier);
+  background: var(--encre);
+  border: 0;
+  border-radius: var(--rayon-case);
+  padding: var(--e-2) var(--e-4);
+  cursor: pointer;
+}
+.bouton:hover { background: var(--encre-2); }
+.partage .aide { word-break: break-all; }
+
+.reste-flottant { display: none; }
+@media (max-width: 52rem) {
+  .reste-flottant {
+    display: block;
+    position: sticky;
+    bottom: 0;
+    z-index: 3;
+    margin: 0 calc(-1 * var(--gouttiere));
+    padding: var(--e-3) var(--gouttiere);
+    background: var(--encre);
+    color: var(--papier);
+    font-weight: 700;
+    font-size: var(--t-s);
+  }
+  .reste-flottant--complet { background: var(--actifs); }
+}

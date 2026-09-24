@@ -30,12 +30,13 @@ reste calme.
 | `--papier-case` | `#f8faf6` | `#1b2338` | cases de saisie, panneaux de résultat |
 | `--encre` | `#17223b` | `#e8ecf3` | texte principal, bleu-noir d'encre |
 | `--tampon` | `#b3261e` | `#f07368` | ce que paient les plus grandes successions |
-| `--actifs` | `#16735a` | `#4cc29d` | ce qui revient aux actifs, et les baisses d'impôt |
+| `--actifs` | `#16735a` | `#4cc29d` | ce qui revient aux actifs, les baisses d'impôt, et l'argent ajouté à un budget |
 | `--trame` | `#c9d2c7` | `#34405a` | filets, bordures |
 
 Séries des graphiques, validées avec `dataviz/validate_palette.js` (séparation daltonisme, contraste,
 luminosité) : clair `#3a67b5`, `#1a8c6c`, `#c8372d` ; sombre `#5e86d6`, `#2a9d7b`, `#e0584a`.
-Le bleu représente toujours le droit actuel ou le pilier 1, le rouge le top 1 % ou le pilier 2, le vert les actifs.
+Le bleu représente toujours le droit actuel ou le pilier 1, le rouge le top 1 % ou le pilier 2, le vert les actifs
+et, dans les jauges de budget, la somme ajoutée par la répartition (le budget actuel est en gris neutre).
 
 ## Typographie
 
@@ -59,7 +60,8 @@ Le bleu représente toujours le droit actuel ou le pilier 1, le rouge le top 1 %
 │ Mon héritage   [formulaire]        [résultat collant+tampon] │
 │                courbe « taux moyen selon le montant reçu »   │
 ├──────────────────────────────────────────────────────────────┤
-│ Mon salaire    [formulaire]        [résultat collant+tampon] │
+│ Ma répartition [curseurs + jauges] [bilan collant+tampon]    │
+│                (mobile : bandeau « reste à répartir » collé) │
 ├──────────────────────────────────────────────────────────────┤
 │ Méthode : 3 colonnes (étude / simulateur / limites)          │
 └──────────────────────────────────────────────────────────────┘

@@ -1,40 +1,27 @@
-// Scénarios de redistribution des recettes vers les actifs.
-// Aucun de ces scénarios, hormis « etude », n'est proposé par la Fondation Jean-Jaurès :
-// ce sont des variantes du simulateur, affichées comme telles.
+// Façons de verser aux actifs la part des recettes qui leur est attribuée.
+// Ce ne sont pas des propositions de la Fondation Jean-Jaurès : ce sont des variantes du simulateur.
 //
-// Chaque scénario expose calculer({ recettes, part, profil, macro }) et renvoie
+// Chaque mode expose calculer({ recettes, part, profil, macro }) et renvoie
 // { annuel, mensuel } en euros pour la personne décrite par `profil`.
-// Pour ajouter un scénario : l'ajouter à ce tableau, l'interface le liste automatiquement.
+// `recettes` est en euros ; `part` (0 à 1, 1 par défaut) est la fraction versée aux actifs.
+// Pour ajouter un mode : l'ajouter à ce tableau, l'interface le liste automatiquement.
 
 const parMois = (annuel) => ({ annuel, mensuel: annuel / 12 });
 
 export const scenarios = [
   {
-    id: "etude",
-    label: "Affectation de l'étude",
-    resume: "Transition écologique, recherche, éducation",
-    description:
-      "Les recettes financent des investissements publics. Le gain n'arrive pas sur la fiche de paie : il passe par les services publics et l'avenir collectif.",
-    extension: false,
-    calculer: () => parMois(0),
-  },
-  {
     id: "dividende",
-    label: "Un montant égal pour chaque actif",
-    resume: "Même somme pour chaque personne en emploi",
+    label: "Le même montant pour chaque actif",
     description:
-      "La part choisie des recettes est divisée à parts égales entre les 30,4 millions de personnes en emploi, salariées ou indépendantes.",
-    extension: true,
-    calculer: ({ recettes, part, macro }) => parMois((recettes * part) / macro.personnesEnEmploi.valeur),
+      "La somme est divisée à parts égales entre les 30,4 millions de personnes en emploi, salariées ou indépendantes.",
+    calculer: ({ recettes, part = 1, macro }) => parMois((recettes * part) / macro.personnesEnEmploi.valeur),
   },
   {
     id: "cotisations",
-    label: "Une baisse des cotisations salariales",
-    resume: "Proportionnelle au salaire brut",
+    label: "Une baisse des cotisations, proportionnelle au salaire",
     description:
-      "La part choisie des recettes finance une baisse uniforme du taux de cotisation salariale. Le gain est proportionnel au salaire : les salaires élevés gagnent plus en euros.",
-    extension: true,
-    calculer: ({ recettes, part, profil, macro }) => {
+      "La somme finance une baisse uniforme du taux de cotisation salariale. Le gain suit le salaire : les salaires élevés gagnent plus en euros.",
+    calculer: ({ recettes, part = 1, profil, macro }) => {
       const brutAnnuel = (profil.salaireNetMensuel * 12) / macro.ratioNetSurBrut.valeur;
       return parMois((recettes * part * brutAnnuel) / macro.masseSalarialeBrute.valeur);
     },
