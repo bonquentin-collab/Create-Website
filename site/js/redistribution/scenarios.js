@@ -4,7 +4,9 @@
 //
 // Chaque scénario expose calculer({ recettes, part, profil, macro }) et renvoie
 // { annuel, mensuel } en euros pour la personne décrite par `profil`.
+// `part` vaut 1 par défaut (toute l'enveloppe `recettes`, en euros, va aux actifs).
 // Pour ajouter un scénario : l'ajouter à ce tableau, l'interface le liste automatiquement.
+// Les scénarios `extension: true` servent aussi de modes de versement dans « Ma répartition ».
 
 const parMois = (annuel) => ({ annuel, mensuel: annuel / 12 });
 
@@ -25,7 +27,7 @@ export const scenarios = [
     description:
       "La part choisie des recettes est divisée à parts égales entre les 30,4 millions de personnes en emploi, salariées ou indépendantes.",
     extension: true,
-    calculer: ({ recettes, part, macro }) => parMois((recettes * part) / macro.personnesEnEmploi.valeur),
+    calculer: ({ recettes, part = 1, macro }) => parMois((recettes * part) / macro.personnesEnEmploi.valeur),
   },
   {
     id: "cotisations",
@@ -34,7 +36,7 @@ export const scenarios = [
     description:
       "La part choisie des recettes finance une baisse uniforme du taux de cotisation salariale. Le gain est proportionnel au salaire : les salaires élevés gagnent plus en euros.",
     extension: true,
-    calculer: ({ recettes, part, profil, macro }) => {
+    calculer: ({ recettes, part = 1, profil, macro }) => {
       const brutAnnuel = (profil.salaireNetMensuel * 12) / macro.ratioNetSurBrut.valeur;
       return parMois((recettes * part * brutAnnuel) / macro.masseSalarialeBrute.valeur);
     },
