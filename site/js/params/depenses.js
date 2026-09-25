@@ -42,44 +42,57 @@ const cofog = {
 const { enseignants, militaires } = pensionsFonctionnaires;
 
 // Chaque poste : montant 2024 en Md€ et part de ce montant faite de pensions (touchée par une baisse des pensions).
-export const postes = [
-  {
-    id: "retraites",
-    label: "Retraites",
-    detail: "Pensions de retraite et de réversion, minimum vieillesse, hors anciens enseignants et militaires",
-    montant: cofog.vieillesse + cofog.survivants - enseignants - militaires,
-    pensions: cofog.vieillesse + cofog.survivants - enseignants - militaires,
-  },
-  { id: "sante", label: "Santé", detail: "Hôpitaux, soins de ville, médicaments", montant: cofog.sante, pensions: 0 },
-  {
-    id: "education",
-    label: "Éducation",
-    detail: "Écoles, collèges, lycées, universités, avec les pensions des anciens enseignants",
-    montant: cofog.education + enseignants,
-    pensions: enseignants,
-  },
-  {
-    id: "defense",
-    label: "Défense",
-    detail: "Armées, avec les pensions militaires",
-    montant: cofog.defense + militaires,
-    pensions: militaires,
-  },
-  { id: "justice", label: "Justice", detail: "Tribunaux et prisons", montant: cofog.tribunaux + cofog.prisons, pensions: 0 },
-  {
-    id: "social",
-    label: "Autres aides sociales",
-    detail: "Famille, chômage, handicap, logement, pauvreté",
-    montant: cofog.protectionSociale - cofog.vieillesse - cofog.survivants,
-    pensions: 0,
-  },
-  {
-    id: "autres",
-    label: "Tout le reste",
-    detail: "Intérêts de la dette, police, transports, économie, environnement, culture…",
-    montant: cofog.total - cofog.protectionSociale - cofog.sante - cofog.education - cofog.defense - cofog.tribunaux - cofog.prisons,
-    pensions: 0,
-  },
-];
+// `pensionsDansServices` : vrai → pensions des enseignants à l'éducation et pensions militaires à la défense ;
+// faux → toutes les pensions restent dans « Retraites », comme dans la comptabilité publique (COFOG).
+export function construirePostes({ pensionsDansServices = true } = {}) {
+  const ens = pensionsDansServices ? enseignants : 0;
+  const mil = pensionsDansServices ? militaires : 0;
+  const retraites = cofog.vieillesse + cofog.survivants - ens - mil;
+  return [
+    {
+      id: "retraites",
+      label: "Retraites",
+      detail: pensionsDansServices
+        ? "Pensions de retraite et de réversion, minimum vieillesse, hors anciens enseignants et militaires"
+        : "Toutes les pensions de retraite et de réversion, minimum vieillesse",
+      montant: retraites,
+      pensions: retraites,
+    },
+    { id: "sante", label: "Santé", detail: "Hôpitaux, soins de ville, médicaments", montant: cofog.sante, pensions: 0 },
+    {
+      id: "education",
+      label: "Éducation",
+      detail: pensionsDansServices
+        ? "Écoles, collèges, lycées, universités, avec les pensions des anciens enseignants"
+        : "Écoles, collèges, lycées, universités",
+      montant: cofog.education + ens,
+      pensions: ens,
+    },
+    {
+      id: "defense",
+      label: "Défense",
+      detail: pensionsDansServices ? "Armées, avec les pensions militaires" : "Armées",
+      montant: cofog.defense + mil,
+      pensions: mil,
+    },
+    { id: "justice", label: "Justice", detail: "Tribunaux et prisons", montant: cofog.tribunaux + cofog.prisons, pensions: 0 },
+    {
+      id: "social",
+      label: "Autres aides sociales",
+      detail: "Famille, chômage, handicap, logement, pauvreté",
+      montant: cofog.protectionSociale - cofog.vieillesse - cofog.survivants,
+      pensions: 0,
+    },
+    {
+      id: "autres",
+      label: "Tout le reste",
+      detail: "Intérêts de la dette, police, transports, économie, environnement, culture…",
+      montant: cofog.total - cofog.protectionSociale - cofog.sante - cofog.education - cofog.defense - cofog.tribunaux - cofog.prisons,
+      pensions: 0,
+    },
+  ];
+}
+
+export const postes = construirePostes();
 
 export const depenses = { annee: 2024, total: cofog.total, postes, ...EUROSTAT, jaune: JAUNE };

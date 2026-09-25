@@ -19,7 +19,7 @@ import { destinations } from "../../params/budgets.js";
 import { repartitions } from "../../redistribution/repartitions.js";
 import { scenarios, trouverScenario } from "../../redistribution/scenarios.js";
 import { macro } from "../../params/macro.js";
-import { depenses } from "../../params/depenses.js";
+import { depenses, construirePostes } from "../../params/depenses.js";
 import { appliquerChoix, ajoutsParPoste } from "../../engine/depenses.js";
 import { camembertAvantApres } from "../graphiques/camembert.js";
 
@@ -87,10 +87,27 @@ export function creerRepartiteur(racine, options) {
     : depuisParts(modeles[0].parts, enveloppe);
   let mode = versements[0].id;
   let baissePensions = 0; // fournie par la page retraites quand les pensions baissent
+  let postesDepenses = depenses.postes;
+  const casePensions = h("input", { type: "checkbox", id: id("pensions-services"), checked: true });
   const camembert = camembertAvantApres(zoneDepenses, {
-    postes: depenses.postes,
+    postes: postesDepenses,
+    options: h(
+      "div",
+      { class: "camembert__options" },
+      h(
+        "label",
+        { class: "case-a-cocher", for: id("pensions-services") },
+        casePensions,
+        h(
+          "span",
+          {},
+          "Compter les pensions des anciens enseignants et des militaires dans leur administration",
+          h("span", { class: "aide" }, "Cochée : 26 Md€ vont à l'éducation et 11 Md€ à la défense. Décochée : toutes les pensions restent dans « Retraites », comme dans la comptabilité publique."),
+        ),
+      ),
+    ),
     titre: titreDepenses,
-    sousTitre: `Dépenses de l'État, des collectivités et de la Sécurité sociale en ${depenses.annee}, par grande fonction. Les pensions des anciens enseignants sont comptées dans l'éducation, les pensions militaires dans la défense.`,
+    sousTitre: `Dépenses de l'État, des collectivités et de la Sécurité sociale en ${depenses.annee}, par grande fonction.`,
     notes: [
       h(
         "p",
@@ -99,9 +116,14 @@ export function creerRepartiteur(racine, options) {
         h("a", { href: depenses.url }, depenses.source),
         " ; ",
         h("a", { href: depenses.jaune.url }, depenses.jaune.source),
-        ". Retraites : 433 Md€ de pensions (retraite et réversion) au total, dont 26 Md€ rattachés à l'éducation et 11 Md€ à la défense ; le COR compte 422 Md€ sur un périmètre un peu différent. Les anciens agents de l'Éducation nationale représentant environ la moitié des pensionnés civils de l'État, la moitié des pensions civiles (26 Md€) est rattachée à l'éducation : c'est une estimation. L'école, la recherche et l'université abondent l'éducation ; l'hôpital, la santé ; l'écologie et le logement, « tout le reste ».",
+        ". Retraites : 433 Md€ de pensions (retraite et réversion) au total, dont 26 Md€ rattachés à l'éducation et 11 Md€ à la défense quand la case est cochée ; le COR compte 422 Md€ sur un périmètre un peu différent. Les anciens agents de l'Éducation nationale représentant environ la moitié des pensionnés civils de l'État, la moitié des pensions civiles (26 Md€) est rattachée à l'éducation : c'est une estimation. L'école, la recherche et l'université abondent l'éducation ; l'hôpital, la santé ; l'écologie et le logement, « tout le reste ».",
       ),
     ],
+  });
+  casePensions.addEventListener("change", () => {
+    postesDepenses = construirePostes({ pensionsDansServices: casePensions.checked });
+    camembert.definirPostes(postesDepenses);
+    rendu();
   });
   let partsEnAttente = lu.repartition; // pour une enveloppe fournie plus tard par definirEnveloppe
 
@@ -215,7 +237,7 @@ export function creerRepartiteur(racine, options) {
         h("p", { class: "resultat__detail" }, `${scenario.description} ${noteActifs}`.trim()),
       );
     }
-    camembert.maj(appliquerChoix(depenses.postes, ajoutsParPoste(repartition, destinations), baissePensions), {
+    camembert.maj(appliquerChoix(postesDepenses, ajoutsParPoste(repartition, destinations), baissePensions), {
       label: "vont au salaire net des actifs : ce n'est pas une dépense publique, elle n'est pas dans l'anneau.",
       montant: repartition.actifs ?? 0,
     });

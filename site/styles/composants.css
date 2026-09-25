@@ -735,3 +735,20 @@ select {
   .legende-postes td { white-space: nowrap; }
   .legende-postes th, .legende-postes td { padding-inline: var(--e-1); }
 }
+.camembert__options { margin-top: var(--e-4); }
+.case-a-cocher {
+  display: flex;
+  gap: var(--e-3);
+  align-items: flex-start;
+  max-width: 44rem;
+  padding: var(--e-3) var(--e-4);
+  border: 1px solid var(--encre-3);
+  border-radius: 4px;
+  background: var(--papier-case);
+  cursor: pointer;
+  font-weight: 700;
+}
+.section--feuille .case-a-cocher { background: var(--papier); }
+.case-a-cocher:has(input:checked) { border-color: var(--encre); box-shadow: inset 0 0 0 1px var(--encre); }
+.case-a-cocher input { flex: none; width: 1.15rem; height: 1.15rem; margin-top: 0.15rem; accent-color: var(--encre); }
+.case-a-cocher .aide { display: block; font-weight: 400; margin-top: var(--e-1); }
