@@ -6,6 +6,9 @@ import { euros, ecartEuros, milliards, pourcent, lireMontant, nombre } from "../
 import { alignementCsg, perteRetraite, gainBaisseCsg } from "../engine/prelevements.js";
 import { csg } from "../params/prelevements.js";
 import { macro } from "../params/macro.js";
+import { niveauDeVie } from "../params/niveau-de-vie.js";
+import { effetCsgRetraites } from "../engine/niveau-de-vie.js";
+import { publier } from "./etat-reformes.js";
 
 const unDecimal = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 });
 const taux = (t) => `${unDecimal.format(t * 100)} %`;
@@ -91,6 +94,15 @@ export function monter(racine) {
     const cle = `${concerne}`;
     if (dernier !== null && dernier !== cle) rejouer(tampon);
     dernier = cle;
+    publier("csg", {
+      label: portee === "normal" ? "CSG des retraités au taux normal alignée" : "CSG de tous les retraités imposés alignée",
+      ...effetCsgRetraites(a.recettes, {
+        csg,
+        ratioNetSurBrut: macro.ratioNetSurBrut.valeur,
+        composition: niveauDeVie.composition,
+        pensionsTotales: niveauDeVie.pensionsTotales.valeur,
+      }),
+    });
   };
 
   surChangement(form, rendu);

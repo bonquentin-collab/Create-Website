@@ -231,3 +231,36 @@ test("CSG retraités : alignement sur 9,2 %", () => {
   proche(perteRetraite(2000, 0.083, 0.092), 18, 1e-9);
   assert.equal(perteRetraite(2000, 0.092, 0.083), 0);
 });
+
+// ---------- Niveaux de vie ----------
+import { niveauDeVie } from "../site/js/params/niveau-de-vie.js";
+import { gainNetCsg, effetTvaSociale, effetCsgRetraites, effetFinancement, cumuler } from "../site/js/engine/niveau-de-vie.js";
+
+test("niveaux de vie : séries complètes et ratios Insee 2024", () => {
+  for (const s of Object.values(niveauDeVie.series)) assert.equal(s.length, niveauDeVie.annees.length);
+  assert.equal(niveauDeVie.annees.at(-1), 2024);
+  const i = niveauDeVie.annees.length - 1;
+  proche(niveauDeVie.series.retraites[i] / niveauDeVie.series.emploi[i], 0.899, 0.001);
+  proche(niveauDeVie.series.retraites[i] / niveauDeVie.series.ensemble[i], 1.003, 0.001);
+});
+
+test("niveaux de vie : effets des réformes", () => {
+  const opts = { csg, ratioNetSurBrut: 0.78, composition: niveauDeVie.composition };
+  proche(gainNetCsg(1, csg, 0.78), 0.9825 / 100 / 0.78, 1e-12);
+  const tv = effetTvaSociale({ baisseCsg: 1, pertePrix: 0.01 }, opts);
+  proche(tv.retraites, -0.01, 1e-12);
+  proche(tv.actifs, 0.841 * gainNetCsg(1, csg, 0.78) - 0.01, 1e-12);
+  const cs = effetCsgRetraites(4, { ...opts, pensionsTotales: 400 });
+  proche(cs.retraites, -0.778 * 0.01, 1e-12);
+  assert.ok(cs.actifs > 0);
+  const fi = effetFinancement({ baissePensions: 0.1, hausseCotisations: 0 }, 0, { ...opts, masseSalarialeBrute: 1108.5 });
+  proche(fi.retraites, -0.0778, 1e-12);
+  assert.equal(fi.actifs, 0);
+});
+
+test("niveaux de vie : cumul multiplicatif", () => {
+  const c = cumuler([{ actifs: 0.1, retraites: -0.1 }, { actifs: 0.1, retraites: -0.1 }]);
+  proche(c.actifs, 0.21, 1e-12);
+  proche(c.retraites, -0.19, 1e-12);
+  assert.deepEqual(cumuler([]), { actifs: 0, retraites: 0 });
+});

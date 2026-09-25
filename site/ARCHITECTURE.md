@@ -19,13 +19,15 @@ site/
     │   ├── repartition.js      répartition d'une enveloppe, effet sur un budget, lien de partage
     │   ├── retraites.js        retraites financées par des ressources propres : trou, pensions, cotisations
     │   ├── prelevements.js     TVA sociale, taux et alignement de la CSG des retraités
+    │   ├── niveau-de-vie.js    effets des réformes sur le niveau de vie d'un actif et d'un retraité
     │   └── format.js           nombres et euros à la française
     ├── params/                 paramètres sourcés
     │   ├── droit-actuel.js     CGI : barème, abattements, assurance-vie
     │   ├── macro.js            Insee : emploi, masse salariale
     │   ├── budgets.js          destinations possibles et budget actuel de chacune (PLF/PLFSS 2025)
     │   ├── retraites.js        ressources des retraites 2025 par nature (COR 2026), pensions, controverse
-    │   └── prelevements.js     TVA et CSG : taux, rendements, effets sur les prix (Trésor, CCSS, Insee)
+    │   ├── prelevements.js     TVA et CSG : taux, rendements, effets sur les prix (Trésor, CCSS, Insee)
+    │   └── niveau-de-vie.js    niveaux de vie médians 1996-2024 et par âge (Insee), composition des revenus (COR)
     ├── reforms/                une réforme par fichier, plus le registre index.js
     │   └── igs-jean-jaures.js  données de l'étude (barème, piliers, recettes 2025-2040)
     ├── redistribution/
@@ -52,6 +54,10 @@ un barème sur la vie entière, écrire sa fonction dans `engine/succession.js` 
 
 **Un service public** (culture, sport, défense…) : ajouter un objet au tableau de `js/params/budgets.js`,
 avec son budget actuel et sa source. L'outil « Ma répartition » affiche automatiquement son curseur et sa jauge.
+
+**Une réforme qui doit apparaître sur le graphique des niveaux de vie** : dans son module d'onglet, appeler
+`publier(id, { label, actifs, retraites })` de `js/ui/etat-reformes.js` avec l'effet en part du revenu
+disponible (calculé dans `engine/niveau-de-vie.js`). La section « niveaux de vie » la liste d'elle-même.
 
 **Une nouvelle page** : copier `retraites.html` (en-tête, pied, styles et `js/main.js` sont partagés),
 poser ses sections avec `data-module`, inscrire les modules dans `main.js` et ajouter le lien dans la
