@@ -6,6 +6,9 @@ import { euros, ecartEuros, milliards, pourcent, lireMontant, nombre } from "../
 import { tvaSociale, gainBaisseCsg } from "../engine/prelevements.js";
 import { tva, csg } from "../params/prelevements.js";
 import { macro } from "../params/macro.js";
+import { niveauDeVie } from "../params/niveau-de-vie.js";
+import { effetTvaSociale } from "../engine/niveau-de-vie.js";
+import { publier } from "./etat-reformes.js";
 
 const unDecimal = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 });
 
@@ -96,6 +99,10 @@ export function monter(racine) {
     );
     if (dernier !== null && dernier !== verdict) rejouer(tampon);
     dernier = verdict;
+    publier("tva", {
+      label: `TVA sociale (+${unDecimal.format(points)} pt)`,
+      ...effetTvaSociale(r, { csg, ratioNetSurBrut: macro.ratioNetSurBrut.valeur, composition: niveauDeVie.composition }),
+    });
   };
 
   surChangement(form, rendu);

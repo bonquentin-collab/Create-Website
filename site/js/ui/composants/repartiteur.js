@@ -35,6 +35,7 @@ export function creerRepartiteur(racine, options) {
     noteActifs = "",
     modeles = repartitions,
     salaireInitial = "2 100",
+    surChangement: signaler = null, // appelé avec la répartition { id: Md€ } à chaque changement
   } = options;
   const id = (suffixe) => `${prefixe}-${suffixe}`;
 
@@ -191,6 +192,7 @@ export function creerRepartiteur(racine, options) {
         h("p", { class: "resultat__detail" }, `${scenario.description} ${noteActifs}`.trim()),
       );
     }
+    signaler?.({ ...repartition });
   };
 
   const etatComplet = () => enveloppe - totalReparti(repartition) < PAS - 1e-9;

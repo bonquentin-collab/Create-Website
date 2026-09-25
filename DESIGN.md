@@ -75,7 +75,10 @@ Tout est aligné à gauche. Sur mobile, une seule colonne et la navigation dispa
 
 Même système. L'ouverture reprend le ruban « sur 100 € » : vert pour les cotisations, bleu pour l'État,
 rouge pour les impôts, gris pour le reste. Trois onglets (TVA sociale, CSG des retraités, retraites sans
-impôts) ; le dernier enchaîne sur le répartiteur de l'argent public libéré.
+impôts) ; le dernier enchaîne sur le répartiteur de l'argent public libéré. Vient ensuite « Retraités et
+actifs : qui vit le mieux ? », inspiré du graphique du Financial Times : vert pour les personnes en emploi,
+bleu pour les retraités, gris discret pour l'ensemble. L'état « après réforme » est toujours un anneau creux,
+sur les courbes comme sur les barres ; l'état passé (1996) un point plein noir.
 
 ## Principes
 

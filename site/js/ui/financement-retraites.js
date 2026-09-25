@@ -8,6 +8,9 @@ import { ressourcesRetirees, comblerTrou, pensionApres, perteSalaire } from "../
 import { retraites } from "../params/retraites.js";
 import { macro } from "../params/macro.js";
 import { creerRepartiteur } from "./composants/repartiteur.js";
+import { niveauDeVie } from "../params/niveau-de-vie.js";
+import { effetFinancement } from "../engine/niveau-de-vie.js";
+import { publier } from "./etat-reformes.js";
 
 const PENSIONS_TYPES = [
   { label: "Petite pension", montant: 1000 },
@@ -85,7 +88,25 @@ export function monter(racine) {
   formaterALaSortie(champPension, lireMontant, nombre);
   formaterALaSortie(champSalaire, lireMontant, nombre);
 
+  // Dernier état connu, pour republier l'effet quand la répartition de l'argent libéré change.
+  let dernierComblement = { baissePensions: 0, hausseCotisations: 0 };
+  let versementActifs = 0;
+  let dernierRetire = 0;
+  const publierEffet = () =>
+    publier("financement", {
+      label: `Retraites sans impôts (${milliards(dernierRetire)} retirés)`,
+      ...effetFinancement(dernierComblement, versementActifs, {
+        ratioNetSurBrut: macro.ratioNetSurBrut.valeur,
+        composition: niveauDeVie.composition,
+        masseSalarialeBrute: assiette,
+      }),
+    });
+
   const repartiteur = creerRepartiteur(zoneRepartiteur, {
+    surChangement: (r) => {
+      versementActifs = r.actifs ?? 0;
+      publierEffet();
+    },
     prefixe: "fl",
     cleLien: "liberation",
     modeles: MODELES,
@@ -130,6 +151,8 @@ export function monter(racine) {
     );
     if (dernierTrou !== null && (dernierTrou > 0) !== (retire > 0)) rejouer(tampon);
     dernierTrou = retire;
+    dernierComblement = c;
+    dernierRetire = retire;
     repartiteur.definirEnveloppe(retire);
   };
 
