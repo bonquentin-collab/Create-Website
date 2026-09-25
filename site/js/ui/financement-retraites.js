@@ -108,6 +108,8 @@ export function monter(racine) {
       publierEffet();
     },
     prefixe: "fl",
+    zoneDepenses: document.querySelector("[data-depenses]"),
+    titreDepenses: "Aujourd'hui, puis avec vos choix",
     cleLien: "liberation",
     modeles: MODELES,
     phrase: (enveloppe) => `${milliards(enveloppe)} d'argent public ne financent plus les retraites.`,
