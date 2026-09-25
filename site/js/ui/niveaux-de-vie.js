@@ -10,6 +10,8 @@ import { lireReformes, surMaj } from "./etat-reformes.js";
 import { lignesTemporelles } from "./graphiques/lignes.js";
 import { barresHorizontales } from "./graphiques/barres.js";
 import { tableDonnees } from "./graphiques/colonnes.js";
+import { construireLogement } from "./logement-age.js";
+import { monter as monterOnglets } from "./onglets.js";
 
 const COULEURS = { emploi: "var(--serie-actifs)", retraites: "var(--serie-actuel)", ensemble: "var(--serie-neutre)" };
 const parMois = (v) => v / 12;
@@ -33,19 +35,10 @@ export function monter(racine) {
     { id: "ensemble", label: "Ensemble", couleur: COULEURS.ensemble, valeurs: series.ensemble.map(parMois), discret: true },
   ];
 
-  racine.replaceChildren(
-    h("h2", { class: "titre-section", id: "titre-niveaux" }, "Retraités et actifs\u00a0: qui vit le mieux\u00a0?"),
-    h(
-      "div",
-      { class: "texte" },
-      h(
-        "p",
-        {},
-        "En 2025, le Financial Times a montré que la France est l'un des rares pays riches où les retraités vivent aussi bien que les actifs. Les chiffres de l'Insee le confirment : en 2024, le niveau de vie médian des retraités dépasse celui de l'ensemble de la population. Cochez les réformes réglées plus haut pour voir où elles mèneraient. ",
-        h("a", { href: niveauDeVie.ft.url }, "L'article du FT"),
-        ".",
-      ),
-    ),
+  const panneauLogement = h("div", { class: "onglets__panneau", role: "tabpanel", id: "panneau-nv-logement", "aria-labelledby": "onglet-nv-logement", tabindex: 0 });
+  const panneauReformes = h(
+    "div",
+    { class: "onglets__panneau", role: "tabpanel", id: "panneau-nv-reformes", "aria-labelledby": "onglet-nv-reformes", tabindex: 0, hidden: true },
     h("fieldset", { class: "champ reformes" }, h("legend", {}, "Appliquer les réformes réglées plus haut"), listeReformes),
     chiffres,
     h(
@@ -94,6 +87,36 @@ export function monter(racine) {
       ".",
     ),
   );
+  const onglets = h(
+    "div",
+    { class: "onglets" },
+    h(
+      "div",
+      { class: "onglets__liste", role: "tablist", "aria-label": "Deux lectures du niveau de vie" },
+      h("button", { type: "button", role: "tab", class: "onglet", id: "onglet-nv-logement", "aria-controls": "panneau-nv-logement", "aria-selected": "true" }, "Logement et patrimoine"),
+      h("button", { type: "button", role: "tab", class: "onglet", id: "onglet-nv-reformes", "aria-controls": "panneau-nv-reformes", "aria-selected": "false", tabindex: -1 }, "Niveau de vie et réformes"),
+    ),
+    panneauLogement,
+    panneauReformes,
+  );
+
+  racine.replaceChildren(
+    h("h2", { class: "titre-section", id: "titre-niveaux" }, "Retraités et actifs\u00a0: qui vit le mieux\u00a0?"),
+    h(
+      "div",
+      { class: "texte" },
+      h(
+        "p",
+        {},
+        "En 2025, le Financial Times a montré que la France est l'un des rares pays riches où les retraités vivent aussi bien que les actifs. Mais à revenu égal, les besoins diffèrent : logement, crédit, enfants, épargne à constituer. Le premier onglet compare jeunes et retraités sur ces besoins ; le second suit le niveau de vie depuis 1996 et l'effet des réformes réglées plus haut. ",
+        h("a", { href: niveauDeVie.ft.url }, "L'article du FT"),
+        ".",
+      ),
+    ),
+    onglets,
+  );
+  construireLogement(panneauLogement);
+  monterOnglets(onglets);
   racine.closest("section")?.setAttribute("aria-labelledby", "titre-niveaux");
 
   const graphique = lignesTemporelles(zoneLignes, {

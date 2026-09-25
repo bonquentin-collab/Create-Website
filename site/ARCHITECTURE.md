@@ -27,7 +27,8 @@ site/
     │   ├── budgets.js          destinations possibles et budget actuel de chacune (PLF/PLFSS 2025)
     │   ├── retraites.js        ressources des retraites 2025 par nature (COR 2026), pensions, controverse
     │   ├── prelevements.js     TVA et CSG : taux, rendements, effets sur les prix (Trésor, CCSS, Insee)
-    │   └── niveau-de-vie.js    niveaux de vie médians 1996-2024 et par âge (Insee), composition des revenus (COR)
+    │   ├── niveau-de-vie.js    niveaux de vie médians 1996-2024 et par âge (Insee), composition des revenus (COR)
+    │   └── logement.js         besoins selon l'âge : loyers imputés, propriétaires, endettement, épargne
     ├── reforms/                une réforme par fichier, plus le registre index.js
     │   └── igs-jean-jaures.js  données de l'étude (barème, piliers, recettes 2025-2040)
     ├── redistribution/
