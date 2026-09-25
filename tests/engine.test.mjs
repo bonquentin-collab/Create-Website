@@ -311,3 +311,43 @@ test("dépenses : pensions des fonctionnaires dans leur administration ou dans l
   proche(par(hors).education.montant - par(dans).education.montant, -52.1 / 2, 1e-9);
   assert.equal(par(hors).defense.pensions, 0);
 });
+
+// ---------- Contexte des retraites ----------
+import { contexte } from "../site/js/params/contexte-retraites.js";
+
+test("contexte : chiffres COR 2026 et Insee 2024 cohérents", () => {
+  const v = (b) => b.lignes.map((l) => l.valeur);
+  assert.deepEqual(v(contexte.cotisants), [2.1, 1.8, 1.3]);
+  const [enfants, ensemble, retraites] = v(contexte.pauvrete);
+  assert.ok(enfants > ensemble && ensemble > retraites);
+  const r = v(contexte.remplacement);
+  assert.ok(r[0] > r[1] && r[1] > r[2]);
+  for (const b of Object.values(contexte)) assert.match(b.url, /^https:\/\//);
+});
+
+// ---------- Gel des hautes pensions ----------
+import { gel } from "../site/js/params/gel-pensions.js";
+import { auDessusDuSeuil, economieGel, perteMensuelle } from "../site/js/engine/gel-pensions.js";
+
+test("gel : distribution Drees 2020 complète et cohérente", () => {
+  const d = gel.distribution2020;
+  proche(d.tranches.reduce((t, [, , p]) => t + p, 0), 100, 0.05);
+  const r0 = auDessusDuSeuil(d, 0, 1);
+  proche(r0.part, 1, 0.001);
+  assert.ok(r0.moyenne > 1600 && r0.moyenne < 1650); // pension totale moyenne fin 2020
+  // Masse totale 2026 proche des dépenses de pensions (~400 Md€)
+  const m = economieGel(d, { seuil: 0, taux: 0, partBase: 1, retraites: gel.retraites.valeur, facteur: gel.facteur2026 }).masseTotale;
+  assert.ok(m > 380 && m < 420, `masse ${m}`);
+});
+
+test("gel : économie croissante avec le taux, décroissante avec le seuil ; perte individuelle", () => {
+  const base = { taux: 0.01, partBase: 0.75, retraites: gel.retraites.valeur, facteur: gel.facteur2026 };
+  const a = economieGel(gel.distribution2020, { ...base, seuil: 2000 });
+  const b = economieGel(gel.distribution2020, { ...base, seuil: 3000 });
+  const c = economieGel(gel.distribution2020, { ...base, seuil: 2000, mode: "au-dela" });
+  assert.ok(a.economie > b.economie && a.part > b.part);
+  assert.ok(c.economie < a.economie);
+  assert.equal(perteMensuelle(1900, { seuil: 2000, taux: 0.01, partBase: 1 }), 0);
+  proche(perteMensuelle(2500, { seuil: 2000, taux: 0.01, partBase: 1 }), 25, 1e-9);
+  proche(perteMensuelle(2500, { seuil: 2000, taux: 0.01, partBase: 1, mode: "au-dela" }), 5, 1e-9);
+});

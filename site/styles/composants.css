@@ -544,6 +544,9 @@ select {
 @media (max-width: 30rem) {
   .onglets__liste { flex-wrap: nowrap; }
   .onglet { flex: 1 1 0; min-width: 0; padding: var(--e-2) var(--e-3); font-size: var(--t-s); line-height: 1.2; }
+  /* Quatre onglets ou plus : deux rangées de deux */
+  .onglets__liste:has(> .onglet:nth-child(4)) { flex-wrap: wrap; }
+  .onglets__liste:has(> .onglet:nth-child(4)) .onglet { flex: 1 1 40%; }
 }
 
 .relance { margin-top: var(--e-6); max-width: var(--largeur-texte); }
@@ -614,7 +617,7 @@ select {
   .reforme-choix { grid-template-columns: auto 1fr; }
   .reforme-choix__effet { grid-column: 2; text-align: left; }
 }
-.chiffres--nv .sous { font-family: var(--police-texte); font-size: var(--t-s); font-weight: 700; color: var(--encre-2); }
+.chiffres--nv .sous, .chiffres--transmission .sous { font-family: var(--police-texte); font-size: var(--t-s); font-weight: 700; color: var(--encre-2); }
 
 .graphique__zone .rupture { stroke: var(--encre-3); stroke-width: 1.5; }
 .legende .anneau { width: 0.75rem; height: 0.75rem; border-radius: 50%; border: 2.5px solid var(--encre); background: var(--papier); }
@@ -752,3 +755,17 @@ select {
 .case-a-cocher:has(input:checked) { border-color: var(--encre); box-shadow: inset 0 0 0 1px var(--encre); }
 .case-a-cocher input { flex: none; width: 1.15rem; height: 1.15rem; margin-top: 0.15rem; accent-color: var(--encre); }
 .case-a-cocher .aide { display: block; font-weight: 400; margin-top: var(--e-1); }
+
+/* ----- Fiches de contexte (page retraites) ----- */
+.fiches { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); gap: var(--e-5); margin-top: var(--e-5); }
+.fiche { background: var(--papier); border: 1px solid var(--trame); border-top: 4px solid var(--encre); padding: var(--e-4); display: flex; flex-direction: column; gap: var(--e-2); }
+.fiche__titre { font-family: var(--police-affiche); font-weight: 800; font-size: var(--t-l); line-height: 1.2; }
+.fiche__texte { font-size: var(--t-s); color: var(--encre-2); }
+.fiche .note { margin-top: auto; padding-top: var(--e-2); }
+.chiffres--transmission .sous { display: block; font-weight: 400; margin-top: var(--e-1); }
+.chiffres--transmission { margin-top: var(--e-6); }
+
+/* ----- Gel des hautes pensions ----- */
+.gel-contexte { margin-top: var(--e-6); }
+.chiffres--gel { margin-top: var(--e-4); }
+.chiffres--gel .sous { display: block; font-family: var(--police-texte); font-size: var(--t-s); font-weight: 400; color: var(--encre-2); margin-top: var(--e-1); }

@@ -92,3 +92,10 @@ Une destination du répartiteur abonde un poste via son champ `poste` (`params/b
 faire baisser les pensions avec `repartiteur.definirBaissePensions(taux)` (page retraites).
 Sur les deux pages, le camembert est dessiné dans une section visible à part (`#depenses`, `<div data-depenses>`),
 via l'option `zoneDepenses` du répartiteur ; sans cette option, il se place sous les curseurs.
+
+## Gel des hautes pensions (onglet 4 de la page retraites)
+
+`params/gel-pensions.js` (distribution Drees EIR 2020, facteur de passage à 2026, contexte), `engine/gel-pensions.js`
+(`auDessusDuSeuil`, `economieGel`, `perteMensuelle`), `ui/gel-pensions.js`. L'économie est reversée aux actifs en
+baisse de CSG et publiée dans le registre des réformes (`publier("gel", …)`) pour le graphique des niveaux de vie.
+Quand la Drees publiera l'EIR 2024, remplacer `tranches` et ramener `facteur2026` près de 1.
