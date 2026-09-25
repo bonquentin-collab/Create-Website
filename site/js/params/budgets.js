@@ -4,6 +4,7 @@
 // Hôpital : sous-objectif « établissements de santé » de l'Ondam 2025, PLFSS 2025.
 //
 // Pour ajouter une destination : ajouter un objet à ce tableau. L'interface la liste automatiquement.
+// `poste` : le poste de dépense publique qu'elle abonde dans le camembert (params/depenses.js).
 
 const SOURCE_PLF = {
   source: "PLF 2025, crédits de paiement du budget général par mission",
@@ -19,6 +20,7 @@ export const destinations = [
   },
   {
     id: "ecole",
+    poste: "education",
     label: "L'école",
     resume: "Mission « Enseignement scolaire »",
     type: "service",
@@ -27,6 +29,7 @@ export const destinations = [
   },
   {
     id: "hopital",
+    poste: "sante",
     label: "L'hôpital",
     resume: "Ondam « établissements de santé »",
     type: "service",
@@ -36,6 +39,7 @@ export const destinations = [
   },
   {
     id: "recherche",
+    poste: "education",
     label: "La recherche et l'université",
     resume: "Mission « Recherche et enseignement supérieur »",
     type: "service",
@@ -44,6 +48,7 @@ export const destinations = [
   },
   {
     id: "ecologie",
+    poste: "autres",
     label: "La transition écologique",
     resume: "Mission « Écologie, développement et mobilité durables »",
     type: "service",
@@ -52,6 +57,7 @@ export const destinations = [
   },
   {
     id: "logement",
+    poste: "autres",
     label: "Le logement et les territoires",
     resume: "Mission « Cohésion des territoires »",
     type: "service",
@@ -60,6 +66,7 @@ export const destinations = [
   },
   {
     id: "justice",
+    poste: "justice",
     label: "La justice",
     resume: "Mission « Justice »",
     type: "service",

@@ -23,6 +23,14 @@
   --serie-actifs: #1a8c6c;
   --serie-tampon: #c8372d;
   --serie-neutre: #9aa59a;
+  /* Postes de dépense publique (camembert) : catégoriels, voisins contrastés */
+  --poste-retraites: #3a67b5;
+  --poste-sante: #1a8c6c;
+  --poste-education: #d08a1e;
+  --poste-defense: #5b6b2f;
+  --poste-justice: #8a4fb0;
+  --poste-social: #86a8dc;
+  --poste-autres: #b4ae9f;
 
   /* Typographie */
   --police-affiche: "Archivo", "Arial Narrow", system-ui, sans-serif;
@@ -71,6 +79,13 @@
     --serie-actifs: #2a9d7b;
     --serie-tampon: #e0584a;
     --serie-neutre: #6b768c;
+    --poste-retraites: #5e86d6;
+    --poste-sante: #2a9d7b;
+    --poste-education: #e0a33a;
+    --poste-defense: #8b9a55;
+    --poste-justice: #a97bd0;
+    --poste-social: #a9c3ee;
+    --poste-autres: #5f5b52;
     --ombre-feuille: 0 1px 0 var(--trame), 0 12px 32px -18px rgb(0 0 0 / 0.6);
     color-scheme: dark;
   }
@@ -91,6 +106,13 @@
   --serie-actifs: #2a9d7b;
   --serie-tampon: #e0584a;
   --serie-neutre: #6b768c;
+  --poste-retraites: #5e86d6;
+  --poste-sante: #2a9d7b;
+  --poste-education: #e0a33a;
+  --poste-defense: #8b9a55;
+  --poste-justice: #a97bd0;
+  --poste-social: #a9c3ee;
+  --poste-autres: #5f5b52;
   --ombre-feuille: 0 1px 0 var(--trame), 0 12px 32px -18px rgb(0 0 0 / 0.6);
   color-scheme: dark;
 }
