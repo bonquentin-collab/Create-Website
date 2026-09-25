@@ -311,3 +311,16 @@ test("dépenses : pensions des fonctionnaires dans leur administration ou dans l
   proche(par(hors).education.montant - par(dans).education.montant, -52.1 / 2, 1e-9);
   assert.equal(par(hors).defense.pensions, 0);
 });
+
+// ---------- Contexte des retraites ----------
+import { contexte } from "../site/js/params/contexte-retraites.js";
+
+test("contexte : chiffres COR 2026 et Insee 2024 cohérents", () => {
+  const v = (b) => b.lignes.map((l) => l.valeur);
+  assert.deepEqual(v(contexte.cotisants), [2.1, 1.8, 1.3]);
+  const [enfants, ensemble, retraites] = v(contexte.pauvrete);
+  assert.ok(enfants > ensemble && ensemble > retraites);
+  const r = v(contexte.remplacement);
+  assert.ok(r[0] > r[1] && r[1] > r[2]);
+  for (const b of Object.values(contexte)) assert.match(b.url, /^https:\/\//);
+});

@@ -15,6 +15,7 @@ import { monter as tvaSociale } from "./ui/tva-sociale.js";
 import { monter as csgRetraites } from "./ui/csg-retraites.js";
 import { monter as financementRetraites } from "./ui/financement-retraites.js";
 import { monter as methodeRetraites } from "./ui/methode-retraites.js";
+import { monter as contexteRetraites } from "./ui/contexte-retraites.js";
 import { monter as niveauxDeVie } from "./ui/niveaux-de-vie.js";
 
 const modules = {
@@ -30,6 +31,7 @@ const modules = {
   "csg-retraites": csgRetraites,
   "financement-retraites": financementRetraites,
   "methode-retraites": methodeRetraites,
+  "contexte-retraites": contexteRetraites,
   "niveaux-de-vie": niveauxDeVie,
 };
 
