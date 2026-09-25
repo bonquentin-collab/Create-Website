@@ -1,5 +1,7 @@
 // Dépenses publiques françaises par grande fonction, 2024 (État, collectivités et Sécurité sociale).
 // Classification internationale COFOG (Eurostat, table gov_10a_exp, secteur S13, millions d'euros).
+// Les retraites regroupent « vieillesse » (GF1002) et « survivants » (GF1003, pensions de réversion) : 432,6 Md€,
+// proche des 422 Md€ de dépenses de retraite du COR (périmètres voisins mais pas identiques).
 // Particularité de la COFOG : les pensions des fonctionnaires sont classées en « vieillesse », pas dans le
 // service où ils ont travaillé. On les rend ici à leur service : pensions des anciens enseignants à
 // l'éducation, pensions militaires à la défense (rapport annuel sur les pensions de la fonction publique, PLF 2026).
@@ -27,7 +29,8 @@ export const pensionsFonctionnaires = {
 
 const cofog = {
   total: 1671.8,
-  vieillesse: 391.95, // GF1002
+  vieillesse: 391.95, // GF1002 : pensions de droit direct, minimum vieillesse, dépendance
+  survivants: 40.61, // GF1003 : pensions de réversion, classées à part par la COFOG
   protectionSociale: 693.03, // GF10
   sante: 261.16, // GF07
   education: 148.64, // GF09
@@ -39,44 +42,57 @@ const cofog = {
 const { enseignants, militaires } = pensionsFonctionnaires;
 
 // Chaque poste : montant 2024 en Md€ et part de ce montant faite de pensions (touchée par une baisse des pensions).
-export const postes = [
-  {
-    id: "retraites",
-    label: "Retraites",
-    detail: "Pensions et vieillesse, hors anciens enseignants et militaires",
-    montant: cofog.vieillesse - enseignants - militaires,
-    pensions: cofog.vieillesse - enseignants - militaires,
-  },
-  { id: "sante", label: "Santé", detail: "Hôpitaux, soins de ville, médicaments", montant: cofog.sante, pensions: 0 },
-  {
-    id: "education",
-    label: "Éducation",
-    detail: "Écoles, collèges, lycées, universités, avec les pensions des anciens enseignants",
-    montant: cofog.education + enseignants,
-    pensions: enseignants,
-  },
-  {
-    id: "defense",
-    label: "Défense",
-    detail: "Armées, avec les pensions militaires",
-    montant: cofog.defense + militaires,
-    pensions: militaires,
-  },
-  { id: "justice", label: "Justice", detail: "Tribunaux et prisons", montant: cofog.tribunaux + cofog.prisons, pensions: 0 },
-  {
-    id: "social",
-    label: "Autres aides sociales",
-    detail: "Famille, chômage, handicap, logement, pauvreté",
-    montant: cofog.protectionSociale - cofog.vieillesse,
-    pensions: 0,
-  },
-  {
-    id: "autres",
-    label: "Tout le reste",
-    detail: "Intérêts de la dette, police, transports, économie, environnement, culture…",
-    montant: cofog.total - cofog.protectionSociale - cofog.sante - cofog.education - cofog.defense - cofog.tribunaux - cofog.prisons,
-    pensions: 0,
-  },
-];
+// `pensionsDansServices` : vrai → pensions des enseignants à l'éducation et pensions militaires à la défense ;
+// faux → toutes les pensions restent dans « Retraites », comme dans la comptabilité publique (COFOG).
+export function construirePostes({ pensionsDansServices = true } = {}) {
+  const ens = pensionsDansServices ? enseignants : 0;
+  const mil = pensionsDansServices ? militaires : 0;
+  const retraites = cofog.vieillesse + cofog.survivants - ens - mil;
+  return [
+    {
+      id: "retraites",
+      label: "Retraites",
+      detail: pensionsDansServices
+        ? "Pensions de retraite et de réversion, minimum vieillesse, hors anciens enseignants et militaires"
+        : "Toutes les pensions de retraite et de réversion, minimum vieillesse",
+      montant: retraites,
+      pensions: retraites,
+    },
+    { id: "sante", label: "Santé", detail: "Hôpitaux, soins de ville, médicaments", montant: cofog.sante, pensions: 0 },
+    {
+      id: "education",
+      label: "Éducation",
+      detail: pensionsDansServices
+        ? "Écoles, collèges, lycées, universités, avec les pensions des anciens enseignants"
+        : "Écoles, collèges, lycées, universités",
+      montant: cofog.education + ens,
+      pensions: ens,
+    },
+    {
+      id: "defense",
+      label: "Défense",
+      detail: pensionsDansServices ? "Armées, avec les pensions militaires" : "Armées",
+      montant: cofog.defense + mil,
+      pensions: mil,
+    },
+    { id: "justice", label: "Justice", detail: "Tribunaux et prisons", montant: cofog.tribunaux + cofog.prisons, pensions: 0 },
+    {
+      id: "social",
+      label: "Autres aides sociales",
+      detail: "Famille, chômage, handicap, logement, pauvreté",
+      montant: cofog.protectionSociale - cofog.vieillesse - cofog.survivants,
+      pensions: 0,
+    },
+    {
+      id: "autres",
+      label: "Tout le reste",
+      detail: "Intérêts de la dette, police, transports, économie, environnement, culture…",
+      montant: cofog.total - cofog.protectionSociale - cofog.sante - cofog.education - cofog.defense - cofog.tribunaux - cofog.prisons,
+      pensions: 0,
+    },
+  ];
+}
+
+export const postes = construirePostes();
 
 export const depenses = { annee: 2024, total: cofog.total, postes, ...EUROSTAT, jaune: JAUNE };

@@ -279,7 +279,7 @@ test("logement : données Insee et COR cohérentes", () => {
 });
 
 // ---------- Dépenses publiques par poste (camembert) ----------
-import { depenses, postes } from "../site/js/params/depenses.js";
+import { depenses, postes, construirePostes } from "../site/js/params/depenses.js";
 import { appliquerChoix, ajoutsParPoste, totalPostes } from "../site/js/engine/depenses.js";
 
 test("dépenses : les postes couvrent tout le total COFOG 2024", () => {
@@ -300,4 +300,14 @@ test("dépenses : ajouts des choix et baisse des pensions", () => {
   const ret = postes.find((p) => p.id === "retraites");
   proche(par.retraites.apres, ret.montant * 0.9, 1e-9);
   proche(par.justice.ecart, 0, 1e-12);
+});
+
+test("dépenses : pensions des fonctionnaires dans leur administration ou dans les retraites", () => {
+  const dans = construirePostes({ pensionsDansServices: true });
+  const hors = construirePostes({ pensionsDansServices: false });
+  proche(totalPostes(dans, "montant"), totalPostes(hors, "montant"), 1e-9);
+  const par = (l) => Object.fromEntries(l.map((p) => [p.id, p]));
+  proche(par(hors).retraites.montant, 432.56, 1e-9);
+  proche(par(hors).education.montant - par(dans).education.montant, -52.1 / 2, 1e-9);
+  assert.equal(par(hors).defense.pensions, 0);
 });

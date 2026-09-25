@@ -13,14 +13,17 @@ const calme = () => window.matchMedia?.("(prefers-reduced-motion: reduce)").matc
 
 /**
  * @param {HTMLElement} racine
- * @param {{ postes:{id:string,label:string,detail:string,montant:number}[], titre:string, sousTitre:string, notes:Node[] }} config
+ * @param {{ postes:{id:string,label:string,detail:string,montant:number}[], titre:string, sousTitre:string, options?:Node, notes:Node[] }} config
  * @returns {{ maj:(lignes:{id:string,avant:number,apres:number,ecart:number}[], hors?:{label:string,montant:number}|null)=>void }}
  */
 export function camembertAvantApres(racine, config) {
-  const { postes } = config;
-  const infos = new Map(postes.map((p) => [p.id, p]));
-  const avant = postes.map((p) => ({ id: p.id, valeur: p.montant }));
-  const totalAvant = totalPostes(postes, "montant");
+  let infos, avant, totalAvant;
+  const lirePostes = (postes) => {
+    infos = new Map(postes.map((p) => [p.id, p]));
+    avant = postes.map((p) => ({ id: p.id, valeur: p.montant }));
+    totalAvant = totalPostes(postes, "montant");
+  };
+  lirePostes(config.postes);
 
   const svgAvant = h("div", { class: "anneau" });
   const svgApres = h("div", { class: "anneau" });
@@ -33,6 +36,7 @@ export function camembertAvantApres(racine, config) {
       "figure",
       { class: "graphique camembert" },
       h("figcaption", {}, h("h3", { class: "titre-graphique" }, config.titre), h("p", { class: "sous-titre" }, config.sousTitre)),
+      config.options ?? null,
       h(
         "div",
         { class: "camembert__scene" },
@@ -60,6 +64,13 @@ export function camembertAvantApres(racine, config) {
   let animation = 0;
 
   return {
+    /** Change la définition des postes (et donc l'anneau « aujourd'hui ») ; appeler maj ensuite. */
+    definirPostes(postes) {
+      lirePostes(postes);
+      cancelAnimationFrame(animation);
+      affiche = avant;
+      dessinerAnneau(svgAvant, avant, { total: totalAvant, echelle: 1, infos, modifies: new Set() });
+    },
     maj(lignes, horsDepenses = null) {
       const cible = lignes.map((l) => ({ id: l.id, valeur: Math.max(0, l.apres) }));
       const totalApres = totalPostes(cible, "valeur");
