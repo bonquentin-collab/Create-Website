@@ -1,11 +1,13 @@
 // Point d'entrée. Chaque élément portant data-module="nom" reçoit le module d'interface du même nom.
 // Pour ajouter une fonctionnalité : créer js/ui/<nom>.js exportant monter(element, contexte),
-// l'inscrire ci-dessous, puis poser data-module="<nom>" sur sa section dans index.html.
+// l'inscrire ci-dessous, puis poser data-module="<nom>" sur sa section dans la page HTML voulue.
 
 import { reference, reformes } from "./reforms/index.js";
 import { monter as theme } from "./ui/theme.js";
 import { monter as ruban } from "./ui/ruban.js";
-import { monter as reforme } from "./ui/reforme.js";
+import { monter as reforme, monterRappel as rappelReforme } from "./ui/reforme.js";
+import { monter as entete } from "./ui/entete.js";
+import { monter as depensesAujourdhui } from "./ui/depenses-aujourdhui.js";
 import { monter as simulateurHeritage } from "./ui/simulateur-heritage.js";
 import { monter as simulateurSalaire } from "./ui/simulateur-salaire.js";
 import { monter as repartition } from "./ui/repartition.js";
@@ -20,7 +22,10 @@ import { monter as gelPensions } from "./ui/gel-pensions.js";
 import { monter as niveauxDeVie } from "./ui/niveaux-de-vie.js";
 
 const modules = {
+  entete,
   theme,
+  "rappel-reforme": rappelReforme,
+  "depenses-aujourdhui": depensesAujourdhui,
   ruban,
   reforme,
   "simulateur-heritage": simulateurHeritage,

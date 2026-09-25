@@ -83,6 +83,24 @@ npm test            # tests du moteur (Node ≥ 20, aucune installation)
 npm run serve       # http://localhost:8000
 ```
 
+## Pages et navigation
+
+Deux espaces, trois pages chacun, plus un accueil :
+
+| Page | Espace | Rôle |
+|---|---|---|
+| `index.html` | accueil | deux cartes : Héritage, Retraites |
+| `heritage.html` / `retraites.html` | Comprendre | contexte, chiffres, graphiques sans réglage |
+| `heritage-simuler.html` / `retraites-simuler.html` | Simuler | rappel chiffré, simulateurs, effets (niveaux de vie, camembert) |
+| `heritage-methode.html` / `retraites-methode.html` | Méthode | sources et limites |
+
+Chaque page déclare `<body data-espace="…" data-page="comprendre|simuler|methode">` ; l'en-tête
+(`ui/entete.js`, `data-module="entete"`) en déduit l'interrupteur Héritage | Retraites et la sous-navigation,
+et redirige les anciennes ancres (`index.html#repartition`, `retraites.html#gel`…) vers la bonne page.
+Règle : un contenu sans réglage va dans « Comprendre » ; un contenu qui réagit aux choix va dans « Simuler »,
+précédé d'un rappel de contexte court (`section.rappel`). Pour ajouter une page à un espace : l'inscrire dans
+`ESPACES` (entete.js) et copier l'en-tête d'une page existante.
+
 ## Camembert des dépenses publiques
 
 Le répartiteur (`ui/composants/repartiteur.js`) affiche sous ses curseurs deux anneaux « aujourd'hui → avec vos

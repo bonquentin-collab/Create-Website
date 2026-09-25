@@ -67,7 +67,7 @@ export function monter(racine) {
           "Calcul du site : pensions des anciens enseignants (estimation) et pensions militaires, ",
           h("a", { href: pensionsFonctionnaires.url }, "rapport sur les pensions, PLF 2026"),
           ", rapportées aux dépenses d'éducation et de défense de toutes les administrations (Eurostat). Voir ",
-          h("a", { href: "#depenses" }, "où va l'argent public"),
+          h("a", { href: "#depenses-aujourdhui" }, "où va l'argent public"),
           ".",
         ],
       ),

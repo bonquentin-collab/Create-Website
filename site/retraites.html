@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Qui paie les retraites ?</title>
-  <meta name="description" content="Simulateur citoyen : TVA sociale pour baisser la CSG des actifs, CSG des retraités alignée sur celle des actifs, et des retraites financées par les seules cotisations.">
+  <title>Retraites : comprendre · La grande transmission</title>
+  <meta name="description" content="Comment sont financées les retraites, qui vit le mieux entre retraités et actifs, et où va l'argent public.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,700;1,400&display=swap">
@@ -14,24 +14,9 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='3' fill='%23eef2ec'/%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%23b3261e' stroke-width='3'/%3E%3C/svg%3E">
   <script type="module" src="js/main.js"></script>
 </head>
-<body>
+<body data-espace="retraites" data-page="comprendre">
   <a class="evitement" href="#contenu">Aller au contenu</a>
-
-  <header class="entete">
-    <div class="entete__interieur">
-      <a class="marque" href="index.html">La grande transmission</a>
-      <nav class="nav" aria-label="Pages et sections">
-        <a href="index.html">Héritage</a>
-        <a href="#simulateur" aria-current="page">Retraites</a>
-        <a href="#depenses">Dépenses publiques</a>
-        <a href="#niveaux">Niveaux de vie</a>
-        <a href="#methode">Méthode</a>
-      </nav>
-      <button class="bouton-theme" type="button" data-module="theme" aria-label="Changer de thème">
-        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>
-      </button>
-    </div>
-  </header>
+  <header class="entete" data-module="entete"></header>
 
   <main id="contenu">
     <section class="ouverture" id="haut" aria-labelledby="titre-ouverture">
@@ -47,7 +32,7 @@
           <ul class="ruban__legende" data-ruban-legende></ul>
           <p class="note">
             Source : COR, rapport annuel de juin 2026, tableau 2.2. La part de l'État employeur est débattue :
-            voir <a href="#methode">la méthode</a>.
+            voir <a href="retraites-methode.html">la méthode</a>.
           </p>
         </figure>
       </div>
@@ -57,44 +42,18 @@
       <div class="page" data-module="contexte-retraites"></div>
     </section>
 
-    <section class="section" id="simulateur" aria-labelledby="titre-simulateur">
-      <div class="page">
-        <h2 id="titre-simulateur" class="titre-section">Quatre réformes à essayer</h2>
-
-        <div class="onglets" data-module="onglets">
-          <div class="onglets__liste" role="tablist" aria-label="Quatre réformes">
-            <button type="button" role="tab" class="onglet" id="onglet-tva" aria-controls="panneau-tva" aria-selected="true">TVA sociale</button>
-            <button type="button" role="tab" class="onglet" id="onglet-csg" aria-controls="panneau-csg" aria-selected="false" tabindex="-1">CSG des retraités</button>
-            <button type="button" role="tab" class="onglet" id="onglet-financement" data-cle-lien="liberation" aria-controls="panneau-financement" aria-selected="false" tabindex="-1">Retraites sans impôts</button>
-            <button type="button" role="tab" class="onglet" id="onglet-gel" data-cle-lien="gel" aria-controls="panneau-gel" aria-selected="false" tabindex="-1">Gel des hautes pensions</button>
-          </div>
-
-          <div class="onglets__panneau" role="tabpanel" id="panneau-tva" aria-labelledby="onglet-tva" tabindex="0" data-module="tva-sociale"></div>
-          <div class="onglets__panneau" role="tabpanel" id="panneau-csg" aria-labelledby="onglet-csg" tabindex="0" hidden data-module="csg-retraites"></div>
-          <div class="onglets__panneau" role="tabpanel" id="panneau-financement" aria-labelledby="onglet-financement" tabindex="0" hidden data-module="financement-retraites"></div>
-          <div class="onglets__panneau" role="tabpanel" id="panneau-gel" aria-labelledby="onglet-gel" tabindex="0" hidden data-module="gel-pensions"></div>
-        </div>
-      </div>
-    </section>
-
-
-    <section class="section section--feuille" id="depenses" aria-labelledby="titre-depenses">
-      <div class="page">
-        <h2 id="titre-depenses" class="titre-section">Où va l'argent public&nbsp;?</h2>
-        <p class="texte">Toutes les dépenses publiques de 2024, poste par poste, et ce qu'elles deviendraient si les retraites ne recevaient plus d'impôts et que l'argent libéré allait où vous le décidez. Le graphique suit les réglages de l'onglet « Retraites sans impôts » ci-dessus.</p>
-        <p><button type="button" class="bouton" data-ouvrir-onglet="onglet-financement">Régler mes choix dans « Retraites sans impôts »</button></p>
-        <div data-depenses></div>
-      </div>
-    </section>
-
     <section class="section" id="niveaux">
-      <div class="page" data-module="niveaux-de-vie"></div>
+      <div class="page" data-module="niveaux-de-vie" data-mode="comprendre"></div>
     </section>
 
-    <section class="section section--methode" id="methode" aria-labelledby="titre-methode">
-      <div class="page">
-        <h2 id="titre-methode" class="titre-section">Méthode, sources et limites</h2>
-        <div class="colonnes-methode" data-module="methode-retraites"></div>
+    <section class="section section--feuille" id="depenses-aujourdhui">
+      <div class="page" data-module="depenses-aujourdhui"></div>
+    </section>
+
+    <section class="section relance-page">
+      <div class="page relance-page__interieur">
+        <p class="relance-page__texte">À vous de jouer&nbsp;: TVA sociale, CSG des retraités, retraites sans impôts, gel des hautes pensions.</p>
+        <a class="bouton bouton--grand" href="retraites-simuler.html">Essayer les réformes →</a>
       </div>
     </section>
   </main>
