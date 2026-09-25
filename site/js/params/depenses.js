@@ -1,5 +1,7 @@
 // Dépenses publiques françaises par grande fonction, 2024 (État, collectivités et Sécurité sociale).
 // Classification internationale COFOG (Eurostat, table gov_10a_exp, secteur S13, millions d'euros).
+// Les retraites regroupent « vieillesse » (GF1002) et « survivants » (GF1003, pensions de réversion) : 432,6 Md€,
+// proche des 422 Md€ de dépenses de retraite du COR (périmètres voisins mais pas identiques).
 // Particularité de la COFOG : les pensions des fonctionnaires sont classées en « vieillesse », pas dans le
 // service où ils ont travaillé. On les rend ici à leur service : pensions des anciens enseignants à
 // l'éducation, pensions militaires à la défense (rapport annuel sur les pensions de la fonction publique, PLF 2026).
@@ -27,7 +29,8 @@ export const pensionsFonctionnaires = {
 
 const cofog = {
   total: 1671.8,
-  vieillesse: 391.95, // GF1002
+  vieillesse: 391.95, // GF1002 : pensions de droit direct, minimum vieillesse, dépendance
+  survivants: 40.61, // GF1003 : pensions de réversion, classées à part par la COFOG
   protectionSociale: 693.03, // GF10
   sante: 261.16, // GF07
   education: 148.64, // GF09
@@ -43,9 +46,9 @@ export const postes = [
   {
     id: "retraites",
     label: "Retraites",
-    detail: "Pensions et vieillesse, hors anciens enseignants et militaires",
-    montant: cofog.vieillesse - enseignants - militaires,
-    pensions: cofog.vieillesse - enseignants - militaires,
+    detail: "Pensions de retraite et de réversion, minimum vieillesse, hors anciens enseignants et militaires",
+    montant: cofog.vieillesse + cofog.survivants - enseignants - militaires,
+    pensions: cofog.vieillesse + cofog.survivants - enseignants - militaires,
   },
   { id: "sante", label: "Santé", detail: "Hôpitaux, soins de ville, médicaments", montant: cofog.sante, pensions: 0 },
   {
@@ -67,7 +70,7 @@ export const postes = [
     id: "social",
     label: "Autres aides sociales",
     detail: "Famille, chômage, handicap, logement, pauvreté",
-    montant: cofog.protectionSociale - cofog.vieillesse,
+    montant: cofog.protectionSociale - cofog.vieillesse - cofog.survivants,
     pensions: 0,
   },
   {
