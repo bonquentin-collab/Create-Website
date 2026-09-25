@@ -20,6 +20,8 @@ export function monter(racine, { reforme }) {
 
   creerRepartiteur(racine.querySelector("[data-repartiteur]"), {
     prefixe: "r",
+    zoneDepenses: document.querySelector("[data-depenses]"),
+    titreDepenses: "Aujourd'hui, puis avec vos choix",
     cleLien: "repartition",
     enveloppes,
     etiquetteEnveloppe: "Recettes de l'année",

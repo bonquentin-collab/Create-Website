@@ -40,6 +40,7 @@ export function creerRepartiteur(racine, options) {
     salaireInitial = "2 100",
     surChangement: signaler = null, // appelé avec la répartition { id: Md€ } à chaque changement
     titreDepenses = "Où va l'argent public, avant et après vos choix",
+    zoneDepenses: zoneExterne = null, // où dessiner le camembert ; par défaut sous les curseurs
   } = options;
   const id = (suffixe) => `${prefixe}-${suffixe}`;
 
@@ -60,7 +61,7 @@ export function creerRepartiteur(racine, options) {
   );
   const boutonPartage = h("button", { type: "button", class: "bouton", "data-partager": true }, "Copier le lien de ma répartition");
   const messagePartage = h("p", { class: "aide", "aria-live": "polite" });
-  const zoneDepenses = h("div", { class: "depenses-choix" });
+  const zoneDepenses = zoneExterne ?? h("div", { class: "depenses-choix" });
 
   racine.replaceChildren(
     h(
@@ -75,7 +76,7 @@ export function creerRepartiteur(racine, options) {
       formPostes,
       h("div", { class: "resultat" }, bilan, h("div", { class: "partage" }, boutonPartage, messagePartage)),
     ),
-    zoneDepenses,
+    zoneExterne ? null : zoneDepenses,
   );
 
   // ----- État -----

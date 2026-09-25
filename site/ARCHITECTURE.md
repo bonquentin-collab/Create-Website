@@ -90,3 +90,5 @@ choix » (`ui/graphiques/camembert.js`). Les postes et leurs montants sont dans 
 pensions des fonctionnaires rendues à l'éducation et à la défense) ; le calcul est dans `engine/depenses.js`.
 Une destination du répartiteur abonde un poste via son champ `poste` (`params/budgets.js`). Une page peut aussi
 faire baisser les pensions avec `repartiteur.definirBaissePensions(taux)` (page retraites).
+Sur les deux pages, le camembert est dessiné dans une section visible à part (`#depenses`, `<div data-depenses>`),
+via l'option `zoneDepenses` du répartiteur ; sans cette option, il se place sous les curseurs.

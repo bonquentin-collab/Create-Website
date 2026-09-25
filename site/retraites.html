@@ -23,6 +23,7 @@
       <nav class="nav" aria-label="Pages et sections">
         <a href="index.html">Héritage</a>
         <a href="#simulateur" aria-current="page">Retraites</a>
+        <a href="#depenses">Dépenses publiques</a>
         <a href="#niveaux">Niveaux de vie</a>
         <a href="#methode">Méthode</a>
       </nav>
@@ -70,7 +71,17 @@
       </div>
     </section>
 
-    <section class="section section--feuille" id="niveaux">
+
+    <section class="section section--feuille" id="depenses" aria-labelledby="titre-depenses">
+      <div class="page">
+        <h2 id="titre-depenses" class="titre-section">Où va l'argent public&nbsp;?</h2>
+        <p class="texte">Toutes les dépenses publiques de 2024, poste par poste, et ce qu'elles deviendraient si les retraites ne recevaient plus d'impôts et que l'argent libéré allait où vous le décidez. Le graphique suit les réglages de l'onglet « Retraites sans impôts » ci-dessus.</p>
+        <p><button type="button" class="bouton" data-ouvrir-onglet="onglet-financement">Régler mes choix dans « Retraites sans impôts »</button></p>
+        <div data-depenses></div>
+      </div>
+    </section>
+
+    <section class="section" id="niveaux">
       <div class="page" data-module="niveaux-de-vie"></div>
     </section>
 
