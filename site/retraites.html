@@ -59,18 +59,20 @@
 
     <section class="section" id="simulateur" aria-labelledby="titre-simulateur">
       <div class="page">
-        <h2 id="titre-simulateur" class="titre-section">Trois réformes à essayer</h2>
+        <h2 id="titre-simulateur" class="titre-section">Quatre réformes à essayer</h2>
 
         <div class="onglets" data-module="onglets">
-          <div class="onglets__liste" role="tablist" aria-label="Trois réformes">
+          <div class="onglets__liste" role="tablist" aria-label="Quatre réformes">
             <button type="button" role="tab" class="onglet" id="onglet-tva" aria-controls="panneau-tva" aria-selected="true">TVA sociale</button>
             <button type="button" role="tab" class="onglet" id="onglet-csg" aria-controls="panneau-csg" aria-selected="false" tabindex="-1">CSG des retraités</button>
             <button type="button" role="tab" class="onglet" id="onglet-financement" data-cle-lien="liberation" aria-controls="panneau-financement" aria-selected="false" tabindex="-1">Retraites sans impôts</button>
+            <button type="button" role="tab" class="onglet" id="onglet-gel" data-cle-lien="gel" aria-controls="panneau-gel" aria-selected="false" tabindex="-1">Gel des hautes pensions</button>
           </div>
 
           <div class="onglets__panneau" role="tabpanel" id="panneau-tva" aria-labelledby="onglet-tva" tabindex="0" data-module="tva-sociale"></div>
           <div class="onglets__panneau" role="tabpanel" id="panneau-csg" aria-labelledby="onglet-csg" tabindex="0" hidden data-module="csg-retraites"></div>
           <div class="onglets__panneau" role="tabpanel" id="panneau-financement" aria-labelledby="onglet-financement" tabindex="0" hidden data-module="financement-retraites"></div>
+          <div class="onglets__panneau" role="tabpanel" id="panneau-gel" aria-labelledby="onglet-gel" tabindex="0" hidden data-module="gel-pensions"></div>
         </div>
       </div>
     </section>

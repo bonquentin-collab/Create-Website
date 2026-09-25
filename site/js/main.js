@@ -16,6 +16,7 @@ import { monter as csgRetraites } from "./ui/csg-retraites.js";
 import { monter as financementRetraites } from "./ui/financement-retraites.js";
 import { monter as methodeRetraites } from "./ui/methode-retraites.js";
 import { monter as contexteRetraites } from "./ui/contexte-retraites.js";
+import { monter as gelPensions } from "./ui/gel-pensions.js";
 import { monter as niveauxDeVie } from "./ui/niveaux-de-vie.js";
 
 const modules = {
@@ -32,6 +33,7 @@ const modules = {
   "financement-retraites": financementRetraites,
   "methode-retraites": methodeRetraites,
   "contexte-retraites": contexteRetraites,
+  "gel-pensions": gelPensions,
   "niveaux-de-vie": niveauxDeVie,
 };
 

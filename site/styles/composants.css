@@ -544,6 +544,9 @@ select {
 @media (max-width: 30rem) {
   .onglets__liste { flex-wrap: nowrap; }
   .onglet { flex: 1 1 0; min-width: 0; padding: var(--e-2) var(--e-3); font-size: var(--t-s); line-height: 1.2; }
+  /* Quatre onglets ou plus : deux rangées de deux */
+  .onglets__liste:has(> .onglet:nth-child(4)) { flex-wrap: wrap; }
+  .onglets__liste:has(> .onglet:nth-child(4)) .onglet { flex: 1 1 40%; }
 }
 
 .relance { margin-top: var(--e-6); max-width: var(--largeur-texte); }
@@ -761,3 +764,8 @@ select {
 .fiche .note { margin-top: auto; padding-top: var(--e-2); }
 .chiffres--transmission .sous { display: block; font-weight: 400; margin-top: var(--e-1); }
 .chiffres--transmission { margin-top: var(--e-6); }
+
+/* ----- Gel des hautes pensions ----- */
+.gel-contexte { margin-top: var(--e-6); }
+.chiffres--gel { margin-top: var(--e-4); }
+.chiffres--gel .sous { display: block; font-family: var(--police-texte); font-size: var(--t-s); font-weight: 400; color: var(--encre-2); margin-top: var(--e-1); }
