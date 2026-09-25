@@ -277,3 +277,27 @@ test("logement : données Insee et COR cohérentes", () => {
   const { sans, avec } = logement.loyersImputes;
   assert.ok(avec.actifs - avec.retraites < sans.actifs - sans.retraites);
 });
+
+// ---------- Dépenses publiques par poste (camembert) ----------
+import { depenses, postes } from "../site/js/params/depenses.js";
+import { appliquerChoix, ajoutsParPoste, totalPostes } from "../site/js/engine/depenses.js";
+
+test("dépenses : les postes couvrent tout le total COFOG 2024", () => {
+  proche(totalPostes(postes, "montant"), depenses.total, 1e-9);
+  const ids = new Set(postes.map((p) => p.id));
+  for (const d of destinations) if (d.poste) assert.ok(ids.has(d.poste), `${d.id} → ${d.poste}`);
+  for (const p of postes) assert.ok(p.montant > 0 && p.pensions <= p.montant);
+});
+
+test("dépenses : ajouts des choix et baisse des pensions", () => {
+  const ajouts = ajoutsParPoste({ actifs: 5, ecole: 2, recherche: 1, hopital: 3 }, destinations);
+  assert.deepEqual(ajouts, { education: 3, sante: 3 });
+  const l = appliquerChoix(postes, ajouts, 0.1);
+  const par = Object.fromEntries(l.map((x) => [x.id, x]));
+  proche(par.sante.ecart, 3, 1e-9);
+  const edu = postes.find((p) => p.id === "education");
+  proche(par.education.ecart, 3 - edu.pensions * 0.1, 1e-9);
+  const ret = postes.find((p) => p.id === "retraites");
+  proche(par.retraites.apres, ret.montant * 0.9, 1e-9);
+  proche(par.justice.ecart, 0, 1e-12);
+});

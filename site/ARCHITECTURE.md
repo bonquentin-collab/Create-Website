@@ -82,3 +82,11 @@ navigateur (script Python, par exemple dans `analysis/`), exporter le résultat 
 npm test            # tests du moteur (Node ≥ 20, aucune installation)
 npm run serve       # http://localhost:8000
 ```
+
+## Camembert des dépenses publiques
+
+Le répartiteur (`ui/composants/repartiteur.js`) affiche sous ses curseurs deux anneaux « aujourd'hui → avec vos
+choix » (`ui/graphiques/camembert.js`). Les postes et leurs montants sont dans `params/depenses.js` (COFOG 2024,
+pensions des fonctionnaires rendues à l'éducation et à la défense) ; le calcul est dans `engine/depenses.js`.
+Une destination du répartiteur abonde un poste via son champ `poste` (`params/budgets.js`). Une page peut aussi
+faire baisser les pensions avec `repartiteur.definirBaissePensions(taux)` (page retraites).

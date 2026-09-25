@@ -652,3 +652,86 @@ select {
 .chiffre__ligne::before { content: ""; flex: none; width: 0.75rem; height: 0.75rem; border-radius: 2px; }
 .chiffre__ligne--actifs::before { background: var(--serie-actifs); }
 .chiffre__ligne--retraites::before { background: var(--serie-actuel); }
+
+/* ----- Camembert des dépenses publiques : aujourd'hui → avec vos choix ----- */
+.camembert { margin-top: var(--e-6); }
+.camembert__scene {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(11rem, 15rem) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--e-3);
+  margin-top: var(--e-4);
+}
+.camembert__cote { text-align: center; }
+.camembert__quand {
+  font-family: var(--police-affiche);
+  font-weight: 800;
+  font-size: var(--t-s);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--encre-2);
+}
+.camembert__cote--apres .camembert__quand { color: var(--encre); }
+.anneau svg { width: 100%; max-width: 20rem; height: auto; overflow: visible; display: block; margin-inline: auto; }
+.anneau path { stroke: var(--papier-case); stroke-width: 1.5; stroke-linejoin: round; }
+.section--feuille .anneau path { stroke: var(--papier); }
+.anneau .part-modifiee path { stroke: var(--encre); stroke-width: 2.5; }
+.anneau__part { fill: #fff; font-family: var(--police-affiche); font-weight: 800; font-size: 13px; paint-order: stroke; stroke: rgb(0 0 0 / 0.35); stroke-width: 2px; }
+.anneau__total { fill: var(--encre); font-family: var(--police-affiche); font-weight: 800; font-size: 19px; }
+.anneau__legende { fill: var(--encre-3); font-size: 11px; }
+
+.fleche-choix { position: relative; display: flex; align-items: center; }
+.fleche-choix__corps {
+  flex: 1;
+  background: var(--encre);
+  color: var(--papier);
+  padding: var(--e-3) var(--e-3) var(--e-3) var(--e-4);
+  border-radius: 4px 0 0 4px;
+  min-height: 7rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.fleche-choix__pointe {
+  flex: none;
+  width: 0;
+  height: 0;
+  border-top: 3.5rem solid transparent;
+  border-bottom: 3.5rem solid transparent;
+  border-left: 1.75rem solid var(--encre);
+}
+.fleche-choix ul { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--e-1); }
+.fleche-choix li { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: var(--e-2); font-size: var(--t-s); }
+.fleche-choix li strong { font-family: var(--police-affiche); font-weight: 800; white-space: nowrap; }
+.fleche-choix__total { margin-top: var(--e-2); padding-top: var(--e-2); border-top: 1px solid color-mix(in srgb, var(--papier) 35%, transparent); font-size: var(--t-xs); }
+.fleche-choix__vide { font-size: var(--t-s); }
+.pastille { display: inline-block; width: 0.8rem; height: 0.8rem; border-radius: 50%; flex: none; box-shadow: 0 0 0 1.5px var(--papier); vertical-align: -0.1em; }
+.pastille--actifs { background: var(--actifs); margin-right: var(--e-2); }
+.camembert__hors { text-align: center; margin-top: var(--e-3); font-size: var(--t-s); color: var(--encre-2); }
+
+.legende-postes { width: 100%; border-collapse: collapse; margin-top: var(--e-5); font-size: var(--t-s); font-variant-numeric: tabular-nums; }
+.legende-postes th, .legende-postes td { padding: var(--e-2) var(--e-2); border-bottom: 1px solid var(--trame-legere); text-align: right; vertical-align: top; }
+.legende-postes th:first-child { text-align: left; }
+.legende-postes thead th { font-size: var(--t-xs); color: var(--encre-3); font-weight: 400; border-bottom-color: var(--trame); }
+.legende-postes tbody th { display: flex; gap: var(--e-2); align-items: baseline; font-weight: 700; }
+.legende-postes__detail { display: block; font-weight: 400; font-size: var(--t-xs); color: var(--encre-3); }
+.legende-postes .part { display: block; font-size: var(--t-xs); color: var(--encre-3); }
+.legende-postes tr.modifie { background: color-mix(in srgb, var(--encre) 6%, transparent); }
+.legende-postes .ecart { font-family: var(--police-affiche); font-weight: 800; white-space: nowrap; color: var(--encre-3); }
+.legende-postes .ecart--hausse { color: var(--actifs); }
+.legende-postes .ecart--baisse { color: var(--tampon); }
+.legende-postes .ecart--hausse::before { content: "▲ "; font-size: 0.75em; }
+.legende-postes .ecart--baisse::before { content: "▼ "; font-size: 0.75em; }
+.legende-postes tr.total th, .legende-postes tr.total td { font-weight: 800; border-bottom: 0; border-top: 2px solid var(--encre); }
+
+@media (max-width: 46rem) {
+  .camembert__scene { grid-template-columns: 1fr; }
+  .anneau svg { max-width: 15rem; }
+  .fleche-choix { flex-direction: column; }
+  .fleche-choix__corps { width: 100%; border-radius: 4px 4px 0 0; min-height: 0; }
+  .fleche-choix__pointe { border-top: 1.25rem solid var(--encre); border-bottom: 0; border-left: 2rem solid transparent; border-right: 2rem solid transparent; }
+  .legende-postes__detail { display: none; }
+  .legende-postes { font-size: var(--t-xs); }
+  .legende-postes td { white-space: nowrap; }
+  .legende-postes th, .legende-postes td { padding-inline: var(--e-1); }
+}

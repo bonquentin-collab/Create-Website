@@ -153,6 +153,7 @@ export function monter(racine) {
     dernierTrou = retire;
     dernierComblement = c;
     dernierRetire = retire;
+    repartiteur.definirBaissePensions(c.baissePensions);
     repartiteur.definirEnveloppe(retire);
   };
 

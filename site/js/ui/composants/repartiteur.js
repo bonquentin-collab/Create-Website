@@ -19,6 +19,9 @@ import { destinations } from "../../params/budgets.js";
 import { repartitions } from "../../redistribution/repartitions.js";
 import { scenarios, trouverScenario } from "../../redistribution/scenarios.js";
 import { macro } from "../../params/macro.js";
+import { depenses } from "../../params/depenses.js";
+import { appliquerChoix, ajoutsParPoste } from "../../engine/depenses.js";
+import { camembertAvantApres } from "../graphiques/camembert.js";
 
 const PAS = 0.1;
 const arrondiPas = (v) => Math.round(v / PAS) * PAS;
@@ -36,6 +39,7 @@ export function creerRepartiteur(racine, options) {
     modeles = repartitions,
     salaireInitial = "2 100",
     surChangement: signaler = null, // appelé avec la répartition { id: Md€ } à chaque changement
+    titreDepenses = "Où va l'argent public, avant et après vos choix",
   } = options;
   const id = (suffixe) => `${prefixe}-${suffixe}`;
 
@@ -56,6 +60,7 @@ export function creerRepartiteur(racine, options) {
   );
   const boutonPartage = h("button", { type: "button", class: "bouton", "data-partager": true }, "Copier le lien de ma répartition");
   const messagePartage = h("p", { class: "aide", "aria-live": "polite" });
+  const zoneDepenses = h("div", { class: "depenses-choix" });
 
   racine.replaceChildren(
     h(
@@ -70,6 +75,7 @@ export function creerRepartiteur(racine, options) {
       formPostes,
       h("div", { class: "resultat" }, bilan, h("div", { class: "partage" }, boutonPartage, messagePartage)),
     ),
+    zoneDepenses,
   );
 
   // ----- État -----
@@ -80,6 +86,23 @@ export function creerRepartiteur(racine, options) {
     ? depuisParts(lu.repartition, Math.min(enveloppe, totalReparti(lu.repartition)))
     : depuisParts(modeles[0].parts, enveloppe);
   let mode = versements[0].id;
+  let baissePensions = 0; // fournie par la page retraites quand les pensions baissent
+  const camembert = camembertAvantApres(zoneDepenses, {
+    postes: depenses.postes,
+    titre: titreDepenses,
+    sousTitre: `Dépenses de l'État, des collectivités et de la Sécurité sociale en ${depenses.annee}, par grande fonction. Les pensions des anciens enseignants sont comptées dans l'éducation, les pensions militaires dans la défense.`,
+    notes: [
+      h(
+        "p",
+        { class: "note" },
+        "Sources : ",
+        h("a", { href: depenses.url }, depenses.source),
+        " ; ",
+        h("a", { href: depenses.jaune.url }, depenses.jaune.source),
+        ". Les anciens agents de l'Éducation nationale représentant environ la moitié des pensionnés civils de l'État, la moitié des pensions civiles (26 Md€) est rattachée à l'éducation : c'est une estimation. L'école, la recherche et l'université abondent l'éducation ; l'hôpital, la santé ; l'écologie et le logement, « tout le reste ».",
+      ),
+    ],
+  });
   let partsEnAttente = lu.repartition; // pour une enveloppe fournie plus tard par definirEnveloppe
 
   if (selectEnveloppe) {
@@ -192,6 +215,10 @@ export function creerRepartiteur(racine, options) {
         h("p", { class: "resultat__detail" }, `${scenario.description} ${noteActifs}`.trim()),
       );
     }
+    camembert.maj(appliquerChoix(depenses.postes, ajoutsParPoste(repartition, destinations), baissePensions), {
+      label: "vont au salaire net des actifs : ce n'est pas une dépense publique, elle n'est pas dans l'anneau.",
+      montant: repartition.actifs ?? 0,
+    });
     signaler?.({ ...repartition });
   };
 
@@ -254,7 +281,14 @@ export function creerRepartiteur(racine, options) {
 
   rendu();
   if (enveloppes) partsEnAttente = null;
-  return { definirEnveloppe: changerEnveloppe, lireRepartition: () => ({ ...repartition }) };
+  return {
+    definirEnveloppe: changerEnveloppe,
+    lireRepartition: () => ({ ...repartition }),
+    /** Baisse uniforme des pensions (0,1 = −10 %), à appeler avant definirEnveloppe. */
+    definirBaissePensions(taux) {
+      baissePensions = taux;
+    },
+  };
 }
 
 /** Lit une répartition partagée : #repartition=ecole-5_actifs-10&repartition-choix=2030 */
