@@ -98,6 +98,7 @@
 .ruban__segment:first-child { border-radius: 4px 0 0 4px; }
 .ruban__segment:last-child { border-radius: 0 4px 4px 0; }
 .ruban__segment > span { white-space: nowrap; }
+.ruban__segment[data-trop-etroit] { overflow: hidden; }
 .ruban__segment[data-trop-etroit] > span { visibility: hidden; }
 .ruban__legende {
   list-style: none;
@@ -632,3 +633,22 @@ select {
   .barre { grid-template-columns: 1fr 4.5rem; }
   .barre__label { grid-column: 1 / -1; }
 }
+
+/* ---------- Logement et patrimoine selon l'âge ---------- */
+.graphique__zone--pente { max-width: 40rem; }
+.chiffres--duo { margin: var(--e-6) 0 0; }
+.chiffre--duo { display: grid; gap: var(--e-1); }
+.chiffre__titre { font-size: var(--t-s); color: var(--encre-2); margin: 0 0 var(--e-1); }
+.chiffre__ligne {
+  margin: 0;
+  font-family: var(--police-affiche);
+  font-variation-settings: "wdth" 90;
+  font-weight: 800;
+  font-size: var(--t-l);
+  display: flex;
+  align-items: center;
+  gap: var(--e-2);
+}
+.chiffre__ligne::before { content: ""; flex: none; width: 0.75rem; height: 0.75rem; border-radius: 2px; }
+.chiffre__ligne--actifs::before { background: var(--serie-actifs); }
+.chiffre__ligne--retraites::before { background: var(--serie-actuel); }

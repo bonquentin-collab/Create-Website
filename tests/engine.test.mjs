@@ -264,3 +264,16 @@ test("niveaux de vie : cumul multiplicatif", () => {
   proche(c.retraites, -0.19, 1e-12);
   assert.deepEqual(cumuler([]), { actifs: 0, retraites: 0 });
 });
+
+// ---------- Logement et patrimoine ----------
+import { logement } from "../site/js/params/logement.js";
+
+test("logement : données Insee et COR cohérentes", () => {
+  const p = logement.proprietaires.lignes;
+  assert.equal(p[0].v2021, 0.167);
+  assert.equal(p.at(-1).v2021, 0.702);
+  for (const l of [...p, ...logement.endettement.lignes]) assert.ok(["actifs", "retraites"].includes(l.statut));
+  // Avec les loyers imputés, l'écart actifs - retraités se réduit fortement.
+  const { sans, avec } = logement.loyersImputes;
+  assert.ok(avec.actifs - avec.retraites < sans.actifs - sans.retraites);
+});
