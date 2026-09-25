@@ -44,9 +44,68 @@
   color: var(--encre);
   cursor: pointer;
 }
+.bouton-theme { flex: none; }
+
+/* Interrupteur d'espace « Héritage | Retraites » : deux onglets de classeur soudés */
+.espaces {
+  display: inline-flex;
+  margin-left: auto;
+  border: 2px solid var(--encre);
+  border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
+  background: var(--papier-case);
+}
+.espaces__lien {
+  font-family: var(--police-affiche);
+  font-variation-settings: "wdth" 96;
+  font-weight: 800;
+  font-size: var(--t-s);
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  color: var(--encre-2);
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.espaces__lien:hover { color: var(--encre); background: var(--trame-legere); }
+.espaces__lien[aria-current="true"] { background: var(--encre); color: var(--papier); }
+
+/* Sous-navigation de l'espace : Comprendre · Simuler · Méthode */
+.sous-nav { border-top: 1px solid var(--trame); }
+.sous-nav__interieur {
+  max-width: var(--largeur-page);
+  margin-inline: auto;
+  padding: 0 var(--gouttiere);
+  display: flex;
+  gap: var(--e-5);
+  overflow-x: auto;
+}
+.sous-nav__lien {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e-2);
+  padding: var(--e-2) 0;
+  font-size: var(--t-s);
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--encre-2);
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+}
+.sous-nav__lien::before { content: ""; width: 0.55rem; height: 0.55rem; border-radius: 50%; border: 2px solid currentColor; }
+.sous-nav__lien--simuler::before { border-radius: 2px; }
+.sous-nav__lien--methode::before { border-radius: 0; transform: rotate(45deg) scale(0.85); }
+.sous-nav__lien:hover { color: var(--encre); }
+.sous-nav__lien[aria-current="page"] { color: var(--encre); border-bottom-color: var(--tampon); }
+.sous-nav__lien[aria-current="page"]::before { background: currentColor; }
+
 @media (max-width: 46rem) {
-  .nav { display: none; }
-  .bouton-theme { margin-left: auto; }
+  .entete__interieur { gap: var(--e-3); }
+  .entete__interieur { gap: var(--e-2); padding-inline: var(--e-4); }
+  .marque { font-size: var(--t-xs); white-space: normal; line-height: 1.1; min-width: 0; flex: 1 1 auto; max-width: 6.5rem; }
+  .espaces { margin-left: 0; }
+  .espaces__lien { padding: 0.35rem 0.6rem; font-size: var(--t-xs); }
 }
 
 /* ---------- Ouverture ---------- */
@@ -769,3 +828,50 @@ select {
 .gel-contexte { margin-top: var(--e-6); }
 .chiffres--gel { margin-top: var(--e-4); }
 .chiffres--gel .sous { display: block; font-family: var(--police-texte); font-size: var(--t-s); font-weight: 400; color: var(--encre-2); margin-top: var(--e-1); }
+
+
+/* ---------- Page d'accueil : deux espaces ---------- */
+.accueil .affiche { max-width: 18ch; }
+.cartes-espaces { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: var(--e-5); margin-top: var(--e-7); }
+.carte-espace {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-3);
+  padding: var(--e-5);
+  background: var(--papier-case);
+  border: 2px solid var(--encre);
+  border-radius: 6px;
+  box-shadow: 6px 6px 0 var(--encre);
+}
+.carte-espace--heritage { border-top: 10px solid var(--tampon); }
+.carte-espace--retraites { border-top: 10px solid var(--serie-actuel); }
+.carte-espace__etiquette { font-family: var(--police-affiche); font-weight: 800; font-size: var(--t-s); letter-spacing: 0.08em; text-transform: uppercase; color: var(--encre-2); }
+.carte-espace__titre { font-family: var(--police-affiche); font-variation-settings: "wdth" 80; font-weight: 800; font-size: var(--t-xl); line-height: 1.05; }
+.carte-espace__texte { color: var(--encre-2); }
+.carte-espace__actions { display: flex; flex-wrap: wrap; gap: var(--e-3); margin-top: auto; padding-top: var(--e-3); }
+
+.bouton { text-decoration: none; display: inline-block; }
+.bouton--grand { padding: var(--e-3) var(--e-5); font-size: var(--t-m); }
+.bouton--contour { background: transparent; color: var(--encre); box-shadow: inset 0 0 0 2px var(--encre); padding: var(--e-3) var(--e-5); font-size: var(--t-m); }
+.bouton--contour:hover { background: var(--trame-legere); }
+
+/* ---------- Passerelles entre Comprendre et Simuler ---------- */
+.relance-page { background: var(--encre); color: var(--papier); }
+.relance-page__interieur { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--e-5); }
+.relance-page__texte { font-family: var(--police-affiche); font-variation-settings: "wdth" 84; font-weight: 800; font-size: var(--t-l); max-width: 36ch; }
+.relance-page .bouton { background: var(--papier); color: var(--encre); }
+.relance-page .bouton:hover { background: var(--papier-case); }
+
+.rappel { padding-block: var(--e-6) var(--e-5); border-bottom: 1px solid var(--trame); }
+.titre-page { font-size: var(--t-xl); font-variation-settings: "wdth" 80; font-weight: 800; line-height: 1.05; max-width: 28ch; }
+.rappel__titre { margin-top: var(--e-3); font-size: var(--t-s); color: var(--encre-2); }
+.rappel__titre a { font-weight: 700; margin-left: var(--e-2); }
+.chiffres--rappel { margin-top: var(--e-4); }
+.chiffres--rappel dd { font-size: var(--t-l); }
+
+/* Camembert « aujourd'hui » seul (page Comprendre) */
+.camembert--seul .fleche-choix, .camembert--seul .camembert__cote--apres, .camembert--seul .camembert__quand { display: none; }
+.camembert--seul .camembert__scene { grid-template-columns: minmax(0, 22rem); justify-content: center; }
+.camembert--seul .legende-postes th:nth-child(3), .camembert--seul .legende-postes td:nth-child(3),
+.camembert--seul .legende-postes th:nth-child(4), .camembert--seul .legende-postes td:nth-child(4) { display: none; }

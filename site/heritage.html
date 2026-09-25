@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Héritage : comprendre · La grande transmission</title>
+  <meta name="description" content="La grande transmission : 9 000 milliards d'euros transmis d'ici 2040, et la proposition d'impôt sur les grandes successions de la Fondation Jean-Jaurès.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,700;1,400&display=swap">
+  <link rel="stylesheet" href="styles/tokens.css">
+  <link rel="stylesheet" href="styles/base.css">
+  <link rel="stylesheet" href="styles/composants.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='3' fill='%23eef2ec'/%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%23b3261e' stroke-width='3'/%3E%3C/svg%3E">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body data-espace="heritage" data-page="comprendre">
+  <a class="evitement" href="#contenu">Aller au contenu</a>
+  <header class="entete" data-module="entete"></header>
+
+  <main id="contenu">
+    <section class="ouverture" id="haut" aria-labelledby="titre-ouverture">
+      <div class="page">
+        <h1 id="titre-ouverture" class="affiche">D'ici 2040, 9&nbsp;000&nbsp;milliards d'euros vont changer de&nbsp;mains.</h1>
+        <p class="chapeau">
+          C'est la « grande transmission » : le patrimoine de la génération du baby-boom passe à ses enfants.
+          Jamais la France n'a vu un tel transfert de richesse. Il sera aussi très inégal.
+        </p>
+
+        <figure class="ruban" data-module="ruban" aria-labelledby="ruban-titre">
+          <figcaption id="ruban-titre" class="ruban__titre">Sur 100&nbsp;€ de patrimoine en France aujourd'hui</figcaption>
+          <div class="ruban__barre" data-ruban-barre></div>
+          <ul class="ruban__legende" data-ruban-legende></ul>
+          <p class="note">
+            Si les héritages suivent la répartition du patrimoine, la moitié des Français se partagera environ
+            <strong data-ruban-bas></strong> sur les 9&nbsp;059&nbsp;Md€ transmis d'ici 2040.
+            Source : Banque de France, comptes distributionnels de patrimoine, 2023, cités par l'étude.
+          </p>
+        </figure>
+
+        <dl class="chiffres chiffres--transmission">
+          <div class="chiffre">
+            <dt>Héritages et donations chaque année</dt>
+            <dd>15&nbsp;% du PIB <span class="sous">contre 5&nbsp;% en 1950</span></dd>
+          </div>
+          <div class="chiffre">
+            <dt>Part héritée du patrimoine des Français</dt>
+            <dd>60&nbsp;% <span class="sous">contre 35&nbsp;% au début des années 1970</span></dd>
+          </div>
+          <div class="chiffre">
+            <dt>Âge auquel on hérite de ses parents</dt>
+            <dd>50&nbsp;ans <span class="sous">souvent plus : l'héritage arrive quand la vie est déjà faite</span></dd>
+          </div>
+        </dl>
+        <p class="note">Sources : Fondation Jean-Jaurès, 2024, d'après le Conseil d'analyse économique (note n°&nbsp;63, 2021) ; chiffres de 2021.</p>
+      </div>
+    </section>
+
+    <section class="section" id="reforme" aria-labelledby="titre-reforme" data-module="reforme">
+      <div class="page">
+        <h2 id="titre-reforme" class="titre-section">Une proposition : l'impôt sur les grandes successions</h2>
+        <div class="texte">
+          <p>
+            En novembre 2024, la Fondation Jean-Jaurès a proposé de réformer les droits de succession pour que
+            la grande transmission finance l'avenir du pays. Selon ses auteurs, l'impôt ne changerait rien pour
+            99&nbsp;% des héritiers, et les plus grandes successions contribueraient davantage.
+          </p>
+        </div>
+
+        <dl class="chiffres">
+          <div class="chiffre">
+            <dt>Recettes supplémentaires dès 2025</dt>
+            <dd data-chiffre="premiere-annee"></dd>
+          </div>
+          <div class="chiffre">
+            <dt>Cumul de 2025 à 2040</dt>
+            <dd data-chiffre="cumul"></dd>
+          </div>
+          <div class="chiffre">
+            <dt>Part des transmissions prélevée par l'impôt</dt>
+            <dd data-chiffre="taux-effectif"></dd>
+          </div>
+        </dl>
+
+        <ol class="piliers" data-piliers></ol>
+
+        <figure class="graphique" aria-labelledby="titre-trajectoire">
+          <figcaption>
+            <h3 id="titre-trajectoire" class="titre-graphique">Ce que rapporterait l'impôt chaque année</h3>
+            <p class="sous-titre">Recettes supplémentaires estimées par l'étude, en milliards d'euros courants</p>
+          </figcaption>
+          <div class="legende" data-legende-trajectoire></div>
+          <div class="graphique__zone" data-graphique="trajectoire"></div>
+          <details class="table-donnees">
+            <summary>Voir les données en tableau</summary>
+            <div data-table="trajectoire"></div>
+          </details>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section relance-page">
+      <div class="page relance-page__interieur">
+        <p class="relance-page__texte">Et pour vous&nbsp;? Calculez l'impôt sur votre héritage, et décidez à quoi servirait l'argent.</p>
+        <a class="bouton bouton--grand" href="heritage-simuler.html">Passer au simulateur →</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pied">
+    <div class="page">
+      <p>Outil citoyen et pédagogique. Les montants sont des ordres de grandeur, pas un calcul fiscal opposable.</p>
+    </div>
+  </footer>
+</body>
+</html>

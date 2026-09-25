@@ -1,7 +1,11 @@
 # La grande transmission
 
-Simulateur citoyen sur l'héritage et la redistribution vers les actifs. Il part de l'impôt sur les grandes
-successions (IGS) proposé par la Fondation Jean-Jaurès en novembre 2024 et répond à deux questions :
+Outil citoyen en deux espaces, **Héritage** et **Retraites**, chacun découpé en trois pages :
+**Comprendre** (contexte et chiffres), **Simuler** (simulateurs et leurs effets) et **Méthode**. Une page
+d'accueil (`index.html`) mène aux deux espaces ; un interrupteur Héritage | Retraites est présent partout.
+
+L'espace Héritage (`heritage.html`, `heritage-simuler.html`) part de l'impôt sur les grandes successions (IGS)
+proposé par la Fondation Jean-Jaurès en novembre 2024 et répond à deux questions :
 
 - **Mon héritage** : combien paierais-je avec le droit actuel, et avec la réforme ?
 - **Mon salaire**, en deux onglets. D'abord le gain direct sur le salaire si une part des recettes allait
@@ -10,7 +14,7 @@ successions (IGS) proposé par la Fondation Jean-Jaurès en novembre 2024 et ré
   La répartition se partage par un lien. L'étude, elle, affecte les recettes à la transition écologique,
   à la recherche et à l'éducation : le reste est une variante du simulateur.
 
-Une seconde page, **Retraites** (`retraites.html`), propose trois réformes à essayer :
+L'espace **Retraites** (`retraites.html`, `retraites-simuler.html`) propose quatre réformes à essayer :
 
 - **TVA sociale** : une hausse de TVA dont toute la recette baisse la CSG des actifs ; gain sur la paie,
   hausse des prix, effet sur les retraités.
@@ -18,6 +22,8 @@ Une seconde page, **Retraites** (`retraites.html`), propose trois réformes à e
 - **Retraites sans impôts** : la décomposition du financement des retraites (COR, juin 2026), le choix des
   ressources jugées « logiques », ce que cela coûterait aux retraités ou aux actifs, et l'usage de l'argent
   public libéré (salaires ou services publics).
+- **Gel des hautes pensions** : pas de revalorisation de la pension de base au-delà d'un seuil ; économie,
+  retraités concernés, perte et poids dans leur épargne.
 - **Retraités et actifs : qui vit le mieux ?** Dans l'esprit du graphique du Financial Times (J. Burn-Murdoch,
   2025) : niveaux de vie médians des retraités et des personnes en emploi de 1996 à 2024 (Insee), par âge,
   et où les mèneraient les réformes réglées dans les onglets, cumulées au choix. Un premier onglet,

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Retraites : simuler · La grande transmission</title>
+  <meta name="description" content="Quatre réformes des retraites à essayer, leur effet sur le niveau de vie des actifs et des retraités, et sur les dépenses publiques.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,700;1,400&display=swap">
+  <link rel="stylesheet" href="styles/tokens.css">
+  <link rel="stylesheet" href="styles/base.css">
+  <link rel="stylesheet" href="styles/composants.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='3' fill='%23eef2ec'/%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%23b3261e' stroke-width='3'/%3E%3C/svg%3E">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body data-espace="retraites" data-page="simuler">
+  <a class="evitement" href="#contenu">Aller au contenu</a>
+  <header class="entete" data-module="entete"></header>
+
+  <main id="contenu">
+    <section class="rappel" aria-label="Les retraites en bref.">
+      <div class="page">
+        <h1 class="titre-page">Quatre réformes des retraites à essayer</h1>
+        <p class="rappel__titre">Les retraites en bref. <a href="retraites.html">Comprendre le contexte →</a></p>
+        <dl class="chiffres chiffres--rappel">
+          <div class="chiffre"><dt>Coût des retraites en 2025</dt><dd>422 Md€</dd></div>
+          <div class="chiffre"><dt>Part non financée par les cotisations</dt><dd>≈ 1 € sur 3</dd></div>
+          <div class="chiffre"><dt>Cotisants par retraité</dt><dd>1,8</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <section class="section" id="simulateur" aria-labelledby="titre-simulateur">
+      <div class="page">
+        <h2 id="titre-simulateur" class="titre-section">Choisissez une réforme</h2>
+
+        <div class="onglets" data-module="onglets">
+          <div class="onglets__liste" role="tablist" aria-label="Quatre réformes">
+            <button type="button" role="tab" class="onglet" id="onglet-tva" aria-controls="panneau-tva" aria-selected="true">TVA sociale</button>
+            <button type="button" role="tab" class="onglet" id="onglet-csg" aria-controls="panneau-csg" aria-selected="false" tabindex="-1">CSG des retraités</button>
+            <button type="button" role="tab" class="onglet" id="onglet-financement" data-cle-lien="liberation" aria-controls="panneau-financement" aria-selected="false" tabindex="-1">Retraites sans impôts</button>
+            <button type="button" role="tab" class="onglet" id="onglet-gel" data-cle-lien="gel" aria-controls="panneau-gel" aria-selected="false" tabindex="-1">Gel des hautes pensions</button>
+          </div>
+
+          <div class="onglets__panneau" role="tabpanel" id="panneau-tva" aria-labelledby="onglet-tva" tabindex="0" data-module="tva-sociale"></div>
+          <div class="onglets__panneau" role="tabpanel" id="panneau-csg" aria-labelledby="onglet-csg" tabindex="0" hidden data-module="csg-retraites"></div>
+          <div class="onglets__panneau" role="tabpanel" id="panneau-financement" aria-labelledby="onglet-financement" tabindex="0" hidden data-module="financement-retraites"></div>
+          <div class="onglets__panneau" role="tabpanel" id="panneau-gel" aria-labelledby="onglet-gel" tabindex="0" hidden data-module="gel-pensions"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--feuille" id="niveaux">
+      <div class="page" data-module="niveaux-de-vie" data-mode="simuler"></div>
+    </section>
+
+    <section class="section" id="depenses" aria-labelledby="titre-depenses">
+      <div class="page">
+        <h2 id="titre-depenses" class="titre-section">Où va l'argent public&nbsp;?</h2>
+        <p class="texte">Toutes les dépenses publiques de 2024, poste par poste, et ce qu'elles deviendraient si les retraites ne recevaient plus d'impôts et que l'argent libéré allait où vous le décidez. Le graphique suit les réglages de l'onglet « Retraites sans impôts » ci-dessus.</p>
+        <p><button type="button" class="bouton" data-ouvrir-onglet="onglet-financement">Régler mes choix dans « Retraites sans impôts »</button></p>
+        <div data-depenses></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pied">
+    <div class="page">
+      <p>Outil citoyen et pédagogique. Les montants sont des ordres de grandeur, sans effets de comportement.</p>
+    </div>
+  </footer>
+</body>
+</html>

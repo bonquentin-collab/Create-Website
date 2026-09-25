@@ -18,9 +18,12 @@ const parMois = (v) => v / 12;
 const signe = (v) => `${v >= 0 ? "+" : "−"}${pourcent(Math.abs(v))}`;
 
 export function monter(racine) {
+  // « comprendre » : logement + historique, sans réformes ; « simuler » : effet des réformes réglées sur la page.
+  const avecReformes = racine.dataset.mode !== "comprendre";
   const { annees, series } = niveauDeVie;
   const derniere = annees.length - 1;
   const cochees = new Set();
+  const vues = new Set();
 
   const listeReformes = h("div", { class: "reformes-choix" });
   const chiffres = h("dl", { class: "chiffres chiffres--nv", "aria-live": "polite" });
@@ -38,8 +41,8 @@ export function monter(racine) {
   const panneauLogement = h("div", { class: "onglets__panneau", role: "tabpanel", id: "panneau-nv-logement", "aria-labelledby": "onglet-nv-logement", tabindex: 0 });
   const panneauReformes = h(
     "div",
-    { class: "onglets__panneau", role: "tabpanel", id: "panneau-nv-reformes", "aria-labelledby": "onglet-nv-reformes", tabindex: 0, hidden: true },
-    h("fieldset", { class: "champ reformes" }, h("legend", {}, "Appliquer les réformes réglées plus haut"), listeReformes),
+    avecReformes ? {} : { class: "onglets__panneau", role: "tabpanel", id: "panneau-nv-reformes", "aria-labelledby": "onglet-nv-reformes", tabindex: 0, hidden: true },
+    avecReformes ? h("fieldset", { class: "champ reformes" }, h("legend", {}, "Appliquer les réformes réglées plus haut"), listeReformes) : null,
     chiffres,
     h(
       "figure",
@@ -54,7 +57,7 @@ export function monter(racine) {
         "div",
         { class: "legende" },
         seriesMensuelles.map((se) => h("span", {}, h("i", { class: "trait", style: { background: se.couleur } }), se.label)),
-        h("span", {}, h("i", { class: "anneau" }), "Avec vos réformes"),
+        avecReformes ? h("span", {}, h("i", { class: "anneau" }), "Avec vos réformes") : null,
       ),
       zoneLignes,
       h("details", { class: "table-donnees" }, h("summary", {}, "Voir les données en tableau"), tableLignes),
@@ -74,7 +77,7 @@ export function monter(racine) {
         h("span", {}, h("i", { class: "pastille", style: { background: COULEURS.emploi } }), "Âges d'activité"),
         h("span", {}, h("i", { class: "pastille", style: { background: COULEURS.retraites } }), "Âges de la retraite"),
         h("span", {}, h("i", { class: "point-noir" }), "1996"),
-        h("span", {}, h("i", { class: "anneau" }), "Avec vos réformes"),
+        avecReformes ? h("span", {}, h("i", { class: "anneau" }), "Avec vos réformes") : null,
       ),
       zoneBarres,
       noteAge,
@@ -94,29 +97,43 @@ export function monter(racine) {
       "div",
       { class: "onglets__liste", role: "tablist", "aria-label": "Deux lectures du niveau de vie" },
       h("button", { type: "button", role: "tab", class: "onglet", id: "onglet-nv-logement", "aria-controls": "panneau-nv-logement", "aria-selected": "true" }, "Logement et patrimoine"),
-      h("button", { type: "button", role: "tab", class: "onglet", id: "onglet-nv-reformes", "aria-controls": "panneau-nv-reformes", "aria-selected": "false", tabindex: -1 }, "Niveau de vie et réformes"),
+      h("button", { type: "button", role: "tab", class: "onglet", id: "onglet-nv-reformes", "aria-controls": "panneau-nv-reformes", "aria-selected": "false", tabindex: -1 }, "Niveau de vie depuis 1996"),
     ),
     panneauLogement,
     panneauReformes,
   );
 
-  racine.replaceChildren(
-    h("h2", { class: "titre-section", id: "titre-niveaux" }, "Retraités et actifs\u00a0: qui vit le mieux\u00a0?"),
-    h(
-      "div",
-      { class: "texte" },
+  if (avecReformes) {
+    racine.replaceChildren(
+      h("h2", { class: "titre-section", id: "titre-niveaux" }, "Et sur les niveaux de vie\u00a0?"),
       h(
         "p",
-        {},
-        "En 2025, le Financial Times a montré que la France est l'un des rares pays riches où les retraités vivent aussi bien que les actifs. Mais à revenu égal, les besoins diffèrent : logement, crédit, enfants, épargne à constituer. Le premier onglet compare jeunes et retraités sur ces besoins ; le second suit le niveau de vie depuis 1996 et l'effet des réformes réglées plus haut. ",
-        h("a", { href: niveauDeVie.ft.url }, "L'article du FT"),
+        { class: "texte" },
+        "Chaque réforme réglée plus haut apparaît ci-dessous. Cochez-les pour voir où elles mèneraient le niveau de vie médian des retraités et des personnes en emploi (anneaux), à côté de son évolution depuis 1996. ",
+        h("a", { href: "retraites.html#niveaux" }, "Comprendre les écarts de besoins entre jeunes et retraités"),
         ".",
       ),
-    ),
-    onglets,
-  );
-  construireLogement(panneauLogement);
-  monterOnglets(onglets);
+      panneauReformes,
+    );
+  } else {
+    racine.replaceChildren(
+      h("h2", { class: "titre-section", id: "titre-niveaux" }, "Retraités et actifs\u00a0: qui vit le mieux\u00a0?"),
+      h(
+        "div",
+        { class: "texte" },
+        h(
+          "p",
+          {},
+          "En 2025, le Financial Times a montré que la France est l'un des rares pays riches où les retraités vivent aussi bien que les actifs. Mais à revenu égal, les besoins diffèrent : logement, crédit, enfants, épargne à constituer. Le premier onglet compare jeunes et retraités sur ces besoins ; le second suit le niveau de vie depuis 1996. ",
+          h("a", { href: niveauDeVie.ft.url }, "L'article du FT"),
+          ".",
+        ),
+      ),
+      onglets,
+    );
+    construireLogement(panneauLogement);
+    monterOnglets(onglets);
+  }
   racine.closest("section")?.setAttribute("aria-labelledby", "titre-niveaux");
 
   const graphique = lignesTemporelles(zoneLignes, {
@@ -143,10 +160,12 @@ export function monter(racine) {
   const barres = barresHorizontales(zoneBarres, { lignes: lignesAge, formatValeur: (v) => euros(v), max: 2600 });
 
   const rendu = () => {
-    const reformes = lireReformes();
+    const reformes = avecReformes ? lireReformes() : [];
+    // Sur la page « Simuler », une réforme qui apparaît est cochée d'office ; l'utilisateur peut la décocher.
+    for (const r of reformes) if (!vues.has(r.id)) (vues.add(r.id), cochees.add(r.id));
     const focusAvant = document.activeElement?.closest?.(".reforme-choix") ? document.activeElement.value : null;
     // Liste des réformes, avec leur effet actuel.
-    remplir(
+    if (avecReformes) remplir(
       listeReformes,
       reformes.length
         ? reformes.map((r) =>

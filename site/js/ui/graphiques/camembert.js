@@ -34,7 +34,7 @@ export function camembertAvantApres(racine, config) {
   racine.replaceChildren(
     h(
       "figure",
-      { class: "graphique camembert" },
+      { class: `graphique camembert${config.seul ? " camembert--seul" : ""}` },
       h("figcaption", {}, h("h3", { class: "titre-graphique" }, config.titre), h("p", { class: "sous-titre" }, config.sousTitre)),
       config.options ?? null,
       h(
