@@ -6,7 +6,7 @@
 // service où ils ont travaillé. On les rend ici à leur service : pensions des anciens enseignants à
 // l'éducation, pensions militaires à la défense (rapport annuel sur les pensions de la fonction publique, PLF 2026).
 //
-// Pour ajouter un poste : le déclarer dans `postes` avec sa couleur (jeton CSS --poste-<id>), puis, si le
+// Pour ajouter un poste : le déclarer dans `construirePostes` ou `detailReste` avec sa couleur (jeton CSS --poste-<id>), puis, si le
 // répartiteur peut l'abonder, indiquer `poste: "<id>"` dans la destination correspondante de budgets.js.
 
 const EUROSTAT = {
@@ -37,6 +37,17 @@ const cofog = {
   defense: 54.2, // GF02
   tribunaux: 8.3, // GF0303
   prisons: 5.12, // GF0304
+  // Détail de « tout le reste » (services généraux, ordre public hors justice, affaires économiques, etc.)
+  servicesGeneraux: 181.1, // GF01
+  interetsDette: 58.87, // GF0107
+  rechercheFondamentale: 19.88, // GF0104
+  rechercheAppliquee: 21.43, // GF0408 (R&D affaires économiques)
+  ordrePublic: 52.11, // GF03 : police 28,9, pompiers 7,9, tribunaux, prisons, divers
+  affairesEconomiques: 166.07, // GF04
+  transports: 60.69, // GF0405
+  environnement: 30.29, // GF05
+  logementEquipements: 42.13, // GF06
+  culture: 43.07, // GF08
 };
 
 const { enseignants, militaires } = pensionsFonctionnaires;
@@ -79,18 +90,36 @@ export function construirePostes({ pensionsDansServices = true } = {}) {
     {
       id: "social",
       label: "Autres aides sociales",
-      detail: "Famille, chômage, handicap, logement, pauvreté",
+      detail: "Famille, chômage, handicap, aides au logement, pauvreté",
       montant: cofog.protectionSociale - cofog.vieillesse - cofog.survivants,
       pensions: 0,
     },
-    {
-      id: "autres",
-      label: "Tout le reste",
-      detail: "Intérêts de la dette, police, transports, économie, environnement, culture…",
-      montant: cofog.total - cofog.protectionSociale - cofog.sante - cofog.education - cofog.defense - cofog.tribunaux - cofog.prisons,
-      pensions: 0,
-    },
+    ...detailReste(),
   ];
+}
+
+// « Tout le reste » détaillé en neuf postes ; le dernier (administration) est calculé par différence pour que
+// la somme des postes égale exactement le total des dépenses.
+function detailReste() {
+  const c = cofog;
+  const postesReste = [
+    { id: "dette", label: "Intérêts de la dette", detail: "Intérêts versés sur la dette publique", montant: c.interetsDette },
+    { id: "transports", label: "Transports", detail: "Routes, rail, transports en commun", montant: c.transports },
+    { id: "economie", label: "Économie et emploi", detail: "Aides aux entreprises et à l'emploi, énergie, agriculture, industrie", montant: c.affairesEconomiques - c.transports - c.rechercheAppliquee },
+    { id: "recherche", label: "Recherche", detail: "Recherche fondamentale et appliquée", montant: c.rechercheFondamentale + c.rechercheAppliquee },
+    { id: "securite", label: "Police et secours", detail: "Police, gendarmerie, pompiers", montant: c.ordrePublic - c.tribunaux - c.prisons },
+    { id: "culture", label: "Culture et sport", detail: "Culture, sport, loisirs, médias publics, cultes", montant: c.culture },
+    { id: "logement", label: "Logement et équipements", detail: "Logement, eau, éclairage public, aménagement", montant: c.logementEquipements },
+    { id: "environnement", label: "Environnement", detail: "Déchets, eaux usées, pollution, biodiversité", montant: c.environnement },
+  ];
+  const connus = c.sante + c.education + c.defense + c.tribunaux + c.prisons + c.protectionSociale + postesReste.reduce((t, p) => t + p.montant, 0);
+  postesReste.push({
+    id: "administration",
+    label: "Administration générale",
+    detail: "Parlement, impôts et finances publiques, collectivités, aide au développement",
+    montant: c.total - connus,
+  });
+  return postesReste.map((p) => ({ ...p, pensions: 0 }));
 }
 
 export const postes = construirePostes();

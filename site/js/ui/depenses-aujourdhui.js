@@ -9,22 +9,24 @@ import { appliquerChoix } from "../engine/depenses.js";
 export function monter(racine) {
   const zone = h("div");
   const caseAcocher = h("input", { type: "checkbox", id: "da-pensions", checked: true });
+  // En ouverture de page (data-ouverture), le titre et l'introduction sont portés par la page elle-même.
+  const ouverture = "ouverture" in racine.dataset;
   racine.replaceChildren(
-    h("h2", { class: "titre-section" }, "Où va l'argent public\u00a0?"),
+    ...[ouverture ? null : h("h2", { class: "titre-section" }, "Où va l'argent public\u00a0?"),
     h(
       "p",
       { class: "texte" },
-      "Les retraites sont le premier poste de dépense publique, devant la santé. Cochez ou décochez la case pour ranger les pensions des anciens enseignants et militaires dans leur administration ou dans les retraites. ",
+      "Cochez ou décochez la case pour ranger les pensions des anciens enseignants et militaires dans leur administration ou dans les retraites. ",
       h("a", { href: "retraites-simuler.html#depenses" }, "Voir comment ce partage changerait avec vos réformes"),
       ".",
     ),
     zone,
-  );
+  ].filter(Boolean));
   let postes = depenses.postes;
   const camembert = camembertAvantApres(zone, {
     postes,
     seul: true,
-    titre: `Dépenses publiques ${depenses.annee} par grande fonction`,
+    titre: `Où va l'argent public : dépenses ${depenses.annee} par grande fonction`,
     sousTitre: "État, collectivités et Sécurité sociale, en milliards d'euros et en part du total.",
     options: h(
       "div",

@@ -117,7 +117,7 @@ export function creerRepartiteur(racine, options) {
         h("a", { href: depenses.url }, depenses.source),
         " ; ",
         h("a", { href: depenses.jaune.url }, depenses.jaune.source),
-        ". Retraites : 433 Md€ de pensions (retraite et réversion) au total, dont 26 Md€ rattachés à l'éducation et 11 Md€ à la défense quand la case est cochée ; le COR compte 422 Md€ sur un périmètre un peu différent. Les anciens agents de l'Éducation nationale représentant environ la moitié des pensionnés civils de l'État, la moitié des pensions civiles (26 Md€) est rattachée à l'éducation : c'est une estimation. L'école, la recherche et l'université abondent l'éducation ; l'hôpital, la santé ; l'écologie et le logement, « tout le reste ».",
+        ". Retraites : 433 Md€ de pensions (retraite et réversion) au total, dont 26 Md€ rattachés à l'éducation et 11 Md€ à la défense quand la case est cochée ; le COR compte 422 Md€ sur un périmètre un peu différent. Les anciens agents de l'Éducation nationale représentant environ la moitié des pensionnés civils de l'État, la moitié des pensions civiles (26 Md€) est rattachée à l'éducation : c'est une estimation. L'école et l'université abondent l'éducation ; la recherche, la recherche ; l'hôpital, la santé ; la transition écologique, l'environnement ; le logement et les territoires, le logement.",
       ),
     ],
   });

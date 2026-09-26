@@ -39,7 +39,7 @@ export const destinations = [
   },
   {
     id: "recherche",
-    poste: "education",
+    poste: "recherche",
     label: "La recherche et l'université",
     resume: "Mission « Recherche et enseignement supérieur »",
     type: "service",
@@ -48,7 +48,7 @@ export const destinations = [
   },
   {
     id: "ecologie",
-    poste: "autres",
+    poste: "environnement",
     label: "La transition écologique",
     resume: "Mission « Écologie, développement et mobilité durables »",
     type: "service",
@@ -57,7 +57,7 @@ export const destinations = [
   },
   {
     id: "logement",
-    poste: "autres",
+    poste: "logement",
     label: "Le logement et les territoires",
     resume: "Mission « Cohésion des territoires »",
     type: "service",
