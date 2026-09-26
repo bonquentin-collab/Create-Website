@@ -117,3 +117,9 @@ via l'option `zoneDepenses` du répartiteur ; sans cette option, il se place sou
 (`auDessusDuSeuil`, `economieGel`, `perteMensuelle`), `ui/gel-pensions.js`. L'économie est reversée aux actifs en
 baisse de CSG et publiée dans le registre des réformes (`publier("gel", …)`) pour le graphique des niveaux de vie.
 Quand la Drees publiera l'EIR 2024, remplacer `tranches` et ramener `facteur2026` près de 1.
+
+## Santé par âge (page Retraites › Comprendre)
+
+`params/sante.js` (financeurs Drees 2024, dépense par âge Drees 2023, prélèvements par âge Insee 2019),
+`engine/sante.js` (`financementSanteParAge`, `concentration`), `ui/sante-age.js`. Le financement par âge est une
+estimation du site : prélèvements de chaque âge × part de la santé dans l'ensemble des prélèvements.

@@ -291,12 +291,12 @@ test("dépenses : les postes couvrent tout le total COFOG 2024", () => {
 
 test("dépenses : ajouts des choix et baisse des pensions", () => {
   const ajouts = ajoutsParPoste({ actifs: 5, ecole: 2, recherche: 1, hopital: 3 }, destinations);
-  assert.deepEqual(ajouts, { education: 3, sante: 3 });
+  assert.deepEqual(ajouts, { education: 2, recherche: 1, sante: 3 });
   const l = appliquerChoix(postes, ajouts, 0.1);
   const par = Object.fromEntries(l.map((x) => [x.id, x]));
   proche(par.sante.ecart, 3, 1e-9);
   const edu = postes.find((p) => p.id === "education");
-  proche(par.education.ecart, 3 - edu.pensions * 0.1, 1e-9);
+  proche(par.education.ecart, 2 - edu.pensions * 0.1, 1e-9);
   const ret = postes.find((p) => p.id === "retraites");
   proche(par.retraites.apres, ret.montant * 0.9, 1e-9);
   proche(par.justice.ecart, 0, 1e-12);
@@ -350,4 +350,21 @@ test("gel : économie croissante avec le taux, décroissante avec le seuil ; per
   assert.equal(perteMensuelle(1900, { seuil: 2000, taux: 0.01, partBase: 1 }), 0);
   proche(perteMensuelle(2500, { seuil: 2000, taux: 0.01, partBase: 1 }), 25, 1e-9);
   proche(perteMensuelle(2500, { seuil: 2000, taux: 0.01, partBase: 1, mode: "au-dela" }), 5, 1e-9);
+});
+
+// ---------- Santé ----------
+import { sante } from "../site/js/params/sante.js";
+import { financementSanteParAge, concentration } from "../site/js/engine/sante.js";
+
+test("santé : financeurs, concentration des dépenses et financement par âge", () => {
+  const f = sante.financeurs;
+  proche(f.lignes.reduce((t, l) => t + l.valeur, 0), f.total, 0.05);
+  const c = concentration(sante.usagers.lignes, (l) => l.retraite);
+  assert.ok(c.partPersonnes > 0.25 && c.partPersonnes < 0.29);
+  assert.ok(c.partDepense > 0.52 && c.partDepense < 0.56);
+  const v = financementSanteParAge(sante.financementParAge);
+  assert.equal(v.length, sante.financementParAge.ages.length);
+  // Les 55-59 ans versent le plus, les 80 ans ou plus parmi le moins.
+  assert.equal(v.indexOf(Math.max(...v)), 7);
+  assert.ok(v.at(-1) < v[7] / 5);
 });

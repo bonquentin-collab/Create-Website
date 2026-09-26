@@ -875,3 +875,10 @@ select {
 .camembert--seul .camembert__scene { grid-template-columns: minmax(0, 22rem); justify-content: center; }
 .camembert--seul .legende-postes th:nth-child(3), .camembert--seul .legende-postes td:nth-child(3),
 .camembert--seul .legende-postes th:nth-child(4), .camembert--seul .legende-postes td:nth-child(4) { display: none; }
+.chiffres--sante { margin-top: var(--e-5); }
+.chiffres--sante .sous { display: block; font-family: var(--police-texte); font-size: var(--t-s); font-weight: 400; color: var(--encre-2); }
+@media (max-width: 46rem) {
+  /* Tableaux larges : défilement horizontal dans leur propre boîte plutôt que sur toute la page */
+  .legende-postes, .table-donnees table { display: block; max-width: 100%; overflow-x: auto; }
+  .legende-postes th:first-child { min-width: 9.5rem; }
+}

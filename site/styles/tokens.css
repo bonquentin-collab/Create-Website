@@ -30,7 +30,15 @@
   --poste-defense: #5b6b2f;
   --poste-justice: #8a4fb0;
   --poste-social: #86a8dc;
-  --poste-autres: #b4ae9f;
+  --poste-dette: #4a4a4a;
+  --poste-transports: #c0392b;
+  --poste-economie: #7a5c3a;
+  --poste-recherche: #2f8f9d;
+  --poste-securite: #2e3f7a;
+  --poste-culture: #c2577a;
+  --poste-logement: #a8946a;
+  --poste-environnement: #6fae4a;
+  --poste-administration: #b4ae9f;
 
   /* Typographie */
   --police-affiche: "Archivo", "Arial Narrow", system-ui, sans-serif;
@@ -85,7 +93,15 @@
     --poste-defense: #8b9a55;
     --poste-justice: #a97bd0;
     --poste-social: #a9c3ee;
-    --poste-autres: #5f5b52;
+    --poste-dette: #9a9a9a;
+    --poste-transports: #e0655a;
+    --poste-economie: #a8845c;
+    --poste-recherche: #4fb3c1;
+    --poste-securite: #7f93d6;
+    --poste-culture: #e07a9c;
+    --poste-logement: #c7b385;
+    --poste-environnement: #8fcf6a;
+    --poste-administration: #5f5b52;
     --ombre-feuille: 0 1px 0 var(--trame), 0 12px 32px -18px rgb(0 0 0 / 0.6);
     color-scheme: dark;
   }
@@ -112,7 +128,15 @@
   --poste-defense: #8b9a55;
   --poste-justice: #a97bd0;
   --poste-social: #a9c3ee;
-  --poste-autres: #5f5b52;
+  --poste-dette: #9a9a9a;
+  --poste-transports: #e0655a;
+  --poste-economie: #a8845c;
+  --poste-recherche: #4fb3c1;
+  --poste-securite: #7f93d6;
+  --poste-culture: #e07a9c;
+  --poste-logement: #c7b385;
+  --poste-environnement: #8fcf6a;
+  --poste-administration: #5f5b52;
   --ombre-feuille: 0 1px 0 var(--trame), 0 12px 32px -18px rgb(0 0 0 / 0.6);
   color-scheme: dark;
 }
