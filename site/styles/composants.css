@@ -882,3 +882,20 @@ select {
   .legende-postes, .table-donnees table { display: block; max-width: 100%; overflow-x: auto; }
   .legende-postes th:first-child { min-width: 9.5rem; }
 }
+
+/* ----- Barres empilées (qui paie quoi) ----- */
+.barres--empilees { gap: var(--e-2); }
+.empile__piste { display: flex; height: 1.9rem; border-radius: 0 5px 5px 0; overflow: hidden; transition: width 220ms ease-out; min-width: 2px; }
+.empile__segment { position: relative; display: flex; align-items: center; justify-content: center; min-width: 0; transition: flex-grow 220ms ease-out; }
+.empile__segment + .empile__segment { box-shadow: inset 2px 0 0 var(--papier-case); }
+.section--feuille .empile__segment + .empile__segment { box-shadow: inset 2px 0 0 var(--papier); }
+.empile__texte { font-size: var(--t-xs); font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: clip; padding-inline: 4px; text-shadow: 0 1px 1px rgb(0 0 0 / 0.35); }
+.empile__groupe { font-family: var(--police-affiche); font-weight: 800; font-size: var(--t-xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--encre-2); margin-top: var(--e-3); padding-bottom: var(--e-1); border-bottom: 1px solid var(--trame); }
+.empile__groupe:first-child { margin-top: 0; }
+.barre.empile .barre__piste, .barre.empile { align-items: center; }
+.barre.empile > .empile__piste { justify-self: start; }
+
+/* Bascule d'unité (euros / part) : pastilles à deux positions */
+.bascule { display: inline-flex; border: 1.5px solid var(--encre); border-radius: 999px; padding: 2px; gap: 2px; margin-top: var(--e-3); }
+.bascule button { font: inherit; font-size: var(--t-xs); font-weight: 700; border: 0; background: transparent; color: var(--encre-2); padding: 0.3rem 0.8rem; border-radius: 999px; cursor: pointer; }
+.bascule button[aria-pressed="true"] { background: var(--encre); color: var(--papier); }
