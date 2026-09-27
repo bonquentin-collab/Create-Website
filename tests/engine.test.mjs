@@ -354,7 +354,7 @@ test("gel : économie croissante avec le taux, décroissante avec le seuil ; per
 
 // ---------- Santé ----------
 import { sante } from "../site/js/params/sante.js";
-import { financementSanteParAge, concentration } from "../site/js/engine/sante.js";
+import { financementSanteParAge, concentration, quiPaieParAge } from "../site/js/engine/sante.js";
 
 test("santé : financeurs, concentration des dépenses et financement par âge", () => {
   const f = sante.financeurs;
@@ -367,4 +367,21 @@ test("santé : financeurs, concentration des dépenses et financement par âge",
   // Les 55-59 ans versent le plus, les 80 ans ou plus parmi le moins.
   assert.equal(v.indexOf(Math.max(...v)), 7);
   assert.ok(v.at(-1) < v[7] / 5);
+});
+
+test("santé : qui paie par âge et taux d'effort Drees", () => {
+  const q = quiPaieParAge(sante.usagers.lignes, sante.resteFinal.tranches);
+  assert.equal(q.length, 7); // adultes de 21 ans ou plus
+  for (const l of q) {
+    const src = sante.usagers.lignes.find((u) => u.age === l.age);
+    proche(l.total, src.depense, 2); // arrondis de la source
+    assert.ok(l.complementaire >= 0 && l.patient > 0);
+  }
+  assert.equal(q.at(-1).patient, 410);
+  const e = sante.effort;
+  for (const g of [e.actifs, e.retraites])
+    g.total.forEach((t, i) => proche(g.amo[i] + g.primes[i] + g.reste[i], t, 0.05));
+  // Progressif pour les actifs, régressif pour les retraités
+  assert.ok(e.actifs.total.at(-1) > e.actifs.total[0]);
+  assert.ok(e.retraites.total.at(-1) < e.retraites.total[0]);
 });
