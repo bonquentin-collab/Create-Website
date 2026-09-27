@@ -385,3 +385,21 @@ test("santé : qui paie par âge et taux d'effort Drees", () => {
   assert.ok(e.actifs.total.at(-1) > e.actifs.total[0]);
   assert.ok(e.retraites.total.at(-1) < e.retraites.total[0]);
 });
+
+// ---------- Rendement des cotisations par génération ----------
+import { rendement } from "../site/js/params/rendement.js";
+import { recuPour100000, calendrier, multiplicateursImpots } from "../site/js/engine/rendement.js";
+
+test("rendement : calage sur le TRI du COR, actualisation et impôts", () => {
+  const opt = { decrochage: rendement.decrochagePension };
+  for (const g of rendement.generations) {
+    proche(recuPour100000(g, g.tri, opt), 100000, 1); // au taux égal au TRI : équilibre
+    assert.ok(recuPour100000(g, 0, opt) > 100000); // TRI positif : gagnant au taux des salaires
+    assert.ok(recuPour100000(g, 0.03, opt) < 100000); // à 3 % au-dessus des salaires : perdant
+    assert.ok(recuPour100000(g, 0, { ...opt, impots: rendement.impots }) < recuPour100000(g, 0, opt));
+  }
+  const c = calendrier(rendement.generations[0]);
+  assert.ok(c.depart > 60 && c.depart < 62);
+  proche(multiplicateursImpots(rendement.impots, 1980).retraite, 1, 1e-12); // pas de CSG avant 1994
+  assert.ok(multiplicateursImpots(rendement.impots, 2030).actif > multiplicateursImpots(rendement.impots, 1980).actif);
+});

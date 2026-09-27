@@ -123,3 +123,9 @@ Quand la Drees publiera l'EIR 2024, remplacer `tranches` et ramener `facteur2026
 `params/sante.js` (financeurs Drees 2024, dépense par âge Drees 2023, prélèvements par âge Insee 2019),
 `engine/sante.js` (`financementSanteParAge`, `concentration`), `ui/sante-age.js`. Le financement par âge est une
 estimation du site : prélèvements de chaque âge × part de la santé dans l'ensemble des prélèvements.
+
+## Rendement des cotisations par génération (Retraites › Comprendre)
+
+`params/rendement.js` (TRI du COR par génération et par profil, durées de carrière et de retraite, part des
+ressources hors cotisations 1987-2025), `engine/rendement.js` (`recuPour100000`, calé sur le TRI du COR),
+`ui/rendement-generations.js` (curseur d'actualisation, option impôts, barres avec ligne d'équilibre).

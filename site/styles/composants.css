@@ -899,3 +899,9 @@ select {
 .bascule { display: inline-flex; border: 1.5px solid var(--encre); border-radius: 999px; padding: 2px; gap: 2px; margin-top: var(--e-3); }
 .bascule button { font: inherit; font-size: var(--t-xs); font-weight: 700; border: 0; background: transparent; color: var(--encre-2); padding: 0.3rem 0.8rem; border-radius: 999px; cursor: pointer; }
 .bascule button[aria-pressed="true"] { background: var(--encre); color: var(--papier); }
+
+/* ----- Rendement des cotisations par génération ----- */
+.rendement__reglages { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: var(--e-5); align-items: start; margin: var(--e-5) 0 var(--e-3); }
+.barres--equilibre .barre__piste { overflow: visible; }
+.ligne-equilibre { position: absolute; top: -4px; bottom: -4px; width: 0; border-left: 2px dashed var(--encre); }
+.trait-equilibre { display: inline-block; width: 0; height: 0.9rem; border-left: 2px dashed var(--encre); vertical-align: -0.15em; margin-right: 0.35rem; }
