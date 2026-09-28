@@ -23,6 +23,7 @@ import { monter as santeAge } from "./ui/sante-age.js";
 import { monter as rendementGenerations } from "./ui/rendement-generations.js";
 import { monter as plafondPensions } from "./ui/plafond-pensions.js";
 import { monter as niveauxDeVie } from "./ui/niveaux-de-vie.js";
+import { monter as santeReformes } from "./ui/sante-reformes.js";
 
 const modules = {
   entete,
@@ -46,6 +47,7 @@ const modules = {
   "rendement-generations": rendementGenerations,
   "plafond-pensions": plafondPensions,
   "niveaux-de-vie": niveauxDeVie,
+  "sante-reformes": santeReformes,
 };
 
 const contexte = {

@@ -416,3 +416,48 @@ test("plafond : économie décroissante avec le plafond, perte individuelle", ()
   assert.equal(pertePlafond(4500, 4000), 500);
   assert.equal(pertePlafond(3500, 4000), 0);
 });
+
+import { trajectoireEconomie, valeurTrimestre } from "../site/js/engine/gel-pensions.js";
+
+test("gel : économie qui s'érode sans ajustement des futurs retraités, stable avec ; valeur d'un trimestre", () => {
+  const sans = trajectoireEconomie(1, { annee: 10, sortie: 0.03 });
+  const avec = trajectoireEconomie(1, { annee: 10, sortie: 0.03, futurs: true });
+  assert.ok(Math.abs(sans.annee - 0.97 ** 10) < 1e-9);
+  assert.equal(avec.annee, 1);
+  assert.equal(avec.cumul, 11);
+  assert.ok(sans.cumul < avec.cumul && sans.cumul > 9);
+  assert.ok(Math.abs(valeurTrimestre(gel.ipp) - 0.5 / 172) < 1e-12);
+  assert.ok(valeurTrimestre(gel.ipp, 0.009) < valeurTrimestre(gel.ipp));
+  assert.ok(gel.partBase > 0.6 && gel.partBase < 0.7);
+});
+
+import { santeReformes } from "../site/js/params/sante-reformes.js";
+import { groupesEffort, coutBouclier, recettesRetraites, effortAjouteRetraites, perteRetraiteSante } from "../site/js/engine/sante-reformes.js";
+import { csg as csgSante } from "../site/js/params/prelevements.js";
+
+test("santé : groupes d'effort cohérents avec la moyenne Drees, bouclier décroissant avec le plafond", () => {
+  const g = groupesEffort(santeReformes.effortPrive);
+  assert.equal(g.length, 13);
+  assert.ok(Math.abs(g.reduce((s, x) => s + x.part, 0) - 1) < 1e-9);
+  const moyenne = g.reduce((s, x) => s + x.part * x.effort, 0);
+  assert.ok(Math.abs(moyenne - santeReformes.effortPrive.moyenne) < 0.01);
+  for (let i = 1; i < g.length; i++) assert.ok(g[i].effort >= g[i - 1].effort);
+  const conf = { moyenne: santeReformes.effortPrive.moyenne, depenseTotale: 48, menages: 28.8e6 };
+  const a = coutBouclier(g, { ...conf, plafond: 10 });
+  const b = coutBouclier(g, { ...conf, plafond: 5 });
+  assert.ok(a.cout > 1 && a.cout < b.cout && b.cout < 48);
+  assert.ok(a.partRetraites > 0.6 && a.partRetraites < 1);
+  assert.equal(coutBouclier(g, { ...conf, plafond: 40 }).cout, 0);
+});
+
+test("santé : recettes et effort ajouté des leviers sur les retraités", () => {
+  const ctx = { csg: csgSante, partBase: 0.67, partPensions: 0.778, exposition: santeReformes.exposition };
+  const r = recettesRetraites({ csgAlignee: true, cotisation: 0.01 }, ctx);
+  assert.ok(Math.abs(r.csg - 225 * 0.009) < 1e-9);
+  assert.ok(r.cotisation > 1.5 && r.cotisation < 2.5);
+  const e = effortAjouteRetraites({ csgAlignee: true, cotisation: 0.01 }, ctx);
+  assert.equal(e[0], 0);
+  assert.ok(e[4] > e[2] && e[2] > e[1]);
+  assert.equal(perteRetraiteSante(1000, "exonere", { csgAlignee: true, cotisation: 0.01 }, ctx), 0);
+  assert.ok(Math.abs(perteRetraiteSante(3000, "normal", { csgAlignee: true, cotisation: 0.01 }, ctx) - 3000 * (0.009 + 0.0067)) < 1e-9);
+});

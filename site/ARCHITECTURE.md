@@ -93,7 +93,7 @@ Deux espaces, trois pages chacun, plus un accueil :
 | `heritage.html` / `retraites.html` | Comprendre | contexte, chiffres, graphiques sans réglage |
 | `heritage-simuler.html` / `retraites-simuler.html` | Simuler | rappel chiffré, simulateurs, effets (niveaux de vie, camembert) |
 | `heritage-methode.html` / `retraites-methode.html` | Méthode | sources et limites |
-| `sante.html`, `sante-simuler.html`, `sante-methode.html` | Santé | contexte santé (Simuler : à venir) |
+| `sante.html`, `sante-simuler.html`, `sante-methode.html` | Santé | contexte santé ; Simuler : leviers sur les retraités et bouclier santé |
 
 Chaque page déclare `<body data-espace="…" data-page="comprendre|simuler|methode">` ; l'en-tête
 (`ui/entete.js`, `data-module="entete"`) en déduit l'interrupteur Héritage | Retraites et la sous-navigation,
@@ -115,7 +115,9 @@ via l'option `zoneDepenses` du répartiteur ; sans cette option, il se place sou
 ## Gel des hautes pensions (onglet 4 de la page retraites)
 
 `params/gel-pensions.js` (distribution Drees EIR 2020, facteur de passage à 2026, contexte), `engine/gel-pensions.js`
-(`auDessusDuSeuil`, `economieGel`, `perteMensuelle`), `ui/gel-pensions.js`. L'économie est reversée aux actifs en
+(`auDessusDuSeuil`, `economieGel`, `perteMensuelle`, `trajectoireEconomie`, `valeurTrimestre`), `ui/gel-pensions.js`.
+Calage IPP (`gel.ipp`) : pension de base = deux tiers du total, économie nette des finances publiques ×0,78, option
+« futurs retraités » (baisse du taux d'annuité à la liquidation) contre érosion de 3 %/an (`gel.sortieAnnuelle`). L'économie est reversée aux actifs en
 baisse de CSG et publiée dans le registre des réformes (`publier("gel", …)`) pour le graphique des niveaux de vie.
 Quand la Drees publiera l'EIR 2024, remplacer `tranches` et ramener `facteur2026` près de 1.
 
@@ -136,3 +138,10 @@ ressources hors cotisations 1987-2025), `engine/rendement.js` (`recuPour100000`,
 `engine/plafond.js` (`economiePlafond`, `pertePlafond`, sur la distribution des pensions de `params/gel-pensions.js`),
 `ui/plafond-pensions.js` : l'économie alimente un répartiteur (préfixe `pl`, lien `#plafond`) et le graphique des
 niveaux de vie (`publier("plafond", …)`).
+
+## Santé › Simuler : répartir l'effort entre âges
+
+`params/sante-reformes.js` (déficit maladie 2026, exposition des niveaux de vie aux taux de CSG, effort en primes et
+restes à charge par dixième Drees ER 1345), `engine/sante-reformes.js` (`groupesEffort`, `coutBouclier`,
+`recettesRetraites`, `effortAjouteRetraites`, `perteRetraiteSante`), `ui/sante-reformes.js` (module `sante-reformes`).
+Le coût du bouclier suppose des revenus égaux entre groupes (majorant) et un effort linéaire dans chaque groupe.

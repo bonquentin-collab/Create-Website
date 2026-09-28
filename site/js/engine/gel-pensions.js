@@ -56,3 +56,19 @@ export function perteMensuelle(pension, { seuil, taux, partBase, mode = "tout" }
   if (pension <= seuil) return 0;
   return (mode === "au-dela" ? pension - seuil : pension) * partBase * taux;
 }
+
+/**
+ * Économie de l'année `annee` (0 = première année) et cumul sur `annee + 1` ans, en Md€ constants.
+ * Sans ajustement des futures pensions, les retraités concernés sortent peu à peu (décès, part `sortie` par an) et
+ * leurs successeurs liquident au taux d'annuité inchangé : l'économie s'érode. Avec la baisse du taux d'annuité à la
+ * liquidation pour les futurs retraités au-dessus du seuil, le nombre de pensions concernées reste stable.
+ */
+export function trajectoireEconomie(economie, { annee, sortie, futurs = false }) {
+  const facteurAn = (t) => (futurs ? 1 : (1 - sortie) ** t);
+  let cumul = 0;
+  for (let t = 0; t <= annee; t++) cumul += economie * facteurAn(t);
+  return { annee: economie * facteurAn(annee), cumul };
+}
+
+/** Valeur d'un trimestre validé, en part du salaire de référence (taux d'annuité), éventuellement réduite. */
+export const valeurTrimestre = ({ tauxPlein, trimestresRequis }, reduction = 0) => (tauxPlein / trimestresRequis) * (1 - reduction);
