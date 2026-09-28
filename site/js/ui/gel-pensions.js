@@ -3,7 +3,7 @@
 
 import { h, remplir, surChangement, formaterALaSortie, rejouer } from "./dom.js";
 import { euros, ecartEuros, milliards, pourcent, lireMontant, nombre } from "../engine/format.js";
-import { economieGel, perteMensuelle } from "../engine/gel-pensions.js";
+import { economieGel, perteMensuelle, trajectoireEconomie, valeurTrimestre } from "../engine/gel-pensions.js";
 import { gainBaisseCsg } from "../engine/prelevements.js";
 import { effetCsgRetraites } from "../engine/niveau-de-vie.js";
 import { gel } from "../params/gel-pensions.js";
@@ -18,6 +18,8 @@ const virgule = new Intl.NumberFormat("fr-FR", { minimumFractionDigits: 1, maxim
 const deuxDecimales = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 });
 const pct0 = new Intl.NumberFormat("fr-FR", { style: "percent", maximumFractionDigits: 0 });
 const pt = (t) => `${virgule.format(t * 100)} %`;
+const troisDecimales = new Intl.NumberFormat("fr-FR", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+const ANNEES = 10; // horizon : de 2026 à 2036
 
 export function monter(racine) {
   const curseurSeuil = h("input", { type: "range", id: "g-seuil", name: "seuil", min: 1500, max: 4000, step: 100, value: 2000 });
@@ -28,6 +30,7 @@ export function monter(racine) {
   const sortieBase = h("output", { for: "g-base" });
   const champPension = h("input", { id: "g-pension", name: "pension", inputmode: "decimal", autocomplete: "off", value: "2 500" });
   const champSalaire = h("input", { id: "g-salaire", name: "salaire", inputmode: "decimal", autocomplete: "off", value: "2 100" });
+  const caseFuturs = h("input", { type: "checkbox", id: "g-futurs", name: "futurs" });
 
   const form = h(
     "form",
@@ -50,6 +53,12 @@ export function monter(racine) {
         h("label", {}, h("input", { type: "radio", name: "mode", value: "tout", checked: true }), "Toute la pension de base des retraités au-dessus du seuil"),
         h("label", {}, h("input", { type: "radio", name: "mode", value: "au-dela" }), "Seulement la part de pension au-dessus du seuil (pas d'effet de seuil)"),
       ),
+    ),
+    h(
+      "div",
+      { class: "champ" },
+      h("label", { class: "case-a-cocher" }, caseFuturs, "Appliquer aussi aux futurs retraités (baisse du taux d'annuité à la liquidation)"),
+      h("p", { class: "aide" }, "Sans cela, les nouveaux retraités au-dessus du seuil partent avec une pension calculée comme avant, et l'économie s'éteint peu à peu. L'IPP juge la sous-indexation cohérente seulement si l'on ajuste aussi la pension de départ."),
     ),
     h("div", { class: "champ" }, h("label", { for: "g-pension" }, "Votre pension brute mensuelle totale"), h("div", { class: "case" }, champPension, h("span", { "aria-hidden": "true" }, "€"))),
     h("div", { class: "champ" }, h("label", { for: "g-salaire" }, "Le salaire net d'un actif, pour comparer"), h("div", { class: "case" }, champSalaire, h("span", { "aria-hidden": "true" }, "€"))),
@@ -81,6 +90,13 @@ export function monter(racine) {
       h(
         "p",
         {},
+        "L'Institut des politiques publiques (IPP) nuance en 2026. Ne pas revaloriser toutes les pensions pèse davantage sur les retraités modestes. Cibler les pensions élevées touche plutôt les plus aisés, mais les tout plus riches perdent moins, car une grande part de leurs revenus vient des retraites complémentaires et du patrimoine. Et moduler la revalorisation selon le montant s'éloigne du principe contributif : une pension reflète ce que l'on a cotisé. ",
+        h("a", { href: gel.ipp.url }, "Lire le rapport de l'IPP"),
+        ".",
+      ),
+      h(
+        "p",
+        {},
         `Ce ne serait pas une première : en 2020, les pensions de base ont été revalorisées de ${pourcent(gel.precedent2020.sous)} jusqu'à ${euros(gel.precedent2020.seuil)} de pension totale, et de seulement ${pt(gel.precedent2020.dessus)} au-delà.`,
       ),
     ),
@@ -96,6 +112,7 @@ export function monter(racine) {
     const taux = Number(curseurTaux.value) / 100;
     const partBase = Number(curseurBase.value) / 100;
     const mode = form.querySelector('input[name="mode"]:checked').value;
+    const futurs = caseFuturs.checked;
     sortieSeuil.textContent = euros(seuil);
     sortieTaux.textContent = pt(taux);
     sortieBase.textContent = pct0.format(partBase);
@@ -112,6 +129,14 @@ export function monter(racine) {
     const epargneMensuelle = netMensuel * gel.epargne.plus70;
     const perteNette = perte * (1 - gel.prelevementsTauxNormal);
 
+    const traj = trajectoireEconomie(r.economie, { annee: ANNEES, sortie: gel.sortieAnnuelle, futurs });
+    const trajAutre = trajectoireEconomie(r.economie, { annee: ANNEES, sortie: gel.sortieAnnuelle, futurs: !futurs });
+    const trimestreAvant = valeurTrimestre(gel.ipp);
+    // Réduction du taux d'annuité : toute la revalorisation en mode « tout », la part au-delà du seuil sinon
+    // (calculée alors pour la pension saisie).
+    const pensionSaisie = lireMontant(champPension.value);
+    const reduction = mode === "tout" ? taux : pensionSaisie > seuil ? (taux * (pensionSaisie - seuil)) / pensionSaisie : null;
+    const trimestreApres = reduction == null ? null : valeurTrimestre(gel.ipp, reduction);
     const tampon = h("p", { class: "tampon tampon--actifs" }, `+${milliards(r.economie)} par an`);
     remplir(
       resultat,
@@ -119,8 +144,26 @@ export function monter(racine) {
       h(
         "p",
         { class: "resultat__phrase" },
-        `Environ ${pct0.format(r.part)} des retraités (${virgule.format(r.concernes / 1e6)} millions) touchent plus de ${euros(seuil)} brut par mois. Sans revalorisation de leur pension de base, l'État et la Sécurité sociale économiseraient ${milliards(r.economie)} la première année, puis autant les années suivantes tant que le retard n'est pas rattrapé.`,
+        `Environ ${pct0.format(r.part)} des retraités (${virgule.format(r.concernes / 1e6)} millions) touchent plus de ${euros(seuil)} brut par mois. Sans revalorisation de leur pension de base, les régimes de retraite économiseraient ${milliards(r.economie)} la première année. Pour l'ensemble des finances publiques, le gain net serait plutôt de ${milliards(r.economie * gel.ipp.effetNet)} : des pensions plus faibles rapportent aussi moins d'impôt et de CSG.`,
       ),
+      h(
+        "dl",
+        { class: "comparatif" },
+        h(
+          "div",
+          {},
+          h("dt", {}, `Économie en ${2026 + ANNEES}`),
+          h("dd", {}, milliards(traj.annee), h("span", { class: "sous" }, futurs ? `futurs retraités inclus (${milliards(trajAutre.annee)} sans eux)` : `retraités actuels seulement (${milliards(trajAutre.annee)} avec les futurs)`)),
+        ),
+        h("div", {}, h("dt", {}, `Cumul 2026-${2026 + ANNEES}`), h("dd", {}, milliards(traj.cumul), h("span", { class: "sous" }, `contre ${milliards(trajAutre.cumul)} ${futurs ? "sans" : "avec"} les futurs retraités`))),
+      ),
+      futurs && trimestreApres != null
+        ? h(
+            "p",
+            { class: "resultat__detail" },
+            `Valeur d'un trimestre validé pour un futur retraité ${mode === "tout" ? "au-dessus du seuil" : `à ${euros(pensionSaisie)} de pension`}, dans le régime de base : ${troisDecimales.format(trimestreApres * 100)} % du salaire de référence au lieu de ${troisDecimales.format(trimestreAvant * 100)} % (taux plein de 50 % réparti sur 172 trimestres).`,
+          )
+        : null,
       h(
         "dl",
         { class: "comparatif" },
@@ -142,7 +185,7 @@ export function monter(racine) {
       h(
         "p",
         { class: "resultat__detail" },
-        "Estimation du site : distribution des pensions de la Drees (fin 2020) portée aux montants de 2026, 17,3 millions de retraités. La perte vient d'une revalorisation non versée : la pension ne baisse pas, elle ne suit pas les prix cette année-là.",
+        "Estimation du site : distribution des pensions de la Drees (fin 2020) portée aux montants de 2026, 17,3 millions de retraités, pensions de base égales aux deux tiers du total (IPP). Économie nette des finances publiques : environ 22 % de moins (IPP : « 20 % à 25 % »). Sans les futurs retraités, environ 3 % des retraités concernés sortent chaque année (décès). La perte vient d'une revalorisation non versée : la pension ne baisse pas, elle ne suit pas les prix cette année-là.",
       ),
     );
     if (dernier !== null && Math.abs(dernier - r.economie) > 0.5) rejouer(tampon);

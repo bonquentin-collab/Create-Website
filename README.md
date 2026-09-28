@@ -26,11 +26,17 @@ L'espace **Retraites** (`retraites.html`, `retraites-simuler.html`) propose quat
   par l'utilisateur entre salaires et services publics.
 - **Gel des hautes pensions** : pas de revalorisation de la pension de base au-delà d'un seuil ; économie,
   retraités concernés, perte et poids dans leur épargne.
+- Calage sur l'IPP (2026) : économie nette pour les finances publiques, option « futurs retraités » (baisse du
+  taux d'annuité à la liquidation) et valeur d'un trimestre.
 - **Retraités et actifs : qui vit le mieux ?** Dans l'esprit du graphique du Financial Times (J. Burn-Murdoch,
   2025) : niveaux de vie médians des retraités et des personnes en emploi de 1996 à 2024 (Insee), par âge,
   et où les mèneraient les réformes réglées dans les onglets, cumulées au choix. Un premier onglet,
   « Logement et patrimoine », compare jeunes et retraités sur leurs besoins : loyers imputés (COR),
   propriétaires et endettement selon l'âge (Insee), taux d'épargne (Insee).
+
+L'espace **Santé** (`sante.html`, `sante-simuler.html`) montre qui finance et qui utilise la santé selon l'âge,
+puis simule trois leviers : CSG des pensions au taux normal alignée sur les salaires, cotisation maladie sur les
+pensions de base, bouclier santé plafonnant primes et restes à charge ; taux d'effort avant/après (Drees).
 
 Site en ligne : https://bonquentin-collab.github.io/Create-Website/
 

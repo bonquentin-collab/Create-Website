@@ -77,10 +77,31 @@ export const gel = {
   // Plus forte revalorisation récente : 5,3 % au 1er janvier 2024.
   revalorisation2024: 0.053,
 
-  // Part de la pension venant des régimes de base (seule gelée dans la proposition). 71 % pour le cas type de
-  // non-cadre du privé né en 1960 (COR 2026, figure 3.3 : 53,0 % de taux de remplacement Cnav sur 74,8 %),
-  // moins pour un cadre, 100 % pour un fonctionnaire. Valeur par défaut : 75 %, estimation du site.
-  partBase: 0.75,
+  // Part de la pension venant des régimes de base (seule gelée dans la proposition). L'IPP (2026, ch. 3) chiffre à
+  // 0,37 point de sous-indexation uniforme des pensions de base l'économie de 1 Md€ : environ 270 Md€ de pensions de
+  // base, soit deux tiers des 402 Md€ de pensions. 71 % pour un non-cadre du privé né en 1960 (COR 2026, figure 3.3),
+  // moins pour un cadre, 100 % pour un fonctionnaire.
+  partBase: 0.67,
+
+  // Rapport de l'IPP sur la désindexation des retraites (Perspectives budgétaires 2027, chapitre 3).
+  ipp: {
+    source: "IPP, Perspectives budgétaires 2027, chapitre 3 : sous-indexation des retraites (Aubert, Tô, Tochev, 2026)",
+    url: "https://www.ipp.eu/wp-content/uploads/2026/07/Chapitre_Desindexation_retraite___Rapport_Perspectives_Budgetaires_2027-4.pdf",
+    // L'économie pour l'ensemble des finances publiques est inférieure « d'environ 20 % à 25 % » à celle des régimes
+    // (moins d'impôt sur le revenu et de CSG, plus de prestations). Valeur centrale retenue : −22 %.
+    effetNet: 0.78,
+    // Valeur d'un trimestre : taux plein de 50 % du salaire de référence réparti sur la durée requise (172 trimestres
+    // pour les générations nées à partir de 1965).
+    tauxPlein: 0.5,
+    trimestresRequis: 172,
+  },
+
+  // Sortie des retraités actuels : 651 000 décès en 2025 (Insee, bilan démographique), dont près de 9 sur 10 à
+  // 60 ans ou plus, rapportés à 17,3 millions de retraités : environ 3 % du stock par an. Ordre de grandeur : les
+  // hautes pensions sont un peu plus jeunes, donc sortent un peu moins vite. Sans ajustement des futures pensions,
+  // l'économie s'érode d'autant.
+  deces: { valeur: 651000, source: "Insee Première n° 2087, Bilan démographique 2025", url: "https://www.insee.fr/fr/statistiques/8719824" },
+  sortieAnnuelle: 0.03,
 
   // Précédent : en 2020, les pensions de base ont été revalorisées de 1 % jusqu'à 2 000 € de pension totale brute,
   // de 0,3 % au-delà (loi de financement de la sécurité sociale pour 2020).

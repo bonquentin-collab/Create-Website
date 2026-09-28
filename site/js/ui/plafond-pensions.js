@@ -91,6 +91,11 @@ export function monter(racine) {
       ),
       h(
         "p",
+        { class: "resultat__phrase" },
+        `Contrairement à un gel, le plafond est permanent et vaut aussi pour les futurs retraités : l'économie ne s'éteint pas avec le temps. Pour l'ensemble des finances publiques, le gain net serait plutôt de ${milliards(r.economie * gel.ipp.effetNet)}, car des pensions plus faibles rapportent aussi moins d'impôt et de CSG (IPP, 2026). Au-delà du plafond, cotiser plus ne donnerait plus aucun droit : le lien entre cotisations et pension serait rompu pour les plus hauts revenus.`,
+      ),
+      h(
+        "p",
         { class: "resultat__detail" },
         "Estimation du site : distribution des pensions de la Drees (fin 2020) portée aux montants de 2026, 17,3 millions de retraités. Au-delà de 5 350 € environ, la Drees ne détaille plus la distribution : le calcul y suppose une pension moyenne d'environ 7 100 €, ce qui rend l'estimation plus fragile pour les plafonds élevés. Sans effet sur les comportements ni contentieux juridique (un plafond rétroactif sur des droits acquis serait contesté).",
       ),
