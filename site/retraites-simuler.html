@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Retraites : simuler · La grande transmission</title>
-  <meta name="description" content="Quatre réformes des retraites à essayer, leur effet sur le niveau de vie des actifs et des retraités, et sur les dépenses publiques.">
+  <meta name="description" content="Cinq réformes des retraites à essayer, leur effet sur le niveau de vie des actifs et des retraités, et sur les dépenses publiques.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,700;1,400&display=swap">
@@ -21,7 +21,7 @@
   <main id="contenu">
     <section class="rappel" aria-label="Les retraites en bref.">
       <div class="page">
-        <h1 class="titre-page">Quatre réformes des retraites à essayer</h1>
+        <h1 class="titre-page">Cinq réformes des retraites à essayer</h1>
         <p class="rappel__titre">Les retraites en bref. <a href="retraites.html">Comprendre le contexte →</a></p>
         <dl class="chiffres chiffres--rappel">
           <div class="chiffre"><dt>Coût des retraites en 2025</dt><dd>422 Md€</dd></div>
@@ -36,17 +36,19 @@
         <h2 id="titre-simulateur" class="titre-section">Choisissez une réforme</h2>
 
         <div class="onglets" data-module="onglets">
-          <div class="onglets__liste" role="tablist" aria-label="Quatre réformes">
+          <div class="onglets__liste" role="tablist" aria-label="Cinq réformes">
             <button type="button" role="tab" class="onglet" id="onglet-tva" aria-controls="panneau-tva" aria-selected="true">TVA sociale</button>
             <button type="button" role="tab" class="onglet" id="onglet-csg" aria-controls="panneau-csg" aria-selected="false" tabindex="-1">CSG des retraités</button>
             <button type="button" role="tab" class="onglet" id="onglet-financement" data-cle-lien="liberation" aria-controls="panneau-financement" aria-selected="false" tabindex="-1">Retraites sans impôts</button>
             <button type="button" role="tab" class="onglet" id="onglet-gel" data-cle-lien="gel" aria-controls="panneau-gel" aria-selected="false" tabindex="-1">Gel des hautes pensions</button>
+            <button type="button" role="tab" class="onglet" id="onglet-plafond" data-cle-lien="plafond" aria-controls="panneau-plafond" aria-selected="false" tabindex="-1">Plafond des pensions</button>
           </div>
 
           <div class="onglets__panneau" role="tabpanel" id="panneau-tva" aria-labelledby="onglet-tva" tabindex="0" data-module="tva-sociale"></div>
           <div class="onglets__panneau" role="tabpanel" id="panneau-csg" aria-labelledby="onglet-csg" tabindex="0" hidden data-module="csg-retraites"></div>
           <div class="onglets__panneau" role="tabpanel" id="panneau-financement" aria-labelledby="onglet-financement" tabindex="0" hidden data-module="financement-retraites"></div>
           <div class="onglets__panneau" role="tabpanel" id="panneau-gel" aria-labelledby="onglet-gel" tabindex="0" hidden data-module="gel-pensions"></div>
+          <div class="onglets__panneau" role="tabpanel" id="panneau-plafond" aria-labelledby="onglet-plafond" tabindex="0" hidden data-module="plafond-pensions"></div>
         </div>
       </div>
     </section>

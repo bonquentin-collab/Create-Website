@@ -21,6 +21,7 @@ import { monter as contexteRetraites } from "./ui/contexte-retraites.js";
 import { monter as gelPensions } from "./ui/gel-pensions.js";
 import { monter as santeAge } from "./ui/sante-age.js";
 import { monter as rendementGenerations } from "./ui/rendement-generations.js";
+import { monter as plafondPensions } from "./ui/plafond-pensions.js";
 import { monter as niveauxDeVie } from "./ui/niveaux-de-vie.js";
 
 const modules = {
@@ -43,6 +44,7 @@ const modules = {
   "gel-pensions": gelPensions,
   "sante-age": santeAge,
   "rendement-generations": rendementGenerations,
+  "plafond-pensions": plafondPensions,
   "niveaux-de-vie": niveauxDeVie,
 };
 

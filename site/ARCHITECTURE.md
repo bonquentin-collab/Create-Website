@@ -93,6 +93,7 @@ Deux espaces, trois pages chacun, plus un accueil :
 | `heritage.html` / `retraites.html` | Comprendre | contexte, chiffres, graphiques sans réglage |
 | `heritage-simuler.html` / `retraites-simuler.html` | Simuler | rappel chiffré, simulateurs, effets (niveaux de vie, camembert) |
 | `heritage-methode.html` / `retraites-methode.html` | Méthode | sources et limites |
+| `sante.html`, `sante-simuler.html`, `sante-methode.html` | Santé | contexte santé (Simuler : à venir) |
 
 Chaque page déclare `<body data-espace="…" data-page="comprendre|simuler|methode">` ; l'en-tête
 (`ui/entete.js`, `data-module="entete"`) en déduit l'interrupteur Héritage | Retraites et la sous-navigation,
@@ -129,3 +130,9 @@ estimation du site : prélèvements de chaque âge × part de la santé dans l'e
 `params/rendement.js` (TRI du COR par génération et par profil, durées de carrière et de retraite, part des
 ressources hors cotisations 1987-2025), `engine/rendement.js` (`recuPour100000`, calé sur le TRI du COR),
 `ui/rendement-generations.js` (curseur d'actualisation, option impôts, barres avec ligne d'équilibre).
+
+## Plafond des pensions (onglet 5 de Retraites › Simuler)
+
+`engine/plafond.js` (`economiePlafond`, `pertePlafond`, sur la distribution des pensions de `params/gel-pensions.js`),
+`ui/plafond-pensions.js` : l'économie alimente un répartiteur (préfixe `pl`, lien `#plafond`) et le graphique des
+niveaux de vie (`publier("plafond", …)`).
