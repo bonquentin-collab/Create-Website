@@ -1,6 +1,6 @@
 // En-tête commun à toutes les pages : marque, interrupteur « Héritage | Retraites », sous-navigation
 // « Comprendre · Simuler · Méthode » de l'espace courant, bouton de thème.
-// La page se décrit sur <body data-espace="heritage|retraites|accueil" data-page="comprendre|simuler|methode">.
+// La page se décrit sur <body data-espace="heritage|retraites|sante|accueil" data-page="comprendre|simuler|methode">.
 // Redirige aussi les anciens liens (ancres des pages d'avant la séparation) vers leur nouvelle page.
 
 import { h } from "./dom.js";
@@ -15,13 +15,17 @@ export const ESPACES = {
     label: "Retraites",
     pages: { comprendre: "retraites.html", simuler: "retraites-simuler.html", methode: "retraites-methode.html" },
   },
+  sante: {
+    label: "Santé",
+    pages: { comprendre: "sante.html", simuler: "sante-simuler.html", methode: "sante-methode.html" },
+  },
 };
 const PAGES = { comprendre: "Comprendre", simuler: "Simuler", methode: "Méthode" };
 
 // Anciennes ancres → nouvelle page (l'ancre et les réglages partagés dans l'adresse sont conservés).
 const REDIRECTIONS = {
   "accueil/": { reforme: "heritage.html", heritage: "heritage-simuler.html", salaire: "heritage-simuler.html", repartition: "heritage-simuler.html", depenses: "heritage-simuler.html", methode: "heritage-methode.html" },
-  "retraites/comprendre": { simulateur: "retraites-simuler.html", liberation: "retraites-simuler.html", gel: "retraites-simuler.html", depenses: "retraites-simuler.html", methode: "retraites-methode.html" },
+  "retraites/comprendre": { simulateur: "retraites-simuler.html", liberation: "retraites-simuler.html", gel: "retraites-simuler.html", depenses: "retraites-simuler.html", methode: "retraites-methode.html", sante: "sante.html" },
 };
 
 export function monter(racine) {

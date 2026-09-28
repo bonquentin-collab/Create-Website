@@ -846,6 +846,7 @@ select {
 }
 .carte-espace--heritage { border-top: 10px solid var(--tampon); }
 .carte-espace--retraites { border-top: 10px solid var(--serie-actuel); }
+.carte-espace--sante { border-top: 10px solid var(--serie-actifs); }
 .carte-espace__etiquette { font-family: var(--police-affiche); font-weight: 800; font-size: var(--t-s); letter-spacing: 0.08em; text-transform: uppercase; color: var(--encre-2); }
 .carte-espace__titre { font-family: var(--police-affiche); font-variation-settings: "wdth" 80; font-weight: 800; font-size: var(--t-xl); line-height: 1.05; }
 .carte-espace__texte { color: var(--encre-2); }
@@ -905,3 +906,9 @@ select {
 .barres--equilibre .barre__piste { overflow: visible; }
 .ligne-equilibre { position: absolute; top: -4px; bottom: -4px; width: 0; border-left: 2px dashed var(--encre); }
 .trait-equilibre { display: inline-block; width: 0; height: 0.9rem; border-left: 2px dashed var(--encre); vertical-align: -0.15em; margin-right: 0.35rem; }
+@media (max-width: 30rem) {
+  .marque { font-size: 0.72rem; white-space: normal; line-height: 1.1; max-width: 5.6rem; flex: 0 0 auto; letter-spacing: -0.01em; font-variation-settings: "wdth" 88; }
+  .entete__interieur { padding-inline: var(--e-3); gap: var(--e-2); }
+  .espaces { padding: 2px; }
+  .espaces__lien { padding: 0.3rem 0.45rem; font-size: 0.72rem; }
+}

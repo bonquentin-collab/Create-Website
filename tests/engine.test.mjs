@@ -403,3 +403,16 @@ test("rendement : calage sur le TRI du COR, actualisation et impôts", () => {
   proche(multiplicateursImpots(rendement.impots, 1980).retraite, 1, 1e-12); // pas de CSG avant 1994
   assert.ok(multiplicateursImpots(rendement.impots, 2030).actif > multiplicateursImpots(rendement.impots, 1980).actif);
 });
+
+// ---------- Plafond des pensions ----------
+import { economiePlafond, pertePlafond } from "../site/js/engine/plafond.js";
+
+test("plafond : économie décroissante avec le plafond, perte individuelle", () => {
+  const opt = { retraites: gel.retraites.valeur, facteur: gel.facteur2026 };
+  const a = economiePlafond(gel.distribution2020, { ...opt, plafond: 3000 });
+  const b = economiePlafond(gel.distribution2020, { ...opt, plafond: 5000 });
+  assert.ok(a.economie > b.economie && b.economie > 0);
+  assert.ok(a.part > b.part);
+  assert.equal(pertePlafond(4500, 4000), 500);
+  assert.equal(pertePlafond(3500, 4000), 0);
+});

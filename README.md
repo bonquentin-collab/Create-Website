@@ -1,6 +1,6 @@
 # La grande transmission
 
-Outil citoyen en deux espaces, **Héritage** et **Retraites**, chacun découpé en trois pages :
+Outil citoyen en trois espaces, **Héritage**, **Retraites** et **Santé**, chacun découpé en trois pages :
 **Comprendre** (contexte et chiffres), **Simuler** (simulateurs et leurs effets) et **Méthode**. Une page
 d'accueil (`index.html`) mène aux deux espaces ; un interrupteur Héritage | Retraites est présent partout.
 
@@ -22,6 +22,8 @@ L'espace **Retraites** (`retraites.html`, `retraites-simuler.html`) propose quat
 - **Retraites sans impôts** : la décomposition du financement des retraites (COR, juin 2026), le choix des
   ressources jugées « logiques », ce que cela coûterait aux retraités ou aux actifs, et l'usage de l'argent
   public libéré (salaires ou services publics).
+- **Plafond des pensions** : toute pension au-delà d'un plafond choisi y est ramenée ; l'économie est répartie
+  par l'utilisateur entre salaires et services publics.
 - **Gel des hautes pensions** : pas de revalorisation de la pension de base au-delà d'un seuil ; économie,
   retraités concernés, perte et poids dans leur épargne.
 - **Retraités et actifs : qui vit le mieux ?** Dans l'esprit du graphique du Financial Times (J. Burn-Murdoch,
