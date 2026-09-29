@@ -34,6 +34,9 @@ L'espace **Retraites** (`retraites.html`, `retraites-simuler.html`) propose quat
   « Logement et patrimoine », compare jeunes et retraités sur leurs besoins : loyers imputés (COR),
   propriétaires et endettement selon l'âge (Insee), taux d'épargne (Insee).
 
+Les recettes de l'IGS sont recalculées avec le modèle du classeur de l'étude (flux successoral, piliers 1 et 2) :
+scénario « Étude 2024 » ou « Actualisé 2026 », hypothèses réglables dans Héritage › Comprendre, reprises par Simuler.
+
 L'espace **Santé** (`sante.html`, `sante-simuler.html`) montre qui finance et qui utilise la santé selon l'âge,
 puis simule trois leviers : CSG des pensions au taux normal alignée sur les salaires, cotisation maladie sur les
 pensions de base, bouclier santé plafonnant primes et restes à charge ; taux d'effort avant/après (Drees).

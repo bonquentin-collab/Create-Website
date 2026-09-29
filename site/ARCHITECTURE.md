@@ -145,3 +145,12 @@ niveaux de vie (`publier("plafond", …)`).
 restes à charge par dixième Drees ER 1345), `engine/sante-reformes.js` (`groupesEffort`, `coutBouclier`,
 `recettesRetraites`, `effortAjouteRetraites`, `perteRetraiteSante`), `ui/sante-reformes.js` (module `sante-reformes`).
 Le coût du bouclier suppose des revenus égaux entre groupes (majorant) et un effort linéaire dans chaque groupe.
+
+## Chiffrage de l'IGS (Héritage › Comprendre, repris par Simuler)
+
+`params/igs-chiffrage.js` (hypothèses du classeur de l'étude et scénario « Actualisé 2026 » : PIB Insee 2025, DMTG
+Voies et moyens PLF 2026, patrimoine Insee-BdF 2024, PFU 31,4 %), `engine/igs-chiffrage.js` (`chiffrerIgs` : flux
+successoral, pilier 1, pilier 2, taux effectifs ; reproduit le classeur à 0,01 Md€ près, voir le test),
+`ui/etat-heritage.js` (scénario et hypothèses modifiées mémorisés dans `localStorage`, `appliquerChiffrage` remplace
+`reforme.recettes` et `reforme.contexte` au démarrage dans `main.js`), `ui/reforme.js` (bascule et curseurs),
+`ui/methode-chiffrage.js` (tableau des hypothèses sur la page Méthode).
