@@ -461,3 +461,33 @@ test("santé : recettes et effort ajouté des leviers sur les retraités", () =>
   assert.equal(perteRetraiteSante(1000, "exonere", { csgAlignee: true, cotisation: 0.01 }, ctx), 0);
   assert.ok(Math.abs(perteRetraiteSante(3000, "normal", { csgAlignee: true, cotisation: 0.01 }, ctx) - 3000 * (0.009 + 0.0067)) < 1e-9);
 });
+
+import { chiffrage } from "../site/js/params/igs-chiffrage.js";
+import { chiffrerIgs } from "../site/js/engine/igs-chiffrage.js";
+
+test("IGS : le modèle reproduit le classeur de l'étude à 0,01 Md€ près", () => {
+  const s = chiffrage.scenarios.etude;
+  const r = chiffrerIgs(s, s.hypotheses, chiffrage);
+  const [p1, p2] = igsJeanJaures.recettes.series;
+  r.pilier1.forEach((v, i) => assert.ok(Math.abs(v - p1.valeurs[i]) < 0.006, `pilier 1 ${r.annees[i]}`));
+  r.pilier2.forEach((v, i) => assert.ok(Math.abs(v - p2.valeurs[i]) < 0.006, `pilier 2 ${r.annees[i]}`));
+  assert.ok(Math.abs(r.cumul - 399.62) < 0.01);
+  assert.ok(Math.abs(r.cumulFlux - 9058.73) < 0.01);
+  r.flux.forEach((v, i) => assert.ok(Math.abs(v - igsJeanJaures.fluxSuccessoral.valeurs[i]) < 0.6));
+  assert.ok(Math.abs(r.dmtg[0] - 21.9708) < 0.001);
+  assert.ok(Math.abs(r.partTop1Fin - 0.3542) < 0.001);
+});
+
+test("IGS : scénario actualisé et sensibilité aux hypothèses", () => {
+  const e = chiffrage.scenarios.etude;
+  const a = chiffrage.scenarios.actualise;
+  const re = chiffrerIgs(e, e.hypotheses, chiffrage);
+  const ra = chiffrerIgs(a, a.hypotheses, chiffrage);
+  assert.ok(ra.cumul > re.cumul);
+  assert.equal(ra.dmtg[0], 20.7);
+  const stable = chiffrerIgs(e, { ...e.hypotheses, rendementTop1: 0.0207 }, chiffrage);
+  assert.ok(stable.pilier2.at(-1) < re.pilier2.at(-1));
+  assert.ok(stable.partTop1Fin < re.partTop1Fin);
+  const croissance = chiffrerIgs(e, { ...e.hypotheses, croissancePib: 0.02 }, chiffrage);
+  assert.ok(croissance.pilier1.at(-1) > re.pilier1.at(-1));
+});

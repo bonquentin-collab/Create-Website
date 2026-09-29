@@ -912,3 +912,12 @@ select {
   .espaces { padding: 2px; }
   .espaces__lien { padding: 0.3rem 0.45rem; font-size: 0.72rem; }
 }
+
+/* ----- Chiffrage de l'IGS : scénario et hypothèses (Héritage › Comprendre) ----- */
+.chiffrage { margin-top: var(--e-5); padding: var(--e-4); border: 1px solid var(--trame); border-radius: 6px; background: var(--papier-case); max-width: 52rem; scroll-margin-top: 6rem; }
+.chiffrage .bascule { margin-top: var(--e-2); }
+.chiffrage__description { font-size: var(--t-s); color: var(--encre-2); margin-top: var(--e-2); }
+.chiffrage .avance { margin-top: var(--e-3); }
+.formulaire--hypotheses { display: grid; gap: var(--e-3) var(--e-5); grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); margin-top: var(--e-3); }
+.bouton--discret { justify-self: start; font: inherit; font-size: var(--t-s); background: none; border: 0; padding: 0; color: var(--encre); text-decoration: underline; cursor: pointer; }
+.chiffrage > .note { margin-top: var(--e-3); }

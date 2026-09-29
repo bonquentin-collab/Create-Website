@@ -3,6 +3,7 @@
 // l'inscrire ci-dessous, puis poser data-module="<nom>" sur sa section dans la page HTML voulue.
 
 import { reference, reformes } from "./reforms/index.js";
+import { lireEtat, appliquerChiffrage } from "./ui/etat-heritage.js";
 import { monter as theme } from "./ui/theme.js";
 import { monter as ruban } from "./ui/ruban.js";
 import { monter as reforme, monterRappel as rappelReforme } from "./ui/reforme.js";
@@ -24,6 +25,7 @@ import { monter as rendementGenerations } from "./ui/rendement-generations.js";
 import { monter as plafondPensions } from "./ui/plafond-pensions.js";
 import { monter as niveauxDeVie } from "./ui/niveaux-de-vie.js";
 import { monter as santeReformes } from "./ui/sante-reformes.js";
+import { monter as methodeChiffrage } from "./ui/methode-chiffrage.js";
 
 const modules = {
   entete,
@@ -48,11 +50,12 @@ const modules = {
   "plafond-pensions": plafondPensions,
   "niveaux-de-vie": niveauxDeVie,
   "sante-reformes": santeReformes,
+  "methode-chiffrage": methodeChiffrage,
 };
 
 const contexte = {
   reference,
-  reforme: reformes[0],
+  reforme: appliquerChiffrage(reformes[0], lireEtat()),
 };
 
 for (const el of document.querySelectorAll("[data-module]")) {
