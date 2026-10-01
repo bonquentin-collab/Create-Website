@@ -61,10 +61,11 @@ export const gel = {
     sommet: 6000,
   },
 
-  // Passage des euros de fin 2020 aux pensions de 2026 : +15 % de 2020 à 2024 (revalorisations légales de 11,9 %
-  // et arrivée de nouveaux retraités aux pensions plus élevées ; pension moyenne totale de 1 860 € en 2024 selon le
-  // COR, figure 3.25), puis revalorisations de 2,2 % en 2025 et 0,9 % en 2026. Estimation du site.
-  facteur2026: 1.19,
+  // Passage des euros de fin 2020 aux pensions de 2027 : facteur calé sur la distribution de l'IPP (note n° 129,
+  // septembre 2026, microsimulation TAXIPP) : pension médiane de 1 639 € par mois, 35 % des retraités au-dessus de
+  // 2 000 €, 13 % au-dessus de 3 000 € en 2027 (le modèle donne 1 641 €, 35 % et 11 %). Champ de l'IPP : toutes les
+  // personnes percevant une pension, pension brute totale tous régimes.
+  facteur: 1.1,
 
   retraites: {
     valeur: 17.3e6,
@@ -74,22 +75,30 @@ export const gel = {
 
   // Revalorisation des pensions de base au 1er janvier 2026 (inflation hors tabac).
   revalorisation2026: 0.009,
+  // Revalorisation prévue au 1er janvier 2027 : environ 2,5 % (inflation estimée pour 2026, IPP note n° 129).
+  revalorisation2027: 0.025,
   // Plus forte revalorisation récente : 5,3 % au 1er janvier 2024.
   revalorisation2024: 0.053,
 
-  // Part de la pension venant des régimes de base (seule gelée dans la proposition). L'IPP (2026, ch. 3) chiffre à
-  // 0,37 point de sous-indexation uniforme des pensions de base l'économie de 1 Md€ : environ 270 Md€ de pensions de
-  // base, soit deux tiers des 402 Md€ de pensions. 71 % pour un non-cadre du privé né en 1960 (COR 2026, figure 3.3),
-  // moins pour un cadre, 100 % pour un fonctionnaire.
+  // Part de la pension venant des régimes de base, en moyenne : deux tiers (IPP 2026, ch. 3 : 0,37 point de
+  // sous-indexation uniforme rapporte 1 Md€, soit environ 270 Md€ de pensions de base ; IPP note n° 129 : le gel des
+  // pensions de base économiserait 6,6 Md€ avec 2,5 % d'inflation, soit 264 Md€). Sert aux leviers qui touchent toutes
+  // les pensions (Santé).
   partBase: 0.67,
+
+  // Part de base selon le montant de la pension : les hautes pensions comptent davantage de complémentaire.
+  // Profil calé sur les quatre chiffrages de l'IPP (note n° 129, gel des pensions de base au-delà de 0 €, de la médiane,
+  // de 2 000 € et de 3 000 € : 6,6, 4,7, 3,6 et 1,5 Md€ d'économie directe) ; estimation du site.
+  profilBase: { jusqua: 1500, base: 0.79, apartirDe: 3000, haut: 0.63 },
 
   // Rapport de l'IPP sur la désindexation des retraites (Perspectives budgétaires 2027, chapitre 3).
   ipp: {
     source: "IPP, Perspectives budgétaires 2027, chapitre 3 : sous-indexation des retraites (Aubert, Tô, Tochev, 2026)",
     url: "https://www.ipp.eu/wp-content/uploads/2026/07/Chapitre_Desindexation_retraite___Rapport_Perspectives_Budgetaires_2027-4.pdf",
-    // L'économie pour l'ensemble des finances publiques est inférieure « d'environ 20 % à 25 % » à celle des régimes
-    // (moins d'impôt sur le revenu et de CSG, plus de prestations). Valeur centrale retenue : −22 %.
-    effetNet: 0.78,
+    // L'économie pour l'ensemble des finances publiques est inférieure d'environ 20 % à celle des régimes (moins
+    // d'impôt sur le revenu et de CSG, plus de prestations) : 5,2 Md€ nets pour 6,6 Md€ d'économie directe en 2027
+    // (IPP, note n° 129). Rapport retenu : 0,79.
+    effetNet: 0.79,
     // Valeur d'un trimestre : taux plein de 50 % du salaire de référence réparti sur la durée requise (172 trimestres
     // pour les générations nées à partir de 1965).
     tauxPlein: 0.5,

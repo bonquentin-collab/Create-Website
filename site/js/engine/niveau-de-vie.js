@@ -15,9 +15,12 @@ export function effetTvaSociale(r, { csg, ratioNetSurBrut, composition }) {
   };
 }
 
-/** CSG des retraités alignée : perte moyenne sur les pensions, recette reversée aux actifs. */
-export function effetCsgRetraites(recettes, { csg, ratioNetSurBrut, composition, pensionsTotales }) {
-  const baisseCsgActifs = recettes / csg.activite.valeurPoint;
+/**
+ * Prélèvement sur les retraités (Md€) dont le produit `verse` (par défaut le même montant ; le rendement net pour les
+ * finances publiques s'il est plus faible) est reversé aux actifs en baisse de CSG.
+ */
+export function effetCsgRetraites(recettes, { csg, ratioNetSurBrut, composition, pensionsTotales }, verse = recettes) {
+  const baisseCsgActifs = verse / csg.activite.valeurPoint;
   return {
     actifs: composition.partActivite * gainNetCsg(baisseCsgActifs, csg, ratioNetSurBrut),
     retraites: -composition.partPensions * (recettes / pensionsTotales),

@@ -162,3 +162,13 @@ Un classeur par espace (Héritage, Retraites, Santé), téléchargeable depuis c
 puis `heritage.py`, `retraites.py`, `sante.py` écrivent les formules avec openpyxl). Après une modification des
 paramètres ou des moteurs, mettre à jour le script de l'espace concerné, relancer `construire.sh`, recalculer avec
 LibreOffice et vérifier que les résultats par défaut sont ceux du site.
+
+## Calage sur l'IPP, note n° 129 (Retraites › Simuler et Méthode)
+
+`params/ipp-retraites.js` (les neuf scénarios du tableau 1, profils, abattement de 10 %, effet net de la CSG).
+CSG : assiettes de `params/prelevements.js` calées sur 1,5 et 4,2 Md€ nets, options `normal` et `median-normal`
+(`alignementCsg` renvoie aussi `net`). Gel : `gel.facteur` (distribution portée à 2027) et `gel.profilBase` (part de
+base selon la pension, `partDeBase`, `baseAuDessusDuSeuil`) redonnent les quatre chiffrages de l'IPP (test dédié).
+Abattement : `engine/abattement.js`, `ui/abattement-pensions.js` (onglet 6). Encadré « à rendement égal » :
+`ui/comparaison-ipp.js` ; tableau et détails du calage : `ui/methode-ipp.js`. Dans les onglets, le gain net est
+reversé aux actifs (`effetCsgRetraites(recettes, ctx, verse)`).

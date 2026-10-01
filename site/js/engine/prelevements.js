@@ -26,17 +26,18 @@ export function tauxCsgRetraite(rfr, bareme) {
 
 /**
  * Alignement de la CSG des retraités sur celle des actifs.
- * @param {"normal"|"tous"} portee  aligner le seul taux normal, ou tous les taux imposés (pas les exonérés)
+ * @param {"normal"|"median-normal"} portee  aligner le seul taux normal, ou les taux médian et normal (comme l'IPP ;
+ *   le taux réduit et les exonérés ne changent pas)
  * @returns {{ recettes:number, nouveauTaux:(id:string)=>number }}
  */
 export function alignementCsg(portee, csg) {
   const cible = csg.activite.taux;
   const bareme = csg.retraites.taux;
-  const concerne = (id) => (portee === "normal" ? id === "normal" : id !== "exonere");
+  const concerne = (id) => id === "normal" || (portee === "median-normal" && id === "median");
   const { assiettes } = csg.retraites;
   let recettes = 0;
   for (const t of bareme) if (concerne(t.id) && assiettes[t.id]) recettes += assiettes[t.id] * (cible - t.taux);
-  return { recettes, nouveauTaux: (id) => (concerne(id) ? cible : bareme.find((t) => t.id === id).taux) };
+  return { recettes, net: recettes * (csg.retraites.effetNet ?? 1), nouveauTaux: (id) => (concerne(id) ? cible : bareme.find((t) => t.id === id).taux) };
 }
 
 /** Perte mensuelle d'un retraité dont le taux passe de `avant` à `apres` (CSG sur 100 % de la pension brute). */

@@ -60,7 +60,7 @@ export function monter(racine) {
     prefixe: "pl",
     cleLien: "plafond",
     modeles: MODELES,
-    phrase: (enveloppe) => `Le plafond libère ${milliards(enveloppe)} par an.`,
+    phrase: (enveloppe) => `Le plafond libère ${milliards(enveloppe)} net par an.`,
     noteActifs: "Versé aux personnes en emploi, par une hausse du salaire net.",
     surChangement: (r) => {
       versementActifs = r.actifs ?? 0;
@@ -71,7 +71,7 @@ export function monter(racine) {
   const rendu = () => {
     const plafond = Number(curseur.value);
     sortie.textContent = euros(plafond);
-    const r = economiePlafond(gel.distribution2020, { plafond, retraites: gel.retraites.valeur, facteur: gel.facteur2026 });
+    const r = economiePlafond(gel.distribution2020, { plafond, retraites: gel.retraites.valeur, facteur: gel.facteur });
     economie = r.economie;
     const pension = lireMontant(champPension.value);
     const perte = pertePlafond(pension, plafond);
@@ -97,11 +97,11 @@ export function monter(racine) {
       h(
         "p",
         { class: "resultat__detail" },
-        "Estimation du site : distribution des pensions de la Drees (fin 2020) portée aux montants de 2026, 17,3 millions de retraités. Au-delà de 5 350 € environ, la Drees ne détaille plus la distribution : le calcul y suppose une pension moyenne d'environ 7 100 €, ce qui rend l'estimation plus fragile pour les plafonds élevés. Sans effet sur les comportements ni contentieux juridique (un plafond rétroactif sur des droits acquis serait contesté).",
+        `Estimation du site : distribution des pensions de la Drees (fin 2020) calée sur celle de l'IPP pour 2027 (pension médiane de 1 639 €), 17,3 millions de retraités. Au-delà de ${euros(4500 * gel.facteur)} environ, la Drees ne détaille plus la distribution : le calcul y suppose une pension moyenne d'environ ${euros(gel.distribution2020.sommet * gel.facteur)}, ce qui rend l'estimation plus fragile pour les plafonds élevés. L'argent à répartir est le gain net pour les finances publiques. Sans effet sur les comportements ni contentieux juridique (un plafond rétroactif sur des droits acquis serait contesté).`,
       ),
     );
     repartiteur.definirBaissePensions(r.economie / r.masseTotale);
-    repartiteur.definirEnveloppe(r.economie);
+    repartiteur.definirEnveloppe(r.economie * gel.ipp.effetNet);
     publierEffet();
   };
 

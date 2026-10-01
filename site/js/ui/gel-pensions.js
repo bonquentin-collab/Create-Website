@@ -3,7 +3,8 @@
 
 import { h, remplir, surChangement, formaterALaSortie, rejouer } from "./dom.js";
 import { euros, ecartEuros, milliards, pourcent, lireMontant, nombre } from "../engine/format.js";
-import { economieGel, perteMensuelle, trajectoireEconomie, valeurTrimestre } from "../engine/gel-pensions.js";
+import { economieGel, perteMensuelle, trajectoireEconomie, valeurTrimestre, partDeBase } from "../engine/gel-pensions.js";
+import { ipp129 } from "../params/ipp-retraites.js";
 import { gainBaisseCsg } from "../engine/prelevements.js";
 import { effetCsgRetraites } from "../engine/niveau-de-vie.js";
 import { gel } from "../params/gel-pensions.js";
@@ -24,10 +25,8 @@ const ANNEES = 10; // horizon : de 2026 à 2036
 export function monter(racine) {
   const curseurSeuil = h("input", { type: "range", id: "g-seuil", name: "seuil", min: 1500, max: 4000, step: 100, value: 2000 });
   const sortieSeuil = h("output", { for: "g-seuil" });
-  const curseurTaux = h("input", { type: "range", id: "g-taux", name: "taux", min: 0.1, max: 6, step: 0.1, value: gel.revalorisation2026 * 100 });
+  const curseurTaux = h("input", { type: "range", id: "g-taux", name: "taux", min: 0.1, max: 6, step: 0.1, value: gel.revalorisation2027 * 100 });
   const sortieTaux = h("output", { for: "g-taux" });
-  const curseurBase = h("input", { type: "range", id: "g-base", name: "base", min: 50, max: 100, step: 5, value: gel.partBase * 100 });
-  const sortieBase = h("output", { for: "g-base" });
   const champPension = h("input", { id: "g-pension", name: "pension", inputmode: "decimal", autocomplete: "off", value: "2 500" });
   const champSalaire = h("input", { id: "g-salaire", name: "salaire", inputmode: "decimal", autocomplete: "off", value: "2 100" });
   const caseFuturs = h("input", { type: "checkbox", id: "g-futurs", name: "futurs" });
@@ -41,7 +40,7 @@ export function monter(racine) {
       { class: "champ" },
       h("label", { for: "g-taux" }, "Revalorisation non versée : ", sortieTaux),
       curseurTaux,
-      h("p", { class: "aide" }, `Les pensions de base ont été revalorisées de ${pt(gel.revalorisation2026)} en 2026, de ${pt(gel.revalorisation2024)} en 2024. Elles suivent l'inflation.`),
+      h("p", { class: "aide" }, `Les pensions de base suivent l'inflation : ${pt(gel.revalorisation2026)} en 2026, ${pt(gel.revalorisation2024)} en 2024, environ ${pt(gel.revalorisation2027)} prévus au 1er janvier 2027.`),
     ),
     h(
       "fieldset",
@@ -65,13 +64,11 @@ export function monter(racine) {
     h(
       "details",
       { class: "avance" },
-      h("summary", {}, "Hypothèse avancée"),
+      h("summary", {}, "Pension de base et complémentaire"),
       h(
-        "div",
-        { class: "champ" },
-        h("label", { for: "g-base" }, "Part de la pension venant des régimes de base : ", sortieBase),
-        curseurBase,
-        h("p", { class: "aide" }, "Seule la pension de base est gelée ; les complémentaires (Agirc-Arrco…) fixent leur revalorisation elles-mêmes. Environ 71 % pour un non-cadre du privé, moins pour un cadre, 100 % pour un fonctionnaire."),
+        "p",
+        { class: "aide" },
+        `Seule la pension de base est gelée ; les complémentaires (Agirc-Arrco…) fixent leur revalorisation elles-mêmes. La part de base baisse quand la pension monte : environ ${pct0.format(gel.profilBase.base)} jusqu'à ${euros(gel.profilBase.jusqua)}, ${pct0.format(gel.profilBase.haut)} au-delà de ${euros(gel.profilBase.apartirDe)} (calage sur l'IPP, voir Méthode).`,
       ),
     ),
   );
@@ -90,7 +87,7 @@ export function monter(racine) {
       h(
         "p",
         {},
-        "L'Institut des politiques publiques (IPP) nuance en 2026. Ne pas revaloriser toutes les pensions pèse davantage sur les retraités modestes. Cibler les pensions élevées touche plutôt les plus aisés, mais les tout plus riches perdent moins, car une grande part de leurs revenus vient des retraites complémentaires et du patrimoine. Et moduler la revalorisation selon le montant s'éloigne du principe contributif : une pension reflète ce que l'on a cotisé. ",
+        "L'Institut des politiques publiques (IPP) nuance en 2026. Ne pas revaloriser toutes les pensions pèse davantage sur les retraités modestes. Cibler les pensions élevées touche plutôt les plus aisés, mais imparfaitement : le gel vise la pension de chacun, alors que le niveau de vie se mesure par ménage, si bien qu'une partie de l'effort retombe sur des ménages modestes. Les tout plus riches perdent moins, car leurs revenus viennent surtout des complémentaires et du patrimoine. Enfin, moduler la revalorisation selon le montant s'éloigne du principe contributif : une pension reflète ce que l'on a cotisé. ",
         h("a", { href: gel.ipp.url }, "Lire le rapport de l'IPP"),
         ".",
       ),
@@ -110,18 +107,17 @@ export function monter(racine) {
   const rendu = () => {
     const seuil = Number(curseurSeuil.value);
     const taux = Number(curseurTaux.value) / 100;
-    const partBase = Number(curseurBase.value) / 100;
+    const partBase = gel.profilBase;
     const mode = form.querySelector('input[name="mode"]:checked').value;
     const futurs = caseFuturs.checked;
     sortieSeuil.textContent = euros(seuil);
     sortieTaux.textContent = pt(taux);
-    sortieBase.textContent = pct0.format(partBase);
 
     const reglages = { seuil, taux, partBase, mode };
-    const r = economieGel(gel.distribution2020, { ...reglages, retraites: gel.retraites.valeur, facteur: gel.facteur2026 });
+    const r = economieGel(gel.distribution2020, { ...reglages, retraites: gel.retraites.valeur, facteur: gel.facteur });
     const pension = lireMontant(champPension.value);
     const perte = perteMensuelle(pension, reglages);
-    const baisseCsgActifs = r.economie / csg.activite.valeurPoint;
+    const baisseCsgActifs = (r.economie * gel.ipp.effetNet) / csg.activite.valeurPoint;
     const gainActif = gainBaisseCsg(lireMontant(champSalaire.value), baisseCsgActifs, csg, macro.ratioNetSurBrut.valeur);
 
     // Ce que la perte représente dans l'épargne d'un retraité à cette pension (ordre de grandeur).
@@ -185,7 +181,7 @@ export function monter(racine) {
       h(
         "p",
         { class: "resultat__detail" },
-        "Estimation du site : distribution des pensions de la Drees (fin 2020) portée aux montants de 2026, 17,3 millions de retraités, pensions de base égales aux deux tiers du total (IPP). Économie nette des finances publiques : environ 22 % de moins (IPP : « 20 % à 25 % »). Sans les futurs retraités, environ 3 % des retraités concernés sortent chaque année (décès). La perte vient d'une revalorisation non versée : la pension ne baisse pas, elle ne suit pas les prix cette année-là.",
+        "Calé sur l'IPP (2026, microsimulation pour 2027) : avec 2,5 % de revalorisation non versée, 5,2 Md€ nets pour toutes les pensions, 3,7 au-delà de la médiane (1 639 €), 2,8 au-delà de 2 000 €, 1,2 au-delà de 3 000 €. Gain net : environ 20 % de moins que l'économie des régimes ; c'est lui qui est reversé aux actifs. Sans les futurs retraités, environ 3 % des retraités concernés sortent chaque année (décès). La perte vient d'une revalorisation non versée : la pension ne baisse pas, elle ne suit pas les prix cette année-là.",
       ),
     );
     if (dernier !== null && Math.abs(dernier - r.economie) > 0.5) rejouer(tampon);
@@ -228,7 +224,7 @@ export function monter(racine) {
         ratioNetSurBrut: macro.ratioNetSurBrut.valeur,
         composition: niveauDeVie.composition,
         pensionsTotales: niveauDeVie.pensionsTotales.valeur,
-      }),
+      }, r.economie * gel.ipp.effetNet),
     });
   };
 

@@ -181,7 +181,7 @@ export function monter(racine) {
       h(
         "p",
         { class: "resultat__detail" },
-        `Estimation du site. Recettes : assiettes de CSG des pensions calibrées sur les recettes 2025 (taux normal ${milliards(csg.retraites.assiettes.normal)}, médian ${milliards(csg.retraites.assiettes.median)}), pension de base = deux tiers (IPP). Bouclier : répartition de la Drees (2019) portée à ${milliards(depenseTotale)} de primes et restes à charge, revenus supposés égaux entre groupes, ce qui majore probablement le coût ; sans effet sur les comportements (prix des complémentaires, consommation de soins). Retraités concernés : répartition des retraités du régime général par taux de CSG (Cnav, 2024).`,
+        `Estimation du site. Recettes : assiettes de CSG des pensions calées sur l'IPP, note n° 129 (taux normal ${milliards(csg.retraites.assiettes.normal)}, médian ${milliards(csg.retraites.assiettes.median)}), pension de base = deux tiers (IPP). Bouclier : répartition de la Drees (2019) portée à ${milliards(depenseTotale)} de primes et restes à charge, revenus supposés égaux entre groupes, ce qui majore probablement le coût ; sans effet sur les comportements (prix des complémentaires, consommation de soins). Retraités concernés : répartition des retraités du régime général par taux de CSG (Cnav, 2024).`,
       ),
     );
 

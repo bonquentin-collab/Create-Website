@@ -26,6 +26,9 @@ import { monter as plafondPensions } from "./ui/plafond-pensions.js";
 import { monter as niveauxDeVie } from "./ui/niveaux-de-vie.js";
 import { monter as santeReformes } from "./ui/sante-reformes.js";
 import { monter as methodeChiffrage } from "./ui/methode-chiffrage.js";
+import { monter as abattementPensions } from "./ui/abattement-pensions.js";
+import { monter as comparaisonIpp } from "./ui/comparaison-ipp.js";
+import { monter as methodeIpp } from "./ui/methode-ipp.js";
 
 const modules = {
   entete,
@@ -51,6 +54,9 @@ const modules = {
   "niveaux-de-vie": niveauxDeVie,
   "sante-reformes": santeReformes,
   "methode-chiffrage": methodeChiffrage,
+  "abattement-pensions": abattementPensions,
+  "comparaison-ipp": comparaisonIpp,
+  "methode-ipp": methodeIpp,
 };
 
 const contexte = {
