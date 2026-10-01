@@ -37,6 +37,9 @@ L'espace **Retraites** (`retraites.html`, `retraites-simuler.html`) propose quat
 Les recettes de l'IGS sont recalculées avec le modèle du classeur de l'étude (flux successoral, piliers 1 et 2) :
 scénario « Étude 2024 » ou « Actualisé 2026 », hypothèses réglables dans Héritage › Comprendre, reprises par Simuler.
 
+Chaque page Méthode propose un classeur Excel (`site/chiffrages/`) qui refait les calculs avec des formules
+modifiables ; il est généré par `tools/chiffrages/construire.sh`.
+
 L'espace **Santé** (`sante.html`, `sante-simuler.html`) montre qui finance et qui utilise la santé selon l'âge,
 puis simule trois leviers : CSG des pensions au taux normal alignée sur les salaires, cotisation maladie sur les
 pensions de base, bouclier santé plafonnant primes et restes à charge ; taux d'effort avant/après (Drees).
