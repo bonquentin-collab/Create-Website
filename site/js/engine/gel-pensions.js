@@ -37,14 +37,59 @@ export function auDessusDuSeuil({ tranches, sommet }, seuil, facteur = 1) {
 }
 
 /**
- * Économie annuelle (Md€) d'un gel de la revalorisation `taux` sur la part `partBase` des pensions au-dessus du seuil.
- * mode "tout" : toute la pension des retraités concernés est gelée ; "au-dela" : seulement ce qui dépasse le seuil.
+ * Part de la pension venant des régimes de base selon le montant de la pension totale : `base` jusqu'à `jusqua`,
+ * puis décroissance linéaire jusqu'à `haut` à partir de `apartirDe` (les hautes pensions comptent plus de
+ * complémentaire). Un nombre est accepté pour une part uniforme.
+ */
+export function partDeBase(profil, pension) {
+  if (typeof profil === "number") return profil;
+  const { jusqua, base, apartirDe, haut } = profil;
+  if (pension <= jusqua) return base;
+  if (pension >= apartirDe) return haut;
+  return base + ((haut - base) * (pension - jusqua)) / (apartirDe - jusqua);
+}
+
+/**
+ * Masses de pension de base au-dessus du seuil, par retraité (moyenne sur tous) : dans chaque tranche, la partie
+ * au-dessus du seuil est pondérée par la part de base à son point moyen.
+ */
+export function baseAuDessusDuSeuil({ tranches, sommet }, seuil, facteur, profil) {
+  let masse = 0;
+  let masseAuDela = 0;
+  for (const [de, a, pct] of tranches) {
+    const p = pct / 100;
+    if (a == null) {
+      const m = sommet * facteur;
+      if (m > seuil) {
+        const b = partDeBase(profil, m);
+        masse += p * m * b;
+        masseAuDela += p * (m - seuil) * b;
+      }
+      continue;
+    }
+    const lo = de * facteur;
+    const hi = a * facteur;
+    if (hi <= seuil) continue;
+    const bas = Math.max(lo, seuil);
+    const q = p * ((hi - bas) / (hi - lo));
+    const b = partDeBase(profil, (bas + hi) / 2);
+    masse += ((q * (bas + hi)) / 2) * b;
+    masseAuDela += ((q * (bas + hi)) / 2 - q * seuil) * b;
+  }
+  return { masse, masseAuDela };
+}
+
+/**
+ * Économie annuelle (Md€) d'un gel de la revalorisation `taux` de la pension de base des retraités au-dessus du seuil.
+ * mode "tout" : toute la pension de base des retraités concernés est gelée ; "au-dela" : seulement la part au-delà du
+ * seuil. `partBase` : profil de part de base selon la pension (voir partDeBase) ou part uniforme.
  */
 export function economieGel(distribution, { seuil, taux, partBase, mode = "tout", retraites, facteur = 1 }) {
   const r = auDessusDuSeuil(distribution, seuil, facteur);
-  const assiette = mode === "au-dela" ? r.masseAuDela : r.masse;
+  const b = baseAuDessusDuSeuil(distribution, seuil, facteur, partBase);
+  const assiette = mode === "au-dela" ? b.masseAuDela : b.masse;
   return {
-    economie: (retraites * 12 * assiette * partBase * taux) / 1e9,
+    economie: (retraites * 12 * assiette * taux) / 1e9,
     part: r.part,
     concernes: r.part * retraites,
     masseTotale: (retraites * 12 * r.moyenne) / 1e9,
@@ -54,7 +99,7 @@ export function economieGel(distribution, { seuil, taux, partBase, mode = "tout"
 /** Perte mensuelle brute d'un retraité à `pension` € par mois. */
 export function perteMensuelle(pension, { seuil, taux, partBase, mode = "tout" }) {
   if (pension <= seuil) return 0;
-  return (mode === "au-dela" ? pension - seuil : pension) * partBase * taux;
+  return (mode === "au-dela" ? pension - seuil : pension) * partDeBase(partBase, pension) * taux;
 }
 
 /**

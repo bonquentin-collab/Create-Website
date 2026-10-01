@@ -921,3 +921,14 @@ select {
 .formulaire--hypotheses { display: grid; gap: var(--e-3) var(--e-5); grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); margin-top: var(--e-3); }
 .bouton--discret { justify-self: start; font: inherit; font-size: var(--t-s); background: none; border: 0; padding: 0; color: var(--encre); text-decoration: underline; cursor: pointer; }
 .chiffrage > .note { margin-top: var(--e-3); }
+
+/* ----- Trois pistes à rendement égal (Retraites › Simuler) ----- */
+.pistes { list-style: none; padding: 0; margin: var(--e-4) 0 var(--e-3); display: grid; gap: var(--e-3); grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+.piste { border: 1px solid var(--trame); border-radius: 6px; background: var(--papier-case); padding: var(--e-3) var(--e-4); display: flex; flex-direction: column; gap: var(--e-2); }
+.piste__titre { font-family: var(--police-affiche); font-weight: 800; font-size: var(--t-m); line-height: 1.2; }
+.piste__chiffres { display: grid; gap: var(--e-1); }
+.piste__chiffres div { display: flex; justify-content: space-between; gap: var(--e-2); border-bottom: 1px solid var(--trame-legere); padding-bottom: 2px; }
+.piste__chiffres dt { font-size: var(--t-s); color: var(--encre-2); }
+.piste__chiffres dd { font-weight: 700; white-space: nowrap; }
+.piste__profil { font-size: var(--t-s); color: var(--encre-2); flex: 1; }
+.piste__lien { font-size: var(--t-s); font-weight: 700; }

@@ -14,11 +14,13 @@ proposé par la Fondation Jean-Jaurès en novembre 2024 et répond à deux quest
   La répartition se partage par un lien. L'étude, elle, affecte les recettes à la transition écologique,
   à la recherche et à l'éducation : le reste est une variante du simulateur.
 
-L'espace **Retraites** (`retraites.html`, `retraites-simuler.html`) propose quatre réformes à essayer :
+L'espace **Retraites** (`retraites.html`, `retraites-simuler.html`) propose six réformes à essayer, précédées d'une comparaison « à rendement égal » de l'IPP (note n° 129) :
 
 - **TVA sociale** : une hausse de TVA dont toute la recette baisse la CSG des actifs ; gain sur la paie,
   hausse des prix, effet sur les retraités.
-- **CSG des retraités** alignée sur celle des actifs (9,2 %), recette reversée aux actifs.
+- **CSG des retraités** alignée sur celle des actifs (9,2 %), taux normal seul ou taux médian et normal, recette
+  nette (calée sur l'IPP) reversée aux actifs.
+- **Abattement de 10 %** sur les pensions supprimé ou plafonné, recette calée sur l'IPP, hausse d'impôt d'un foyer.
 - **Retraites sans impôts** : la décomposition du financement des retraites (COR, juin 2026), le choix des
   ressources jugées « logiques », ce que cela coûterait aux retraités ou aux actifs, et l'usage de l'argent
   public libéré (salaires ou services publics).

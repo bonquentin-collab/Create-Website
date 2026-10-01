@@ -45,8 +45,14 @@ export const csg = {
     recettes: 25.4,
     source: "Code de la sécurité sociale, art. L136-8 ; seuils 2025 : service-public.gouv.fr",
     url: "https://www.service-public.gouv.fr/particuliers/vosdroits/F2971",
-    // Assiette imposable des pensions par taux (Md€), estimation calibrée sur les recettes de CSG.
-    assiettes: { normal: 225, median: 87, reduit: 27, estimation: true },
+    // Assiette des pensions par taux (Md€), calée sur les chiffrages de l'IPP (note n° 129, 2027) : aligner le seul
+    // taux normal sur 9,2 % rapporte 1,5 Md€ net, aligner les taux médian et normal 4,2 Md€ net, l'impôt sur le
+    // revenu reprenant environ 12,5 % de la hausse de CSG (part déductible). Soit 1,71 Md€ brut pour 0,9 point sur le
+    // taux normal (190,5 Md€) et 3,09 Md€ pour 2,6 points sur le taux médian (118,7 Md€). Taux réduit : estimation
+    // calibrée sur les recettes de CSG 2025 (CCSS, mai 2026).
+    assiettes: { normal: 190.5, median: 118.7, reduit: 27, estimation: true },
+    // Rendement net pour les finances publiques / hausse de CSG (IPP, note n° 129) : 0,875.
+    effetNet: 0.875,
     repartitionRetraites: { exonere: 0.29, reduit: 0.15, median: 0.27, normal: 0.29, source: "CNAV, recueil statistique 2025, retraités du régime général fin 2024" },
   },
   point2018: { source: "La hausse de 1,7 point de 2018 a rapporté 4,5 Md€ sur les pensions (Sénat)", url: "https://www.senat.fr/rap/l17-077-2/l17-077-218.html" },

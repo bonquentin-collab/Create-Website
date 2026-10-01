@@ -5,6 +5,7 @@ import { h, remplir, surChangement, formaterALaSortie, rejouer } from "./dom.js"
 import { euros, ecartEuros, milliards, pourcent, lireMontant, nombre } from "../engine/format.js";
 import { alignementCsg, perteRetraite, gainBaisseCsg } from "../engine/prelevements.js";
 import { csg } from "../params/prelevements.js";
+import { ipp129 } from "../params/ipp-retraites.js";
 import { macro } from "../params/macro.js";
 import { niveauDeVie } from "../params/niveau-de-vie.js";
 import { effetCsgRetraites } from "../engine/niveau-de-vie.js";
@@ -29,9 +30,9 @@ export function monter(racine) {
         "div",
         { class: "choix choix--colonne" },
         h("label", {}, h("input", { type: "radio", name: "portee", value: "normal", checked: true }), "Ceux au taux normal (8,3 %), les plus aisés"),
-        h("label", {}, h("input", { type: "radio", name: "portee", value: "tous" }), "Tous ceux qui paient la CSG (3,8 %, 6,6 % et 8,3 %)"),
+        h("label", {}, h("input", { type: "radio", name: "portee", value: "median-normal" }), "Ceux aux taux médian (6,6 %) et normal (8,3 %)"),
       ),
-      h("p", { class: "aide" }, "Les retraités exonérés, aux plus petites pensions, le restent dans les deux cas."),
+      h("p", { class: "aide" }, "Les retraités exonérés ou au taux réduit (3,8 %), aux plus petites pensions, ne changent pas."),
     ),
     h("div", { class: "champ" }, h("label", { for: "c-pension" }, "Votre pension brute mensuelle"), h("div", { class: "case" }, champPension, h("span", { "aria-hidden": "true" }, "€"))),
     h(
@@ -50,6 +51,13 @@ export function monter(racine) {
       "div",
       { class: "texte" },
       h("p", {}, "Sur un salaire, la CSG est de 9,2 %. Sur une pension, elle va de 0 à 8,3 % selon le revenu. Aligner les retraités sur les actifs rapporterait de l'argent, que ce simulateur reverse aux actifs sous forme de baisse de CSG."),
+      h(
+        "p",
+        {},
+        "Selon l'IPP (2026), aligner aussi le taux médian pèse surtout sur les classes moyennes de retraités : leur taux monterait de 2,6 points, contre 0,9 point pour le taux normal. N'aligner que le taux normal épargne le milieu de la distribution, mais rapporte presque trois fois moins. ",
+        h("a", { href: ipp129.url }, "Lire la note de l'IPP"),
+        ".",
+      ),
     ),
     h("div", { class: "simulateur" }, form, resultat),
   );
@@ -64,7 +72,7 @@ export function monter(racine) {
     const actuel = bareme.find((t) => t.id === selectTaux.value);
     const nouveau = a.nouveauTaux(actuel.id);
     const perte = perteRetraite(pension, actuel.taux, nouveau);
-    const baisseCsgActifs = a.recettes / csg.activite.valeurPoint;
+    const baisseCsgActifs = a.net / csg.activite.valeurPoint;
     const gainActif = gainBaisseCsg(lireMontant(champSalaire.value), baisseCsgActifs, csg, macro.ratioNetSurBrut.valeur);
 
     const concerne = perte > 0.5;
@@ -82,26 +90,26 @@ export function monter(racine) {
       h(
         "dl",
         { class: "comparatif" },
-        h("div", {}, h("dt", {}, "Recette"), h("dd", {}, milliards(a.recettes), h("span", { class: "sous" }, "par an, estimation du simulateur"))),
+        h("div", {}, h("dt", {}, "Recette nette"), h("dd", {}, milliards(a.net), h("span", { class: "sous" }, `par an : ${milliards(a.recettes)} de CSG, moins l'impôt sur le revenu perdu`))),
         h("div", {}, h("dt", {}, "Baisse de CSG des actifs"), h("dd", {}, `−${unDecimal.format(baisseCsgActifs)} pt`, h("span", { class: "sous" }, `soit ${ecartEuros(gainActif)} par mois sur ce salaire`))),
       ),
       h(
         "p",
         { class: "resultat__detail" },
-        "Estimation du simulateur, faute de chiffrage officiel : assiettes des pensions par taux calibrées sur les recettes de CSG 2025 (CCSS, mai 2026). Pour comparaison, la hausse de 1,7 point de 2018 avait rapporté 4,5 Md€ sur les pensions. La part déductible de la CSG, qui réduit un peu la perte via l'impôt sur le revenu, n'est pas prise en compte.",
+        "Calé sur l'IPP (2026, microsimulation pour 2027) : 1,5 Md€ net pour le seul taux normal, 4,2 Md€ net pour les taux médian et normal. Le rendement net tient compte de l'impôt sur le revenu perdu, la hausse portant sur la part déductible de la CSG ; c'est lui qui est reversé aux actifs. Votre perte est calculée avant cet effet d'impôt.",
       ),
     );
     const cle = `${concerne}`;
     if (dernier !== null && dernier !== cle) rejouer(tampon);
     dernier = cle;
     publier("csg", {
-      label: portee === "normal" ? "CSG des retraités au taux normal alignée" : "CSG de tous les retraités imposés alignée",
+      label: portee === "normal" ? "CSG des retraités au taux normal alignée" : "CSG des retraités aux taux médian et normal alignée",
       ...effetCsgRetraites(a.recettes, {
         csg,
         ratioNetSurBrut: macro.ratioNetSurBrut.valeur,
         composition: niveauDeVie.composition,
         pensionsTotales: niveauDeVie.pensionsTotales.valeur,
-      }),
+      }, a.net),
     });
   };
 

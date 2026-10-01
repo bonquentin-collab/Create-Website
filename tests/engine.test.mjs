@@ -223,11 +223,16 @@ test("CSG retraités : taux selon le revenu fiscal de référence (seuils 2025)"
 });
 
 test("CSG retraités : alignement sur 9,2 %", () => {
-  proche(alignementCsg("normal", csg).recettes, 2.0, 0.05);
-  proche(alignementCsg("tous", csg).recettes, 5.8, 0.1);
+  // Calage sur l'IPP (note n° 129) : 1,5 Md€ net pour le taux normal, 4,2 Md€ pour les taux médian et normal.
+  proche(alignementCsg("normal", csg).net, 1.5, 0.01);
+  proche(alignementCsg("median-normal", csg).net, 4.2, 0.01);
   const a = alignementCsg("normal", csg);
+  assert.ok(a.recettes > a.net);
   assert.equal(a.nouveauTaux("median"), 0.066);
-  assert.equal(alignementCsg("tous", csg).nouveauTaux("exonere"), 0);
+  const b = alignementCsg("median-normal", csg);
+  assert.equal(b.nouveauTaux("median"), 0.092);
+  assert.equal(b.nouveauTaux("reduit"), 0.038);
+  assert.equal(b.nouveauTaux("exonere"), 0);
   proche(perteRetraite(2000, 0.083, 0.092), 18, 1e-9);
   assert.equal(perteRetraite(2000, 0.092, 0.083), 0);
 });
@@ -335,13 +340,13 @@ test("gel : distribution Drees 2020 complète et cohérente", () => {
   const r0 = auDessusDuSeuil(d, 0, 1);
   proche(r0.part, 1, 0.001);
   assert.ok(r0.moyenne > 1600 && r0.moyenne < 1650); // pension totale moyenne fin 2020
-  // Masse totale 2026 proche des dépenses de pensions (~400 Md€)
-  const m = economieGel(d, { seuil: 0, taux: 0, partBase: 1, retraites: gel.retraites.valeur, facteur: gel.facteur2026 }).masseTotale;
-  assert.ok(m > 380 && m < 420, `masse ${m}`);
+  // Masse totale proche des dépenses de pensions (~400 Md€ ; champ IPP 2027 un peu plus large et plus modeste)
+  const m = economieGel(d, { seuil: 0, taux: 0, partBase: 1, retraites: gel.retraites.valeur, facteur: gel.facteur }).masseTotale;
+  assert.ok(m > 350 && m < 420, `masse ${m}`);
 });
 
 test("gel : économie croissante avec le taux, décroissante avec le seuil ; perte individuelle", () => {
-  const base = { taux: 0.01, partBase: 0.75, retraites: gel.retraites.valeur, facteur: gel.facteur2026 };
+  const base = { taux: 0.01, partBase: 0.75, retraites: gel.retraites.valeur, facteur: gel.facteur };
   const a = economieGel(gel.distribution2020, { ...base, seuil: 2000 });
   const b = economieGel(gel.distribution2020, { ...base, seuil: 3000 });
   const c = economieGel(gel.distribution2020, { ...base, seuil: 2000, mode: "au-dela" });
@@ -408,7 +413,7 @@ test("rendement : calage sur le TRI du COR, actualisation et impôts", () => {
 import { economiePlafond, pertePlafond } from "../site/js/engine/plafond.js";
 
 test("plafond : économie décroissante avec le plafond, perte individuelle", () => {
-  const opt = { retraites: gel.retraites.valeur, facteur: gel.facteur2026 };
+  const opt = { retraites: gel.retraites.valeur, facteur: gel.facteur };
   const a = economiePlafond(gel.distribution2020, { ...opt, plafond: 3000 });
   const b = economiePlafond(gel.distribution2020, { ...opt, plafond: 5000 });
   assert.ok(a.economie > b.economie && b.economie > 0);
@@ -453,7 +458,7 @@ test("santé : groupes d'effort cohérents avec la moyenne Drees, bouclier décr
 test("santé : recettes et effort ajouté des leviers sur les retraités", () => {
   const ctx = { csg: csgSante, partBase: 0.67, partPensions: 0.778, exposition: santeReformes.exposition };
   const r = recettesRetraites({ csgAlignee: true, cotisation: 0.01 }, ctx);
-  assert.ok(Math.abs(r.csg - 225 * 0.009) < 1e-9);
+  assert.ok(Math.abs(r.csg - csgSante.retraites.assiettes.normal * 0.009) < 1e-9);
   assert.ok(r.cotisation > 1.5 && r.cotisation < 2.5);
   const e = effortAjouteRetraites({ csgAlignee: true, cotisation: 0.01 }, ctx);
   assert.equal(e[0], 0);
@@ -490,4 +495,31 @@ test("IGS : scénario actualisé et sensibilité aux hypothèses", () => {
   assert.ok(stable.partTop1Fin < re.partTop1Fin);
   const croissance = chiffrerIgs(e, { ...e.hypotheses, croissancePib: 0.02 }, chiffrage);
   assert.ok(croissance.pilier1.at(-1) > re.pilier1.at(-1));
+});
+
+import { partDeBase } from "../site/js/engine/gel-pensions.js";
+import { recettesAbattement, hausseImpotFoyer } from "../site/js/engine/abattement.js";
+import { ipp129 } from "../site/js/params/ipp-retraites.js";
+
+test("gel : calé sur les chiffrages de l'IPP (note n° 129, 2,5 % non versés)", () => {
+  const net = (seuil) =>
+    economieGel(gel.distribution2020, { seuil, taux: 0.025, partBase: gel.profilBase, retraites: gel.retraites.valeur, facteur: gel.facteur }).economie * gel.ipp.effetNet;
+  for (const [seuil, cible] of [[0, 5.2], [1639, 3.7], [2000, 2.8], [3000, 1.2]]) proche(net(seuil), cible, cible * 0.03);
+  proche(auDessusDuSeuil(gel.distribution2020, 2000, gel.facteur).part, 0.35, 0.01);
+  assert.equal(partDeBase(gel.profilBase, 1000), gel.profilBase.base);
+  assert.equal(partDeBase(gel.profilBase, 5000), gel.profilBase.haut);
+  assert.equal(partDeBase(0.5, 3000), 0.5);
+});
+
+test("abattement de 10 % : recettes interpolées sur l'IPP, hausse d'impôt d'un foyer", () => {
+  const ab = ipp129.abattement;
+  assert.equal(recettesAbattement(0, ab.points), 5.4);
+  proche(recettesAbattement(2545, ab.points), 1.5, 1e-9);
+  assert.equal(recettesAbattement(ab.plafond, ab.points), 0);
+  proche(recettesAbattement(1272.5, ab.points), 3.45, 1e-9);
+  const f = hausseImpotFoyer({ pensions: 30000, pensionnes: 1, tauxMarginal: 0.11, plafond: 0 }, ab);
+  assert.equal(f.avant, 3000);
+  proche(f.hausse, 330, 1e-9);
+  proche(hausseImpotFoyer({ pensions: 60000, pensionnes: 2, tauxMarginal: 0.3, plafond: 2545 }, ab).hausse, (4439 - 2545) * 0.3, 1e-9);
+  assert.equal(hausseImpotFoyer({ pensions: 3000, pensionnes: 1, tauxMarginal: 0, plafond: 0 }, ab).hausse, 0);
 });

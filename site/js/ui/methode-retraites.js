@@ -34,7 +34,7 @@ export function monter(racine) {
       h(
         "p",
         {},
-        "Deux chiffres sont des estimations du simulateur, faute de source officielle : la recette d'un alignement de la CSG des retraités (assiettes calibrées sur les recettes 2025) et la part « cotisation normale » de l'État employeur (43 %, ratio du CAE pour 2023 appliqué à 2025).",
+        "La CSG des retraités, le gel des pensions et l'abattement de 10 % sont calés sur la microsimulation de l'IPP (note n° 129, 2026) : voir plus bas. La part « cotisation normale » de l'État employeur est une estimation du simulateur (43 %, ratio du CAE pour 2023 appliqué à 2025).",
       ),
     ),
     h(

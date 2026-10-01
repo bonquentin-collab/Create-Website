@@ -36,6 +36,7 @@ for k in ["normal", "median", "reduit"]:
     par("ass_" + k, f"Assiette des pensions au taux {k} (Md€, calibrée sur les recettes de CSG)", csg["retraites"]["assiettes"][k], NB1, "Estimation du site, calibrée sur les recettes de CSG 2025 (CCSS, mai 2026)")
 for k, v in csg["retraites"]["repartitionRetraites"].items():
     if k != "source": par("rep_" + k, f"Part des retraités au taux {k}", v, PCT1, csg["retraites"]["repartitionRetraites"]["source"])
+par("csgNet", "Rendement net d'une hausse de CSG des retraités (après impôt sur le revenu)", csg["retraites"]["effetNet"], PCT1, "IPP, note n° 129 (2026) : environ 0,6 Md€ d'impôt perdu sur 4,8 Md€ de CSG")
 par("tvaNormal", "Rendement net d'un point de TVA, taux normal (Md€)", tva["pointNet"]["normal"], NB1, tva["pointNet"]["source"])
 par("tvaTous", "Rendement net d'un point de TVA, tous les taux (Md€)", tva["pointNet"]["tousTaux"], NB1, tva["pointNet"]["source"])
 par("ppaNormal", "Perte de pouvoir d'achat par point de TVA, taux normal", tva["pertePouvoirAchatParPoint"]["normal"], '0.000%', tva["pertePouvoirAchatParPoint"]["source"])
@@ -84,8 +85,8 @@ r = resultats(t, [
 EFFETS["TVA sociale"] = ("'TVA sociale'!B17", "'TVA sociale'!B18")
 
 # ---------- CSG des retraités ----------
-c = feuille(wb, "CSG retraités", "CSG des retraités alignée sur celle des actifs (9,2 %), recette reversée aux actifs", None, [60, 18, 14, 14, 14, 14])
-e = entrees(c, [("portee", "Retraités concernés", "Taux normal seulement", None, ["Taux normal seulement", "Tous ceux qui paient la CSG"]),
+c = feuille(wb, "CSG retraités", "CSG des retraités alignée sur celle des actifs (9,2 %), recette nette reversée aux actifs", "Assiettes calées sur l'IPP (note n° 129) : 1,5 Md€ net pour le taux normal, 4,2 Md€ pour les taux médian et normal.", [60, 18, 14, 14, 14, 14])
+e = entrees(c, [("portee", "Retraités concernés", "Taux normal seulement", None, ["Taux normal seulement", "Taux médian et normal"]),
                 ("pen", "Votre pension brute mensuelle (€)", 1800, EUR, None), ("taux", "Votre taux de CSG actuel", "normal", None, ["exonere", "reduit", "median", "normal"]),
                 ("sal", "Salaire net mensuel d'un actif (€)", 2100, EUR, None)])
 entete(c, 9, ["Taux", "Taux actuel", "Assiette (Md€)", "Concerné", "Nouveau taux", "Recette (Md€)"])
@@ -93,18 +94,19 @@ ids = ["exonere", "reduit", "median", "normal"]
 for i, k in enumerate(ids, start=10):
     texte(c, f"A{i}", k); formule(c, f"B{i}", f"={PR['taux_' + k]}", PCT1, lien=True)
     formule(c, f"C{i}", f"={PR['ass_' + k]}" if k != "exonere" else "=0", NB1, lien=k != "exonere")
-    formule(c, f"D{i}", f'=IF({e["portee"]}="Taux normal seulement",IF(A{i}="normal",1,0),IF(A{i}="exonere",0,1))', "0")
+    formule(c, f"D{i}", f'=IF(A{i}="normal",1,IF(AND(A{i}="median",{e["portee"]}="Taux médian et normal"),1,0))', "0")
     formule(c, f"E{i}", f'=IF(D{i}=1,{PR["csgAct"]},B{i})', PCT1)
     formule(c, f"F{i}", f"=D{i}*C{i}*({PR['csgAct']}-B{i})", NB3)
 r = resultats(c, [
-    ("rec", "Recettes (Md€)", "=SUM(F10:F13)", MD2, True),
-    ("baisse", "Baisse de CSG des actifs (points)", f"=B15/{PR['point']}", '0.000', False),
-    ("gain", "Gain d'un actif (€/mois)", "=" + gainCsg(e["sal"], "B16"), EUR2, False),
-    ("perte", "Perte de votre pension (€/mois)", f'={e["pen"]}*MAX(0,INDEX(E10:E13,MATCH({e["taux"]},A10:A13,0))-INDEX(B10:B13,MATCH({e["taux"]},A10:A13,0)))', EUR2, True),
-    ("ea", "Effet sur le niveau de vie des actifs", f'={PR["partActivite"]}*{gainNet("B16")}', PCT2, False),
+    ("rec", "Hausse de CSG (Md€)", "=SUM(F10:F13)", MD2, False),
+    ("net", "Recette nette, après impôt sur le revenu perdu (Md€)", f"=B15*{PR['csgNet']}", MD2, True),
+    ("baisse", "Baisse de CSG des actifs (points)", f"=B16/{PR['point']}", '0.000', False),
+    ("gain", "Gain d'un actif (€/mois)", "=" + gainCsg(e["sal"], "B17"), EUR2, False),
+    ("perte", "Perte de votre pension (€/mois, avant effet sur l'impôt)", f'={e["pen"]}*MAX(0,INDEX(E10:E13,MATCH({e["taux"]},A10:A13,0))-INDEX(B10:B13,MATCH({e["taux"]},A10:A13,0)))', EUR2, True),
+    ("ea", "Effet sur le niveau de vie des actifs", f'={PR["partActivite"]}*{gainNet("B17")}', PCT2, False),
     ("er", "Effet sur le niveau de vie des retraités", f'=-{PR["partPensions"]}*B15/{PR["pensionsTotales"]}', PCT2, False),
 ], 15)
-EFFETS["CSG des retraités"] = ("'CSG retraités'!B19", "'CSG retraités'!B20")
+EFFETS["CSG des retraités"] = ("'CSG retraités'!B20", "'CSG retraités'!B21")
 
 # ---------- Retraites sans impôts ----------
 f = feuille(wb, "Sans impôts", "Retraites financées par leurs seules ressources « logiques »", "Gardée = 1 : la ressource continue de financer les retraites. Les ressources « fixes » sont toujours gardées.", [70, 14, 10, 10, 14])
@@ -133,8 +135,13 @@ r = resultats(f, [
 EFFETS["Retraites sans impôts"] = (f"'Sans impôts'!B{z+9}", f"'Sans impôts'!B{z+10}")
 
 # ---------- distribution des pensions (commune Gel / Plafond) ----------
-def distribution(ws, l0, seuil, facteur, sommet):
-    entete(ws, l0, ["De (€ 2020)", "À (€ 2020)", "Part (%)", "De (€ 2026)", "À (€ 2026)", "Contribution à la moyenne", "Part au-dessus du seuil", "Masse au-dessus", "Masse au-delà du seuil"])
+def distribution(ws, l0, seuil, facteur, sommet, profil=None):
+    cols = ["De (€ 2020)", "À (€ 2020)", "Part (%)", "De (€ 2027)", "À (€ 2027)", "Contribution à la moyenne", "Part au-dessus du seuil", "Masse au-dessus", "Masse au-delà du seuil"]
+    if profil: cols += ["Part de base (point moyen)", "Masse de base au-dessus", "Masse de base au-delà"]
+    entete(ws, l0, cols)
+    def base(m):
+        j, b, a2, hh = profil
+        return f"IF({m}<={j},{b},IF({m}>={a2},{hh},{b}+({hh}-{b})*({m}-{j})/({a2}-{j})))"
     tr = G["distribution2020"]["tranches"]
     for i, (de, a, pct) in enumerate(tr):
         x = l0 + 1 + i
@@ -147,6 +154,7 @@ def distribution(ws, l0, seuil, facteur, sommet):
             formule(ws, f"G{x}", f"=IF(E{x}>{seuil},C{x}/100,0)", '0.0000')
             formule(ws, f"H{x}", f"=IF(E{x}>{seuil},C{x}/100*E{x},0)", NB1)
             formule(ws, f"I{x}", f"=IF(E{x}>{seuil},C{x}/100*(E{x}-{seuil}),0)", NB1)
+            if profil: formule(ws, f"J{x}", "=" + base(f"E{x}"), PCT1)
         else:
             entree(ws, f"B{x}", a, NB, cle=False)
             formule(ws, f"E{x}", f"=B{x}*{facteur}", NB)
@@ -155,60 +163,69 @@ def distribution(ws, l0, seuil, facteur, sommet):
             formule(ws, f"G{x}", f"=IF(E{x}<={seuil},0,{q})", '0.0000')
             formule(ws, f"H{x}", f"=IF(E{x}<={seuil},0,{q}*(MAX(D{x},{seuil})+E{x})/2)", NB1)
             formule(ws, f"I{x}", f"=IF(E{x}<={seuil},0,{q}*(MAX(D{x},{seuil})+E{x})/2-{q}*{seuil})", NB1)
+            if profil: formule(ws, f"J{x}", "=" + base(f"((MAX(D{x},{seuil})+E{x})/2)"), PCT1)
+        if profil:
+            formule(ws, f"K{x}", f"=H{x}*J{x}", NB1); formule(ws, f"L{x}", f"=I{x}*J{x}", NB1)
     zz = l0 + len(tr)
     tot = zz + 1
     texte(ws, f"A{tot}", "Total (par retraité, €/mois)", gras=True)
-    for col in "FGHI":
+    for col in ("FGHIKL" if profil else "FGHI"):
         formule(ws, f"{col}{tot}", f"=SUM({col}{l0+1}:{col}{zz})", '0.0000' if col == "G" else NB1, gras=True)
     return tot
 
 # ---------- Gel ----------
-g = feuille(wb, "Gel", "Gel de la revalorisation des pensions au-delà d'un seuil", "Calé sur l'IPP (2026) : pension de base = deux tiers, économie nette des finances publiques, taux d'annuité.", [58, 16, 12, 12, 12, 14, 14, 14, 14])
-e = entrees(g, [("seuil", "Seuil de pension totale brute (€/mois)", 2000, EUR, None), ("taux", "Revalorisation non versée", G["revalorisation2026"], PCT1, None),
+g = feuille(wb, "Gel", "Gel de la revalorisation des pensions de base au-delà d'un seuil", "Calé sur l'IPP (note n° 129, 2027) : distribution des pensions, part de base selon la pension, économie nette, taux d'annuité.", [58, 16, 12, 12, 12, 14, 14, 14, 14, 13, 13, 13])
+e = entrees(g, [("seuil", "Seuil de pension totale brute (€/mois)", 2000, EUR, None), ("taux", "Revalorisation non versée", G["revalorisation2027"], PCT1, None),
                 ("mode", "Ce qui n'est pas revalorisé", "Toute la pension", None, ["Toute la pension", "Seulement au-delà du seuil"]),
-                ("base", "Part de la pension venant des régimes de base", G["partBase"], PCT1, None),
                 ("futurs", "Appliquer aussi aux futurs retraités (taux d'annuité)", "Non", None, ["Oui", "Non"]),
                 ("pen", "Votre pension brute mensuelle totale (€)", 2500, EUR, None), ("sal", "Salaire net d'un actif (€/mois)", 2100, EUR, None)])
-pg = [("ret", "Retraités de droit direct", G["retraites"]["valeur"], NB, G["retraites"]["source"]), ("fac", "Passage des euros 2020 aux pensions 2026", G["facteur2026"], '0.00', "Estimation du site (COR, figure 3.25 ; revalorisations 2025-2026)"),
+PB = G["profilBase"]
+pg = [("ret", "Retraités de droit direct", G["retraites"]["valeur"], NB, G["retraites"]["source"]), ("fac", "Passage des euros 2020 aux pensions 2027", G["facteur"], '0.00', "Calé sur la distribution de l'IPP 2027 (médiane 1 639 €, 35 % au-dessus de 2 000 €)"),
       ("som", "Pension moyenne de la tranche ouverte « 4 500 € et plus » (€ 2020)", G["distribution2020"]["sommet"], NB, "Estimation du site, cohérente avec la pension moyenne totale fin 2020"),
-      ("net", "Économie nette / économie des régimes (finances publiques)", G["ipp"]["effetNet"], PCT1, G["ipp"]["source"] + " : « environ 20 % à 25 % » de moins"),
+      ("net", "Économie nette / économie des régimes (finances publiques)", G["ipp"]["effetNet"], PCT1, "IPP, note n° 129 : 5,2 Md€ nets pour 6,6 Md€ d'économie directe"),
       ("sortie", "Sortie annuelle des retraités actuels (décès)", G["sortieAnnuelle"], PCT1, G["deces"]["source"]), ("an", "Horizon (années après 2026)", 10, "0", "2036"),
       ("tp", "Taux plein", G["ipp"]["tauxPlein"], PCT1, "Régime général"), ("tr", "Trimestres requis", G["ipp"]["trimestresRequis"], "0", "Générations nées à partir de 1965"),
       ("prel", "Prélèvements sur une pension au taux normal (CSG, CRDS, Casa)", G["prelevementsTauxNormal"], PCT1, "8,3 % + 0,5 % + 0,3 %"),
-      ("epa", "Taux d'épargne des ménages de 70 ans ou plus", G["epargne"]["plus70"], PCT1, G["epargne"]["source"])]
+      ("epa", "Taux d'épargne des ménages de 70 ans ou plus", G["epargne"]["plus70"], PCT1, G["epargne"]["source"]),
+      ("pj", "Part de base : pension jusqu'à laquelle elle vaut la part haute (€)", PB["jusqua"], EUR, "Profil calé sur les 4 chiffrages de l'IPP (note n° 129) ; estimation du site"),
+      ("pb", "Part de base des pensions modestes", PB["base"], PCT1, "Idem"),
+      ("pa", "Pension à partir de laquelle elle vaut la part basse (€)", PB["apartirDe"], EUR, "Idem"),
+      ("ph", "Part de base des hautes pensions", PB["haut"], PCT1, "Idem")]
 for i, (cle, lib, v, fmt, src) in enumerate(pg, start=12):
     texte(g, f"A{i}", lib, wrap=True); entree(g, f"B{i}", v, fmt, cle=False); texte(g, f"C{i}", src); e[cle] = f"$B${i}"
-L = 50
-tot = distribution(g, L, e["seuil"], e["fac"], e["som"])
+R = 12 + len(pg) + 3
+L = R + 22
+tot = distribution(g, L, e["seuil"], e["fac"], e["som"], (e["pj"], e["pb"], e["pa"], e["ph"]))
+bpen = f'IF({e["pen"]}<={e["pj"]},{e["pb"]},IF({e["pen"]}>={e["pa"]},{e["ph"]},{e["pb"]}+({e["ph"]}-{e["pb"]})*({e["pen"]}-{e["pj"]})/({e["pa"]}-{e["pj"]})))'
 res = [
     ("part", "Part des retraités au-dessus du seuil", f"=G{tot}", PCT1, False),
     ("conc", "Retraités concernés", f"=G{tot}*{e['ret']}", NB, False),
-    ("eco", "Économie des régimes, première année (Md€)", f'={e["ret"]}*12*IF({e["mode"]}="Toute la pension",H{tot},I{tot})*{e["base"]}*{e["taux"]}/1E9', MD2, True),
-    ("ecoNet", "Gain net pour les finances publiques (Md€)", f"=B26*{e['net']}", MD2, False),
-    ("traj", "Économie la dernière année de l'horizon (Md€)", f'=IF({e["futurs"]}="Oui",B26,B26*(1-{e["sortie"]})^{e["an"]})', MD2, True),
-    ("cumul", "Cumul sur l'horizon, première année comprise (Md€)", f'=IF({e["futurs"]}="Oui",B26*({e["an"]}+1),B26*(1-(1-{e["sortie"]})^({e["an"]}+1))/{e["sortie"]})', MD, False),
-    ("perte", "Votre perte (€ brut par mois)", f'=IF({e["pen"]}<={e["seuil"]},0,IF({e["mode"]}="Toute la pension",{e["pen"]},{e["pen"]}-{e["seuil"]})*{e["base"]}*{e["taux"]})', EUR2, True),
+    ("eco", "Économie des régimes, première année (Md€)", f'={e["ret"]}*12*IF({e["mode"]}="Toute la pension",K{tot},L{tot})*{e["taux"]}/1E9', MD2, True),
+    ("ecoNet", "Gain net pour les finances publiques (Md€)", f"=B{R+2}*{e['net']}", MD2, True),
+    ("traj", "Économie la dernière année de l'horizon (Md€)", f'=IF({e["futurs"]}="Oui",B{R+2},B{R+2}*(1-{e["sortie"]})^{e["an"]})', MD2, False),
+    ("cumul", "Cumul sur l'horizon, première année comprise (Md€)", f'=IF({e["futurs"]}="Oui",B{R+2}*({e["an"]}+1),B{R+2}*(1-(1-{e["sortie"]})^({e["an"]}+1))/{e["sortie"]})', MD, False),
+    ("perte", "Votre perte (€ brut par mois)", f'=IF({e["pen"]}<={e["seuil"]},0,IF({e["mode"]}="Toute la pension",{e["pen"]},{e["pen"]}-{e["seuil"]})*{bpen}*{e["taux"]})', EUR2, True),
     ("trAv", "Valeur d'un trimestre aujourd'hui (part du salaire de référence)", f"={e['tp']}/{e['tr']}", '0.000%', False),
-    ("trAp", "Valeur d'un trimestre pour un futur retraité concerné", f'=IF({e["mode"]}="Toute la pension",B31*(1-{e["taux"]}),IF({e["pen"]}>{e["seuil"]},B31*(1-{e["taux"]}*({e["pen"]}-{e["seuil"]})/{e["pen"]}),"sous le seuil"))', '0.000%', False),
-    ("baisse", "Baisse de CSG des actifs (points)", f"=B26/{PR['point']}", '0.000', False),
-    ("gain", "Gain d'un actif (€/mois)", "=" + gainCsg(e["sal"], "B33"), EUR2, False),
-    ("pn", "Votre perte nette (€/mois)", f"=B30*(1-{e['prel']})", EUR2, False),
+    ("trAp", "Valeur d'un trimestre pour un futur retraité concerné", f'=IF({e["mode"]}="Toute la pension",B{R+7}*(1-{e["taux"]}),IF({e["pen"]}>{e["seuil"]},B{R+7}*(1-{e["taux"]}*({e["pen"]}-{e["seuil"]})/{e["pen"]}),"sous le seuil"))', '0.000%', False),
+    ("baisse", "Baisse de CSG des actifs, financée par le gain net (points)", f"=B{R+3}/{PR['point']}", '0.000', False),
+    ("gain", "Gain d'un actif (€/mois)", "=" + gainCsg(e["sal"], f"B{R+9}"), EUR2, False),
+    ("pn", "Votre perte nette (€/mois)", f"=B{R+6}*(1-{e['prel']})", EUR2, False),
     ("ep", "Épargne mensuelle à cette pension (€)", f"={e['pen']}*(1-{e['prel']})*{e['epa']}", EUR, False),
-    ("pe", "La perte en part de cette épargne", "=IF(B36>0,B35/B36,0)", PCT1, False),
-    ("ea", "Effet sur le niveau de vie des actifs", f"={PR['partActivite']}*{gainNet('B33')}", PCT2, False),
-    ("er", "Effet sur le niveau de vie des retraités", f"=-{PR['partPensions']}*B26/{PR['pensionsTotales']}", PCT2, False),
+    ("pe", "La perte en part de cette épargne", f"=IF(B{R+12}>0,B{R+11}/B{R+12},0)", PCT1, False),
+    ("ea", "Effet sur le niveau de vie des actifs", f"={PR['partActivite']}*{gainNet(f'B{R+9}')}", PCT2, False),
+    ("er", "Effet sur le niveau de vie des retraités", f"=-{PR['partPensions']}*B{R+2}/{PR['pensionsTotales']}", PCT2, False),
     ("mt", "Masse totale des pensions (Md€, contrôle)", f"={e['ret']}*12*F{tot}/1E9", MD, False),
 ]
-resultats(g, res, 24)
-texte(g, "A23", "Résultats", gras=True); texte(g, f"A{L-1}", "Distribution des pensions totales brutes (Drees, EIR 2020, tableau 5), portée à 2026", gras=True)
-EFFETS["Gel des hautes pensions"] = ("Gel!B38", "Gel!B39")
+resultats(g, res, R)
+texte(g, f"A{R-1}", "Résultats", gras=True); texte(g, f"A{L-1}", "Distribution des pensions totales brutes (Drees, EIR 2020, tableau 5), portée à 2027", gras=True)
+EFFETS["Gel des hautes pensions"] = (f"Gel!B{R+14}", f"Gel!B{R+15}")
 
 # ---------- Plafond ----------
 pl = feuille(wb, "Plafond", "Plafond des pensions : aucune pension totale au-delà d'un montant choisi", None, [58, 16, 12, 12, 12, 14, 14, 14, 14])
 e = entrees(pl, [("plaf", "Plafond de la pension totale brute (€/mois)", 4000, EUR, None), ("pen", "Votre pension brute mensuelle (€)", 5000, EUR, None),
                  ("vers", "Part de l'économie versée aux actifs (salaires)", 0, PCT1, None)])
 e["ret"] = "Gel!$B$12"; e["fac"] = "Gel!$B$13"; e["som"] = "Gel!$B$14"
-texte(pl, "A8", "Retraités, facteur 2020 → 2026 et tranche ouverte : repris de la feuille Gel.", italique=True)
+texte(pl, "A8", "Retraités, facteur 2020 → 2027, tranche ouverte et rapport net / brut : repris de la feuille Gel.", italique=True)
 L = 30
 tot = distribution(pl, L, e["plaf"], e["fac"], e["som"])
 resultats(pl, [
@@ -218,11 +235,41 @@ resultats(pl, [
     ("pc", "En part de l'ensemble des pensions", f"=B13/({e['ret']}*12*F{tot}/1E9)", PCT1, False),
     ("net", "Gain net pour les finances publiques (Md€)", "=B13*Gel!$B$15", MD2, False),
     ("perte", "Votre perte (€ brut par mois)", f"=MAX(0,{e['pen']}-{e['plaf']})", EUR, True),
-    ("ea", "Effet sur le niveau de vie des actifs", f"={PR['partActivite']}*(B13*{e['vers']}/({PR['masse']}*{PR['ratio']}))", PCT2, False),
+    ("ea", "Effet sur le niveau de vie des actifs (part du gain net versée)", f"={PR['partActivite']}*(B15*{e['vers']}/({PR['masse']}*{PR['ratio']}))", PCT2, False),
     ("er", "Effet sur le niveau de vie des retraités", f"=-{PR['partPensions']}*B13/{PR['pensionsTotales']}", PCT2, False),
 ], 11)
 texte(pl, "A10", "Résultats", gras=True); texte(pl, f"A{L-1}", "Distribution des pensions (même source que la feuille Gel)", gras=True)
 EFFETS["Plafond des pensions"] = ("Plafond!B17", "Plafond!B18")
+
+# ---------- Abattement de 10 % ----------
+I = P["ipp129"]["abattement"]
+ab = feuille(wb, "Abattement", "Abattement de 10 % sur les pensions : supprimé ou plafond abaissé", "Recette calée sur l'IPP (note n° 129, 2027) et interpolée entre ses points ; recette reversée aux actifs en baisse de CSG.", [60, 16, 16, 50])
+e = entrees(ab, [("plaf", "Plafond de l'abattement par foyer (€ par an ; 0 = suppression)", 0, EUR, None),
+                 ("pens", "Pensions du foyer, montant annuel déclaré (€)", 30000, EUR, None), ("n", "Nombre de retraités dans le foyer", 1, "0", ["1", "2"]),
+                 ("tmi", "Taux marginal d'imposition du foyer", 0.11, PCT1, None), ("sal", "Salaire net d'un actif (€/mois)", 2100, EUR, None)])
+pa = [("taux", "Taux de l'abattement", I["taux"], PCT1, "CGI, art. 158, 5-a"), ("pact", "Plafond actuel par foyer (€, revenus 2025)", I["plafond"], EUR, "IPP, note n° 129, encadré 1"),
+      ("plancher", "Plancher par pensionné (€)", I["plancher"], EUR, "Idem")]
+for i, (cle, lib, v, fmt, src) in enumerate(pa, start=11):
+    texte(ab, f"A{i}", lib); entree(ab, f"B{i}", v, fmt, cle=False); texte(ab, f"D{i}", src); e[cle] = f"$B${i}"
+entete(ab, 15, ["Point chiffré par l'IPP", "Plafond (€)", "Recette nette (Md€)", "Source"])
+for i, pt in enumerate(I["points"], start=16):
+    texte(ab, f"A{i}", ["Suppression", "Plafond abaissé (scénario A2)", "Plafond actuel"][i - 16])
+    entree(ab, f"B{i}", pt["plafond"], EUR, cle=False); entree(ab, f"C{i}", pt["recettes"], MD, cle=False); texte(ab, f"D{i}", "IPP, note n° 129, tableau 1")
+x = e["plaf"]
+interp = f"=IF({x}<=B16,C16,IF({x}<=B17,C16+(C17-C16)*({x}-B16)/(B17-B16),IF({x}<=B18,C17+(C18-C17)*({x}-B17)/(B18-B17),C18)))"
+abat = lambda P: f"MAX(0,MIN({e['pens']},{P},MAX({e['taux']}*{e['pens']},{e['plancher']}*{e['n']})))"
+resultats(ab, [
+    ("rec", "Recette nette (Md€)", interp, MD2, True),
+    ("avant", "Abattement du foyer aujourd'hui (€)", "=" + abat(e["pact"]), EUR, False),
+    ("apres", "Abattement du foyer après réforme (€)", "=" + abat(f"MIN({x},{e['pact']})"), EUR, False),
+    ("hausse", "Hausse d'impôt du foyer (€ par an, sans décote ni changement de tranche)", f"=(B22-B23)*{e['tmi']}", EUR, True),
+    ("mois", "… par mois (€)", "=B24/12", EUR2, False),
+    ("baisse", "Baisse de CSG des actifs (points)", f"=B21/{PR['point']}", '0.000', False),
+    ("gain", "Gain d'un actif (€/mois)", "=" + gainCsg(e["sal"], "B26"), EUR2, False),
+    ("ea", "Effet sur le niveau de vie des actifs", f"={PR['partActivite']}*{gainNet('B26')}", PCT2, False),
+    ("er", "Effet sur le niveau de vie des retraités", f"=-{PR['partPensions']}*B21/{PR['pensionsTotales']}", PCT2, False),
+], 21)
+EFFETS["Abattement de 10 %"] = ("Abattement!B28", "Abattement!B29")
 
 # ---------- Niveaux de vie ----------
 n = feuille(wb, "Niveaux de vie", "Retraités et actifs : niveau de vie médian, et effet des réformes choisies", "Effets cumulés multiplicativement ; hypothèse : l'effet « actifs » s'applique aux personnes en emploi, l'effet « retraités » aux retraités.", [34, 12, 16, 16, 14, 14])
@@ -321,6 +368,7 @@ sources(wb, [
     ("Distribution des pensions", G["distribution2020"]["source"], G["distribution2020"]["url"]),
     ("Retraités", G["retraites"]["source"], G["retraites"]["url"]),
     ("Sous-indexation, taux d'annuité", G["ipp"]["source"], G["ipp"]["url"]),
+    ("Calage CSG, gel, abattement", P["ipp129"]["source"], P["ipp129"]["url"]),
     ("Décès", G["deces"]["source"], G["deces"]["url"]),
     ("Épargne des ménages", G["epargne"]["source"], G["epargne"]["url"]),
     ("Niveaux de vie", N["source"], N["url"]),
