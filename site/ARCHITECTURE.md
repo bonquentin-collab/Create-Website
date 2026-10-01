@@ -154,3 +154,11 @@ successoral, pilier 1, pilier 2, taux effectifs ; reproduit le classeur à 0,01 
 `ui/etat-heritage.js` (scénario et hypothèses modifiées mémorisés dans `localStorage`, `appliquerChiffrage` remplace
 `reforme.recettes` et `reforme.contexte` au démarrage dans `main.js`), `ui/reforme.js` (bascule et curseurs),
 `ui/methode-chiffrage.js` (tableau des hypothèses sur la page Méthode).
+
+## Classeurs Excel de chiffrage (site/chiffrages/)
+
+Un classeur par espace (Héritage, Retraites, Santé), téléchargeable depuis chaque page Méthode. Ils sont générés par
+`tools/chiffrages/construire.sh` à partir des paramètres du site (`parametres.mjs` exporte `site/js/params` en JSON,
+puis `heritage.py`, `retraites.py`, `sante.py` écrivent les formules avec openpyxl). Après une modification des
+paramètres ou des moteurs, mettre à jour le script de l'espace concerné, relancer `construire.sh`, recalculer avec
+LibreOffice et vérifier que les résultats par défaut sont ceux du site.
