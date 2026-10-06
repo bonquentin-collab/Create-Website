@@ -201,7 +201,12 @@ test("TVA sociale : 1 point de taux normal finance 0,6 point de CSG des actifs",
   const r = tvaSociale(1, "normal", 1, tva, csg);
   proche(r.recettes, 7.5, 1e-9);
   proche(r.baisseCsg, 0.625, 1e-3);
-  proche(r.pertePrix, 0.005 * 8.9 / 13.7, 1e-9);
+  // Trésor-Éco n° 371, graphique 4 : taux normal ≈ 0,30 % en moyenne, 0,39 % pour le 1er cinquième, 0,25 % pour le 5e.
+  proche(r.pertePrix, 0.003, 0.0001);
+  proche(tvaSociale(1, "normal", 1, tva, csg, 1).pertePrix, 0.0039, 1e-9);
+  proche(tvaSociale(1, "normal", 1, tva, csg, 5).pertePrix, 0.0025, 1e-9);
+  assert.equal(tvaSociale(1, "normal", 1, tva, csg, 1).pertePrixMoyenne, r.pertePrix);
+  proche(tvaSociale(1, "tousTaux", 1, tva, csg).pertePrix, 0.005, 1e-9);
   assert.equal(tvaSociale(0, "tousTaux", 1, tva, csg).recettes, 0);
 });
 

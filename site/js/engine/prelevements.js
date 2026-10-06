@@ -5,12 +5,15 @@
  * @param {number} points        points de TVA ajoutés
  * @param {"normal"|"tousTaux"} cible
  * @param {number} repercussion  0..1, part de la hausse répercutée dans les prix
+ * @param {number|null} cinquieme  1..5 (cinquième de niveau de vie) pour la perte d'un ménage, null pour la moyenne
  */
-export function tvaSociale(points, cible, repercussion, tva, csg) {
+export function tvaSociale(points, cible, repercussion, tva, csg, cinquieme = null) {
   const recettes = points * tva.pointNet[cible];
   const baisseCsg = Math.min(csg.activite.taux * 100, recettes / csg.activite.valeurPoint); // en points
-  const pertePrix = points * tva.pertePouvoirAchatParPoint[cible] * repercussion; // part du revenu
-  return { recettes, baisseCsg, pertePrix };
+  const perte = tva.pertePouvoirAchatParPoint;
+  const pertePrixMoyenne = points * perte[cible] * repercussion; // part du revenu, moyenne des ménages
+  const pertePrix = cinquieme ? points * perte.parCinquieme[cible][cinquieme - 1] * repercussion : pertePrixMoyenne;
+  return { recettes, baisseCsg, pertePrix, pertePrixMoyenne };
 }
 
 /** Gain mensuel d'un salarié quand la CSG baisse de `points` (sur 98,25 % du brut). */

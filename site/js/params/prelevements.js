@@ -11,14 +11,22 @@ export const tva = {
     source: "DG Trésor, Trésor-Éco n° 371, septembre 2025, tableaux 1 et 2",
     url: "https://www.tresor.economie.gouv.fr/Articles/2025/09/25/analyse-de-la-composition-des-recettes-de-tva",
   },
-  // Perte de pouvoir d'achat des ménages par point de TVA sur tous les taux, répercussion totale.
-  pertePouvoirAchatParPoint: {
-    tousTaux: 0.005,
-    // Taux normal seul : même effet, au prorata du rendement brut (8,9 / 13,7 Md€).
-    normal: 0.005 * (8.9 / 13.7),
-    source: "DG Trésor, Trésor-Éco n° 371 (−0,5 % en moyenne par point sur tous les taux ; taux normal au prorata, calcul du simulateur)",
-    url: "https://www.tresor.economie.gouv.fr/Articles/2025/09/25/analyse-de-la-composition-des-recettes-de-tva",
-  },
+  // Perte de pouvoir d'achat des ménages pour une hausse d'un point de TVA, répercussion totale dans les prix, selon le
+  // cinquième de niveau de vie (du plus modeste au plus aisé). Valeurs lues sur le graphique 4 du Trésor-Éco n° 371
+  // (segments « taux normal » et total des quatre taux), au 0,01 point près. La moyenne de l'ensemble des ménages est
+  // publiée pour tous les taux (0,5 %) ; pour le taux normal seul, elle est déduite du graphique : 0,5 % × part du taux
+  // normal dans la perte totale (0,312 / 0,522), soit 0,30 %.
+  pertePouvoirAchatParPoint: (() => {
+    const parCinquieme = { normal: [0.0039, 0.0031, 0.003, 0.0031, 0.0025], tousTaux: [0.0067, 0.0051, 0.0051, 0.005, 0.0042] };
+    const moyenne = (t) => t.reduce((a, b) => a + b, 0) / t.length;
+    return {
+      parCinquieme,
+      tousTaux: 0.005,
+      normal: (0.005 * moyenne(parCinquieme.normal)) / moyenne(parCinquieme.tousTaux),
+      source: "DG Trésor, Trésor-Éco n° 371, septembre 2025, graphique 4 (valeurs lues sur le graphique) et texte (0,5 % pour l'ensemble des ménages)",
+      url: "https://www.tresor.economie.gouv.fr/Articles/2025/09/25/analyse-de-la-composition-des-recettes-de-tva",
+    };
+  })(),
   repercussionCourtTerme: { valeur: 0.75, source: "Insee, note de conjoncture de décembre 2013 (hausses passées de TVA)" },
   effortParDecile: { d1: 0.12, d10: 0.05, source: "Insee Analyses n° 43, 2019 : la TVA pèse 12 % du revenu disponible des 10 % les plus modestes, 5 % des 10 % les plus aisés", url: "https://www.insee.fr/fr/statistiques/3713290" },
 };

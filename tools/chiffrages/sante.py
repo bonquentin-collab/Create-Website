@@ -1,5 +1,8 @@
 import sys
 from commun import *
+from verification import SANTE as VERIF, RETRAITES as VR
+VS = {**index_verif(VR), **index_verif(VERIF)}
+ALIAS = {"csgNorm": "taux_reduit", "assN": "ass", "assM": "ass", "repN": "rep_exonere", "repM": "rep_exonere"}
 
 sr = P["sr"]; st = P["sante"]; csg = P["prel"]["csg"]; G = P["gel"]; N = P["ndv"]
 wb = nouveau()
@@ -16,7 +19,7 @@ lisez_moi(wb, "Chiffrage de l'espace Santé", [
 ])
 
 # ---------- Leviers ----------
-l = feuille(wb, "Leviers", "Faire contribuer davantage les retraités qui le peuvent, protéger ceux pour qui la santé coûte le plus", None, [62, 18, 80])
+l = feuille(wb, "Leviers", "Faire contribuer davantage les retraités qui le peuvent, protéger ceux pour qui la santé coûte le plus", None, [62, 18, 18, 56, 60])
 ent = [("csg", "Aligner la CSG des pensions au taux normal sur celle des salaires", "Oui", None, ["Oui", "Non"]),
        ("cot", "Cotisation maladie sur les pensions de base (retraités au taux médian ou normal)", 0.01, PCT1, None),
        ("bou", "Créer un bouclier santé", "Oui", None, ["Oui", "Non"]),
@@ -28,7 +31,7 @@ for i, (k, lib, v, fmt, opts) in enumerate(ent, start=4):
     texte(l, f"A{i}", lib, wrap=True); entree(l, f"B{i}", v, fmt)
     if opts: liste(l, f"B{i}", opts)
     e[k] = f"Leviers!$B${i}"
-texte(l, "A11", "Paramètres", gras=True)
+texte(l, "A10", "Paramètres", gras=True)
 par = [("csgAct", "Taux de CSG sur les revenus d'activité", csg["activite"]["taux"], PCT1, "Code de la sécurité sociale, art. L136-8"),
        ("csgNorm", "Taux normal de CSG sur les pensions", [t for t in csg["retraites"]["taux"] if t["id"] == "normal"][0]["taux"], PCT1, csg["retraites"]["source"]),
        ("assN", "Assiette des pensions au taux normal (Md€)", csg["retraites"]["assiettes"]["normal"], NB1, "Estimation du site, calibrée sur les recettes de CSG 2025 (CCSS, mai 2026)"),
@@ -40,8 +43,10 @@ par = [("csgAct", "Taux de CSG sur les revenus d'activité", csg["activite"]["ta
        ("repM", "Part des retraités au taux médian", csg["retraites"]["repartitionRetraites"]["median"], PCT1, csg["retraites"]["repartitionRetraites"]["source"]),
        ("def", "Solde de la branche maladie du régime général, 2026 (Md€)", sr["deficitMaladie"]["valeur"], NB1, sr["deficitMaladie"]["source"]),
        ("cotC", "Cotisation maladie existante sur les complémentaires", sr["cotisationMaladie"]["complementaires"], PCT1, sr["cotisationMaladie"]["source"])]
+entete(l, 11, ["Paramètre", "Valeur", "Type", "Comment c'est calculé", "Source"])
 for i, (k, lib, v, fmt, src) in enumerate(par, start=12):
-    texte(l, f"A{i}", lib, wrap=True); entree(l, f"B{i}", v, fmt, cle=False); texte(l, f"C{i}", src, wrap=True)
+    texte(l, f"A{i}", lib, wrap=True); entree(l, f"B{i}", v, fmt, cle=False); texte(l, f"E{i}", src, wrap=True)
+    colonnes_verif(l, i, VS.get(ALIAS.get(k, k)), "C", "D")
     e[k] = f"Leviers!$B${i}"
 r0 = 25
 texte(l, f"A{r0-1}", "Résultats", gras=True)
@@ -130,8 +135,10 @@ pb = [("Taux d'effort moyen publié, ensemble (%)", sr["effortPrive"]["moyenne"]
       ("Primes et restes à charge moyens par ménage, 2019 (€)", sr["effortPrive"]["depenseMoyenneMenage"], EUR, "Drees, tableau A : 1 021 € + 387 €"),
       ("Ménages (champ de l'enquête)", sr["menages"]["valeur"], NB, sr["menages"]["source"] + " ; 2,2 personnes par ménage"),
       ("Évolution 2019 → 2024 des dépenses payées par les complémentaires et les ménages", sr["evolution2019_2024"], '0.000', "Drees, comptes de la santé : 44,3 Md€ en 2019, 52,5 Md€ en 2024")]
+CALC_PB = ["Moyenne publiée des taux d'effort des dix dixièmes.", "1 021 € de primes + 387 € de restes à charge.", "63,4 millions de personnes ÷ 2,2 personnes par ménage.", "(32,52 + 19,96) ÷ (26,74 + 17,52) Md€."]
 for i, (lib, v, fmt, src) in enumerate(pb, start=P0 + 1):
     texte(b, f"A{i}", lib); b.merge_cells(f"A{i}:B{i}"); entree(b, f"C{i}", v, fmt, cle=False); texte(b, f"D{i}", src)
+    texte(b, f"I{i}", CALC_PB[i - P0 - 1], italique=True)
 rb = [("Primes et restes à charge, 2024 (Md€)", f"=C{P0+2}*C{P0+3}*C{P0+4}/1E9", MD),
       ("Bouclier : coût (Md€)", f"=J{z+1}/C{P0+1}*C{P0+5}", MD2),
       ("Bouclier : ménages bénéficiaires", f"=K{z+1}*C{P0+3}", NB),
@@ -151,6 +158,7 @@ sources(wb, [
     ("Part des pensions de base", G["ipp"]["source"], G["ipp"]["url"]),
     ("Composition des revenus", N["composition"]["source"], None),
 ])
+verification(wb, VERIF)
 police_partout(wb)
 wb.move_sheet("Lisez-moi", offset=-len(wb.sheetnames))
 wb.save(sys.argv[1])

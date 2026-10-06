@@ -19,6 +19,11 @@ export function monter(racine) {
   const sortieRep = h("output", { for: "t-rep" });
   const champSalaire = h("input", { id: "t-salaire", name: "salaire", inputmode: "decimal", autocomplete: "off", value: "2 100" });
   const champPension = h("input", { id: "t-pension", name: "pension", inputmode: "decimal", autocomplete: "off", value: "1 541" });
+  const selectCinquieme = h(
+    "select",
+    { id: "t-cinquieme", name: "cinquieme" },
+    [["", "Moyenne des ménages"], ["1", "Parmi les 20 % les plus modestes"], ["2", "2e cinquième"], ["3", "3e cinquième (milieu)"], ["4", "4e cinquième"], ["5", "Parmi les 20 % les plus aisés"]].map(([v, l]) => h("option", { value: v }, l)),
+  );
   const form = h(
     "form",
     { class: "formulaire", novalidate: true },
@@ -43,6 +48,13 @@ export function monter(racine) {
     ),
     h("div", { class: "champ" }, h("label", { for: "t-salaire" }, "Votre salaire net mensuel"), h("div", { class: "case" }, champSalaire, h("span", { "aria-hidden": "true" }, "€"))),
     h("div", { class: "champ" }, h("label", { for: "t-pension" }, "Ou votre pension nette mensuelle"), h("div", { class: "case" }, champPension, h("span", { "aria-hidden": "true" }, "€"))),
+    h(
+      "div",
+      { class: "champ" },
+      h("label", { for: "t-cinquieme" }, "Votre niveau de vie"),
+      selectCinquieme,
+      h("p", { class: "aide" }, "Les ménages modestes consomment une plus grande part de leur revenu : une hausse de TVA leur coûte proportionnellement plus (Trésor-Éco n° 371)."),
+    ),
   );
   const resultat = h("div", { class: "resultat", "aria-live": "polite", "data-resultat": true });
 
@@ -62,7 +74,7 @@ export function monter(racine) {
     const points = Number(curseurPoints.value);
     const cible = form.querySelector('input[name="cible"]:checked').value;
     const repercussion = Number(curseurRep.value) / 100;
-    const r = tvaSociale(points, cible, repercussion, tva, csg);
+    const r = tvaSociale(points, cible, repercussion, tva, csg, Number(selectCinquieme.value) || null);
     const salaire = lireMontant(champSalaire.value);
     const pension = lireMontant(champPension.value);
 
@@ -93,7 +105,7 @@ export function monter(racine) {
       h(
         "p",
         { class: "resultat__detail" },
-        `Les prix montent d'environ ${pourcent(r.pertePrix)} (DG Trésor). Les pensions sont revalorisées sur l'inflation avec environ un an de retard : le retraité récupère ensuite l'essentiel, mais cette revalorisation coûte à son tour aux caisses de retraite. Le gain des actifs suppose que les employeurs ne rognent pas les salaires en retour.`,
+        `Votre pouvoir d'achat baisse d'environ ${pourcent(r.pertePrix)}${selectCinquieme.value ? "" : " (moyenne des ménages)"} : c'est la hausse des prix rapportée à votre revenu, une partie de celui-ci n'étant pas consommée ou pas soumise à la TVA (DG Trésor, graphique 4). Les pensions sont revalorisées sur l'inflation avec environ un an de retard : le retraité récupère ensuite l'essentiel, mais cette revalorisation coûte à son tour aux caisses de retraite. Le gain des actifs suppose que les employeurs ne rognent pas les salaires en retour.`,
       ),
       h("p", { class: "resultat__detail" }, `La TVA pèse 12 % du revenu des 10 % les plus modestes, contre 5 % pour les 10 % les plus aisés (Insee, 2019) : la hausse touche davantage les petits revenus, même si la baisse de CSG la compense pour ceux qui travaillent.`),
     );

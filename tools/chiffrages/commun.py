@@ -95,6 +95,7 @@ def lisez_moi(wb, titre, lignes):
             texte(ws, f"A{r}", l, wrap=True)
         r += 1
     r += 1
+    texte(ws, f"A{r}", "Chaque chiffre saisi est revérifié à la source : voir la feuille « Vérification » (type, calcul, source, statut).", gras=False); r += 2
     texte(ws, f"A{r}", "Légende des couleurs", gras=True); r += 1
     c = ws[f"A{r}"]; c.value = "Texte bleu sur fond jaune : hypothèse ou donnée d'entrée, à modifier"; c.font = BLEU; c.fill = JAUNE; r += 1
     c = ws[f"A{r}"]; c.value = "Texte bleu sans fond : donnée sourcée (tableau de référence)"; c.font = BLEU; r += 1
@@ -111,3 +112,32 @@ def sources(wb, lignes):
         if u:
             c = ws[f"C{i}"]; c.value = u; c.hyperlink = u; c.font = Font(name=F, size=10, color="0563C1", underline="single")
     return ws
+
+
+LIEN = Font(name=F, size=10, color="0563C1", underline="single")
+STATUT_FOND = {"Corrigé": PatternFill("solid", fgColor="FCE4D6"), "Estimation, non vérifiable": PatternFill("solid", fgColor="F2F2F2")}
+
+def verification(wb, entrees, date="octobre 2026"):
+    """Feuille « Vérification » : chaque chiffre saisi, son type, son calcul, sa source et le résultat de la vérification."""
+    ws = feuille(wb, "Vérification", "Vérification des chiffres", f"Chaque chiffre saisi dans ce classeur, revérifié à la source en {date}.", [46, 22, 18, 60, 46, 40, 22, 50])
+    entete(ws, 4, ["Donnée", "Valeur", "Type", "Comment c'est calculé", "Source", "Lien", "Statut", "Remarque"])
+    for i, e in enumerate(entrees, start=5):
+        for col, cle in zip("ABCDEGH", ["libelle", "valeur", "type", "calcul", "source", "statut", "note"]):
+            texte(ws, f"{col}{i}", e[cle], wrap=True)
+        if e["url"]:
+            c = ws[f"F{i}"]; c.value = e["url"]; c.hyperlink = e["url"]; c.font = LIEN; c.alignment = Alignment(wrap_text=True, vertical="top")
+        if e["statut"] in STATUT_FOND:
+            for col in "ABCDEFGH": ws[f"{col}{i}"].fill = STATUT_FOND[e["statut"]]
+    r = 6 + len(entrees)
+    texte(ws, f"A{r}", "Types : « Chiffre publié » (repris d'une publication), « Lu sur un graphique », « Calcul du site » (formule à partir de chiffres publiés), « Hypothèse du site », « Loi ou barème ».", italique=True)
+    texte(ws, f"A{r+1}", "Statuts : « Confirmé » (vérifié à la source primaire), « Corrigé » (valeur changée lors de cette vérification), « Confirmé (source secondaire) », « Estimation, non vérifiable ».", italique=True)
+    return ws
+
+def index_verif(entrees):
+    return {e["cle"]: e for e in entrees}
+
+def colonnes_verif(ws, ligne, e, col_type, col_calcul):
+    """Écrit le type et le calcul d'un paramètre dans deux colonnes."""
+    if not e: return
+    texte(ws, f"{col_type}{ligne}", e["type"], wrap=True)
+    texte(ws, f"{col_calcul}{ligne}", e["calcul"], wrap=True)
