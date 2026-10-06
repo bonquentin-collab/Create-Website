@@ -1,5 +1,6 @@
 import sys
 from commun import *
+from verification import HERITAGE as VERIF, PUB, GRAPH, CALC, HYP, LOI
 
 C = P["chiffrage"]; E = C["scenarios"]["etude"]; A = C["scenarios"]["actualise"]
 wb = nouveau()
@@ -17,13 +18,28 @@ lisez_moi(wb, "Chiffrage de l'espace Héritage", [
 ])
 
 # ---------- Hypothèses ----------
-ws = feuille(wb, "Hypothèses", "Hypothèses du chiffrage de l'IGS", "Choisissez le scénario en B4 ; saisissez une valeur en colonne D pour la remplacer.", [44, 14, 14, 14, 14, 70])
+ws = feuille(wb, "Hypothèses", "Hypothèses du chiffrage de l'IGS", "Choisissez le scénario en B4 ; saisissez une valeur en colonne D pour la remplacer.", [44, 14, 14, 14, 14, 52, 16, 52])
+TYPES_HYP = {
+    "croissancePib": (HYP, "Hypothèse de l'étude : +1 % par an après la dernière année connue."),
+    "fluxCible": (PUB, "23 % du PIB en 2050 (CAE, note n° 63) ; interpolation linéaire depuis 15 % en 2021."),
+    "rendementTop1": (CALC, "6,10 % de rendement moyen 2005-2014 (Garbinti et al.) − 2 % d'inflation."),
+    "partPV": (CALC, "17 681 Md€ de plus-values latentes ÷ 42 861 Md€ de patrimoine du top 1 % (Saez et al.)."),
+    "pfu": (LOI, "30 % en 2024 ; 31,4 % depuis 2026 (12,8 % + 18,6 %)."),
+    "part0": (PUB, "15 % du PIB en 2021 (CAE, note n° 63)."),
+    "annee0": (PUB, ""), "anneeCible": (PUB, ""),
+    "p1_2021": (PUB, "10 Md€ en 2021 (simulation du CAE reprise par l'étude), puis comme le flux successoral."),
+    "partTop1": (PUB, "24 % (World Inequality Database, 2022)."),
+    "anneeRef": (PUB, ""),
+    "croissanceGen": (CALC, "4,07 % − 2 % d'inflation (classeur de l'étude, Banque de France)."),
+    "abattement": (PUB, "80 % de l'assiette taxée (Hannezo et al., 2022)."),
+    "dmtgDeduits": (PUB, "20 % de droits déjà payés déduits (CAE, 2021)."),
+}
 texte(ws, "A4", "Scénario actif", gras=True)
 entree(ws, "B4", "Actualisé 2026", note="Liste : Étude 2024 ou Actualisé 2026")
 liste(ws, "B4", ["Étude 2024", "Actualisé 2026"])
 formule(ws, "C4", '=IF(B4="Étude 2024",1,2)')
 texte(ws, "D4", "← 1 = étude, 2 = actualisé", italique=True)
-entete(ws, 6, ["Hypothèse", "Étude 2024", "Actualisé 2026", "Votre valeur", "Valeur retenue", "Source"])
+entete(ws, 6, ["Hypothèse", "Étude 2024", "Actualisé 2026", "Votre valeur", "Valeur retenue", "Source", "Type", "Comment c'est calculé"])
 hyp = [
     ("croissancePib", "Croissance annuelle du PIB (après la dernière année connue)", E["hypotheses"]["croissancePib"], A["hypotheses"]["croissancePib"], PCT1, "Étude : +1 % par an"),
     ("fluxCible", "Flux successoral en 2050 (part du PIB)", E["hypotheses"]["fluxCible"], A["hypotheses"]["fluxCible"], PCT1, C["flux"]["source"]),
@@ -47,6 +63,7 @@ for i, (cle, lib, ve, va, fmt, src) in enumerate(hyp, start=7):
     entree(ws, f"D{i}", None, fmt)
     formule(ws, f"E{i}", f'=IF(ISBLANK(D{i}),IF($C$4=1,B{i},C{i}),D{i})', fmt, gras=True)
     texte(ws, f"F{i}", src, wrap=True)
+    texte(ws, f"G{i}", TYPES_HYP[cle][0], wrap=True); texte(ws, f"H{i}", TYPES_HYP[cle][1], wrap=True)
     H[cle] = f"Hypothèses!$E${i}"
 r = 7 + len(hyp) + 1
 texte(ws, f"A{r}", "Données connues par année (au-delà : projection)", gras=True); r += 1
@@ -232,6 +249,7 @@ sources(wb, [
     ("Barèmes du droit actuel", D["source"] + " (montants 2024)", None),
     ("Emploi, salaires", M["personnesEnEmploi"]["source"] + " ; " + M["masseSalarialeBrute"]["source"], M["masseSalarialeBrute"]["url"]),
 ])
+verification(wb, VERIF)
 police_partout(wb)
 wb.move_sheet("Lisez-moi", offset=-len(wb.sheetnames))
 wb.save(sys.argv[1])

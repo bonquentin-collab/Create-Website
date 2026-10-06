@@ -10,8 +10,8 @@ export const gainNetCsg = (points, csg, ratioNetSurBrut) => (csg.activite.assiet
 /** TVA sociale : baisse de CSG des actifs, hausse des prix pour tous. */
 export function effetTvaSociale(r, { csg, ratioNetSurBrut, composition }) {
   return {
-    actifs: composition.partActivite * gainNetCsg(r.baisseCsg, csg, ratioNetSurBrut) - r.pertePrix,
-    retraites: -r.pertePrix,
+    actifs: composition.partActivite * gainNetCsg(r.baisseCsg, csg, ratioNetSurBrut) - (r.pertePrixMoyenne ?? r.pertePrix),
+    retraites: -(r.pertePrixMoyenne ?? r.pertePrix),
   };
 }
 

@@ -1,5 +1,9 @@
 import sys
 from commun import *
+from verification import RETRAITES as VERIF
+V = index_verif(VERIF)
+ALIAS = {"taux_exonere": "taux_reduit", "taux_median": "taux_reduit", "taux_normal": "taux_reduit", "rep_reduit": "rep_exonere", "rep_median": "rep_exonere", "rep_normal": "rep_exonere", "tr": "tp", "pj": "pb", "pa": "pb", "ph": "pb", "pact": "abattement", "plancher": "abattement"}
+vf = lambda cle: V.get(ALIAS.get(cle, cle))
 
 pr = P["prel"]; csg = pr["csg"]; tva = pr["tva"]; M = P["macro"]; RT = P["retraites"]; G = P["gel"]; N = P["ndv"]; RD = P["rendement"]
 wb = nouveau()
@@ -17,12 +21,13 @@ lisez_moi(wb, "Chiffrage de l'espace Retraites", [
 ])
 
 # ---------- Paramètres ----------
-p = feuille(wb, "Paramètres", "Paramètres communs", "Données sourcées ; modifiables (texte bleu).", [58, 16, 90])
-entete(p, 4, ["Paramètre", "Valeur", "Source"])
+p = feuille(wb, "Paramètres", "Paramètres communs", "Données sourcées ; modifiables (texte bleu). Détail de chaque vérification : feuille « Vérification ».", [52, 14, 18, 56, 60])
+entete(p, 4, ["Paramètre", "Valeur", "Type", "Comment c'est calculé", "Source"])
 PR = {}
 def par(cle, lib, v, fmt, src):
     r = 5 + len(PR)
-    texte(p, f"A{r}", lib, wrap=True); entree(p, f"B{r}", v, fmt, cle=False); texte(p, f"C{r}", src, wrap=True)
+    texte(p, f"A{r}", lib, wrap=True); entree(p, f"B{r}", v, fmt, cle=False); texte(p, f"E{r}", src, wrap=True)
+    colonnes_verif(p, r, vf(cle), "C", "D")
     PR[cle] = f"Paramètres!$B${r}"
 par("emploi", "Personnes en emploi", M["personnesEnEmploi"]["valeur"], NB, M["personnesEnEmploi"]["source"])
 par("masse", "Masse salariale brute (Md€)", M["masseSalarialeBrute"]["valeur"] / 1e9, NB1, M["masseSalarialeBrute"]["source"])
@@ -39,8 +44,6 @@ for k, v in csg["retraites"]["repartitionRetraites"].items():
 par("csgNet", "Rendement net d'une hausse de CSG des retraités (après impôt sur le revenu)", csg["retraites"]["effetNet"], PCT1, "IPP, note n° 129 (2026) : environ 0,6 Md€ d'impôt perdu sur 4,8 Md€ de CSG")
 par("tvaNormal", "Rendement net d'un point de TVA, taux normal (Md€)", tva["pointNet"]["normal"], NB1, tva["pointNet"]["source"])
 par("tvaTous", "Rendement net d'un point de TVA, tous les taux (Md€)", tva["pointNet"]["tousTaux"], NB1, tva["pointNet"]["source"])
-par("ppaNormal", "Perte de pouvoir d'achat par point de TVA, taux normal", tva["pertePouvoirAchatParPoint"]["normal"], '0.000%', tva["pertePouvoirAchatParPoint"]["source"])
-par("ppaTous", "Perte de pouvoir d'achat par point de TVA, tous les taux", tva["pertePouvoirAchatParPoint"]["tousTaux"], '0.000%', tva["pertePouvoirAchatParPoint"]["source"])
 par("partPensions", "Part des pensions dans le revenu des ménages retraités", N["composition"]["partPensions"], PCT1, N["composition"]["source"])
 par("partActivite", "Part des revenus d'activité dans le revenu des ménages actifs", N["composition"]["partActivite"], PCT1, N["composition"]["source"])
 par("pensionsTotales", "Masse des pensions (Md€)", N["pensionsTotales"]["valeur"], NB1, N["pensionsTotales"]["source"])
@@ -68,21 +71,32 @@ def resultats(ws, lignes, debut, col="A", colv="B"):
 EFFETS = {}
 
 # ---------- TVA sociale ----------
-t = feuille(wb, "TVA sociale", "TVA sociale : une hausse de TVA dont toute la recette baisse la CSG des actifs", None, [60, 18, 50])
+t = feuille(wb, "TVA sociale", "TVA sociale : une hausse de TVA dont toute la recette baisse la CSG des actifs", "Perte de pouvoir d'achat par point : graphique 4 du Trésor-Éco n° 371, par cinquième de niveau de vie.", [60, 18, 4, 22, 14, 14, 50])
 e = entrees(t, [("pts", "Hausse de la TVA (points)", 2, "0.0", None), ("cible", "Taux concernés", "Taux normal", None, ["Taux normal", "Tous les taux"]),
-                ("rep", "Part de la hausse répercutée dans les prix", 1, PCT1, None), ("sal", "Salaire net mensuel (€)", 2100, EUR, None), ("pen", "Pension nette mensuelle (€)", 1541, EUR, None)])
+                ("rep", "Part de la hausse répercutée dans les prix", 1, PCT1, None), ("sal", "Salaire net mensuel (€)", 2100, EUR, None), ("pen", "Pension nette mensuelle (€)", 1541, EUR, None),
+                ("cinq", "Votre niveau de vie (Moyenne, ou cinquième 1 = 20 % les plus modestes … 5)", "Moyenne", None, ["Moyenne", "1", "2", "3", "4", "5"])])
+ppa = P["prel"]["tva"]["pertePouvoirAchatParPoint"]
+entete(t, 3, ["Cinquième", "Taux normal", "Tous les taux"], col=4)
+for i in range(5):
+    t[f"D{4+i}"] = i + 1; t[f"D{4+i}"].font = NOIR; entree(t, f"E{4+i}", ppa["parCinquieme"]["normal"][i], '0.00%', cle=False); entree(t, f"F{4+i}", ppa["parCinquieme"]["tousTaux"][i], '0.00%', cle=False)
+texte(t, "D9", "Moyenne"); formule(t, "F9", "=0.005", '0.00%'); t["F9"].font = BLEU
+formule(t, "E9", "=F9*AVERAGE(E4:E8)/AVERAGE(F4:F8)", '0.00%')
+texte(t, "G4", "Lu sur le graphique 4 du Trésor-Éco n° 371 (perte de pouvoir d'achat pour +1 point, répercussion totale).", wrap=True)
+texte(t, "G9", "Tous taux : 0,5 % publié. Taux normal : 0,5 % × part du taux normal dans la perte totale du graphique.", wrap=True)
+idx = f'MATCH({e["cinq"]},$D$4:$D$9,0)'
 r = resultats(t, [
     ("rec", "Recettes (Md€)", f'={e["pts"]}*IF({e["cible"]}="Taux normal",{PR["tvaNormal"]},{PR["tvaTous"]})', MD, False),
-    ("baisse", "Baisse de CSG des actifs (points)", f'=MIN({PR["csgAct"]}*100,B10/{PR["point"]})', '0.00', True),
-    ("prix", "Hausse des prix (part du revenu)", f'={e["pts"]}*IF({e["cible"]}="Taux normal",{PR["ppaNormal"]},{PR["ppaTous"]})*{e["rep"]}', PCT2, False),
-    ("gain", "Actif : gain sur la paie (€/mois)", "=" + gainCsg(e["sal"], "B11"), EUR2, False),
-    ("cout", "Actif : hausse des prix (€/mois)", f'={e["sal"]}*B12', EUR2, False),
-    ("solde", "Actif : solde (€/mois)", "=B13-B14", EUR2, True),
-    ("ret", "Retraité : perte la première année (€/mois)", f'={e["pen"]}*B12', EUR2, True),
-    ("ea", "Effet sur le niveau de vie des actifs", f'={PR["partActivite"]}*{gainNet("B11")}-B12', PCT2, False),
-    ("er", "Effet sur le niveau de vie des retraités", "=-B12", PCT2, False),
-], 10)
-EFFETS["TVA sociale"] = ("'TVA sociale'!B17", "'TVA sociale'!B18")
+    ("baisse", "Baisse de CSG des actifs (points)", f'=MIN({PR["csgAct"]}*100,B11/{PR["point"]})', '0.00', True),
+    ("prix", "Votre perte de pouvoir d'achat (part du revenu)", f'={e["pts"]}*IF({e["cible"]}="Taux normal",INDEX($E$4:$E$9,{idx}),INDEX($F$4:$F$9,{idx}))*{e["rep"]}', PCT2, False),
+    ("prixMoy", "Perte moyenne des ménages (part du revenu)", f'={e["pts"]}*IF({e["cible"]}="Taux normal",$E$9,$F$9)*{e["rep"]}', PCT2, False),
+    ("gain", "Actif : gain sur la paie (€/mois)", "=" + gainCsg(e["sal"], "B12"), EUR2, False),
+    ("cout", "Actif : hausse des prix (€/mois)", f'={e["sal"]}*B13', EUR2, False),
+    ("solde", "Actif : solde (€/mois)", "=B15-B16", EUR2, True),
+    ("ret", "Retraité : perte la première année (€/mois)", f'={e["pen"]}*B13', EUR2, True),
+    ("ea", "Effet sur le niveau de vie des actifs (moyenne)", f'={PR["partActivite"]}*{gainNet("B12")}-B14', PCT2, False),
+    ("er", "Effet sur le niveau de vie des retraités (moyenne)", "=-B14", PCT2, False),
+], 11)
+EFFETS["TVA sociale"] = ("'TVA sociale'!B19", "'TVA sociale'!B20")
 
 # ---------- CSG des retraités ----------
 c = feuille(wb, "CSG retraités", "CSG des retraités alignée sur celle des actifs (9,2 %), recette nette reversée aux actifs", "Assiettes calées sur l'IPP (note n° 129) : 1,5 Md€ net pour le taux normal, 4,2 Md€ pour les taux médian et normal.", [60, 18, 14, 14, 14, 14])
@@ -173,6 +187,14 @@ def distribution(ws, l0, seuil, facteur, sommet, profil=None):
         formule(ws, f"{col}{tot}", f"=SUM({col}{l0+1}:{col}{zz})", '0.0000' if col == "G" else NB1, gras=True)
     return tot
 
+def ligne_param(ws, r, lib, v, fmt, cle, src):
+    texte(ws, f"A{r}", lib, wrap=True); entree(ws, f"B{r}", v, fmt, cle=False)
+    e_ = vf(cle)
+    texte(ws, f"C{r}", e_["type"] if e_ else "", wrap=True)
+    texte(ws, f"D{r}", e_["calcul"] if e_ else "", wrap=True); ws.merge_cells(f"D{r}:G{r}")
+    texte(ws, f"H{r}", src, wrap=True); ws.merge_cells(f"H{r}:L{r}")
+    ws.row_dimensions[r].height = 42
+
 # ---------- Gel ----------
 g = feuille(wb, "Gel", "Gel de la revalorisation des pensions de base au-delà d'un seuil", "Calé sur l'IPP (note n° 129, 2027) : distribution des pensions, part de base selon la pension, économie nette, taux d'annuité.", [58, 16, 12, 12, 12, 14, 14, 14, 14, 13, 13, 13])
 e = entrees(g, [("seuil", "Seuil de pension totale brute (€/mois)", 2000, EUR, None), ("taux", "Revalorisation non versée", G["revalorisation2027"], PCT1, None),
@@ -191,8 +213,9 @@ pg = [("ret", "Retraités de droit direct", G["retraites"]["valeur"], NB, G["ret
       ("pb", "Part de base des pensions modestes", PB["base"], PCT1, "Idem"),
       ("pa", "Pension à partir de laquelle elle vaut la part basse (€)", PB["apartirDe"], EUR, "Idem"),
       ("ph", "Part de base des hautes pensions", PB["haut"], PCT1, "Idem")]
+entete(g, 11, ["Paramètre", "Valeur", "Type", "Comment c'est calculé", "", "", "", "Source"])
 for i, (cle, lib, v, fmt, src) in enumerate(pg, start=12):
-    texte(g, f"A{i}", lib, wrap=True); entree(g, f"B{i}", v, fmt, cle=False); texte(g, f"C{i}", src); e[cle] = f"$B${i}"
+    ligne_param(g, i, lib, v, fmt, cle, src); e[cle] = f"$B${i}"
 R = 12 + len(pg) + 3
 L = R + 22
 tot = distribution(g, L, e["seuil"], e["fac"], e["som"], (e["pj"], e["pb"], e["pa"], e["ph"]))
@@ -250,7 +273,7 @@ e = entrees(ab, [("plaf", "Plafond de l'abattement par foyer (€ par an ; 0 = s
 pa = [("taux", "Taux de l'abattement", I["taux"], PCT1, "CGI, art. 158, 5-a"), ("pact", "Plafond actuel par foyer (€, revenus 2025)", I["plafond"], EUR, "IPP, note n° 129, encadré 1"),
       ("plancher", "Plancher par pensionné (€)", I["plancher"], EUR, "Idem")]
 for i, (cle, lib, v, fmt, src) in enumerate(pa, start=11):
-    texte(ab, f"A{i}", lib); entree(ab, f"B{i}", v, fmt, cle=False); texte(ab, f"D{i}", src); e[cle] = f"$B${i}"
+    ligne_param(ab, i, lib, v, fmt, cle, src); e[cle] = f"$B${i}"
 entete(ab, 15, ["Point chiffré par l'IPP", "Plafond (€)", "Recette nette (Md€)", "Source"])
 for i, pt in enumerate(I["points"], start=16):
     texte(ab, f"A{i}", ["Suppression", "Plafond abaissé (scénario A2)", "Plafond actuel"][i - 16])
@@ -293,6 +316,8 @@ formule(n, f"C{z+8}", f"=B{z+8}*(1+B{z+3})", EUR); formule(n, f"D{z+8}", f"=B{z+
 texte(n, f"A{z+9}", "Retraités / en emploi", gras=True); formule(n, f"B{z+9}", f"=B{z+8}/B{z+7}", PCT1, gras=True, res=True); formule(n, f"C{z+9}", f"=C{z+8}/C{z+7}", PCT1, gras=True, res=True)
 h0 = z + 12
 texte(n, f"A{h0-1}", "Série 1996-2024 (Insee, ERFS, € constants 2024, médianes annuelles)", gras=True)
+texte(n, f"A{z+10}", "Source : Insee, « Niveau de vie selon le statut d'activité », figure 1 (Insee-DGFiP-Cnaf-Cnav-CCMSA, enquêtes Revenus fiscaux et sociaux 2005-2024 ; Insee-DGI, ERFS rétropolées 1996-2004). Ruptures de série en 2010, 2012 et 2020 : valeur après rupture. Lien :", italique=True)
+n[f"A{z+10}"].value = n[f"A{z+10}"].value + " " + N["url"]; n[f"A{z+10}"].hyperlink = N["url"]
 entete(n, h0, ["Année", "Ensemble", "Retraités", "En emploi", "Retraités / en emploi"])
 for i, a in enumerate(an):
     x = h0 + 1 + i
@@ -377,6 +402,7 @@ sources(wb, [
     ("Impôts affectés aux retraites", RD["impots"]["source"], RD["impots"]["url"]),
     ("Emploi, salaires", M["personnesEnEmploi"]["source"] + " ; " + M["masseSalarialeBrute"]["source"], M["masseSalarialeBrute"]["url"]),
 ])
+verification(wb, VERIF)
 police_partout(wb)
 wb.move_sheet("Lisez-moi", offset=-len(wb.sheetnames))
 wb.save(sys.argv[1])

@@ -161,7 +161,9 @@ Un classeur par espace (Héritage, Retraites, Santé), téléchargeable depuis c
 `tools/chiffrages/construire.sh` à partir des paramètres du site (`parametres.mjs` exporte `site/js/params` en JSON,
 puis `heritage.py`, `retraites.py`, `sante.py` écrivent les formules avec openpyxl). Après une modification des
 paramètres ou des moteurs, mettre à jour le script de l'espace concerné, relancer `construire.sh`, recalculer avec
-LibreOffice et vérifier que les résultats par défaut sont ceux du site.
+LibreOffice et vérifier que les résultats par défaut sont ceux du site. `tools/chiffrages/verification.py` est le registre
+de vérification (type, calcul, source, statut de chaque chiffre saisi) : il remplit la feuille « Vérification » et les
+colonnes « Type » et « Comment c'est calculé » ; le tenir à jour quand un chiffre change.
 
 ## Calage sur l'IPP, note n° 129 (Retraites › Simuler et Méthode)
 
