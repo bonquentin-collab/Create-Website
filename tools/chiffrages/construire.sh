@@ -5,7 +5,7 @@
 set -e
 cd "$(dirname "$0")"
 node parametres.mjs > parametres.json
-for f in heritage:Chiffrage_Heritage retraites:Chiffrage_Retraites sante:Chiffrage_Sante; do
+for f in heritage:Chiffrage_Heritage retraites:Chiffrage_Retraites sante:Chiffrage_Sante bilan:Chiffrage_Bilan; do
   python3 "${f%%:*}.py" "../../site/chiffrages/${f##*:}.xlsx"
 done
 rm parametres.json

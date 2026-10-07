@@ -62,11 +62,101 @@
         </div>
       </div>
     </section>
+    <section class="section section--methode" id="methode-leviers" aria-labelledby="titre-leviers">
+      <div class="page">
+        <h2 id="titre-leviers" class="titre-section">Les leviers sur les gros consommateurs et les complémentaires</h2>
+        <div class="colonnes-methode">
+          <div>
+            <h3>Franchises et participations forfaitaires</h3>
+            <p>
+              Règles en vigueur : 1&nbsp;€ par boîte de médicament et par acte paramédical, 4&nbsp;€ par transport, 2&nbsp;€
+              par consultation ; plafonds annuels de 70&nbsp;€ + 70&nbsp;€ depuis le 1<sup>er</sup> octobre 2026
+              (décret n°&nbsp;2026-858). Les complémentaires « responsables » n'ont pas le droit de les rembourser : c'est le
+              patient qui paie.
+            </p>
+            <p>
+              Modèle du site : le montant « dû » avant plafond suit, dans chaque tranche d'âge, une loi log-normale de
+              dispersion 1,4, dont la moyenne est calée pour retrouver les franchises observées en 2023 (Drees). Il
+              retrouve à 5&nbsp;% près les deux chiffrages officiels : 2,3&nbsp;Md€ pour le doublement des montants et des
+              plafonds (CCSS, mai 2026) et environ 0,75&nbsp;Md€ pour le doublement des seuls plafonds (gouvernement,
+              juillet 2026).
+            </p>
+          </div>
+          <div>
+            <h3>Ticket modérateur, ALD, dépassements</h3>
+            <p>
+              Ticket modérateur des consultations : 0,11&nbsp;Md€ par point au-dessus de 30&nbsp;%, d'après la mesure du PLFSS
+              2025 (1,1&nbsp;Md€ pour 30 → 40&nbsp;%). Il est payé à 95&nbsp;% par les complémentaires (5&nbsp;% de la
+              population n'en a pas), donc par les primes. Déjà décidé pour 2027 et non compté : environ 1,5&nbsp;Md€
+              transférés par les décrets n°&nbsp;2026-809 à 812. ALD : deux mesures du PLFSS 2026 abandonnées (CCSS, mai
+              2026). Dépassements : 4,5&nbsp;Md€ en 2024, dont 37 à 40&nbsp;% remboursés par les complémentaires (mission
+              Rousset-Monnet) ; la baisse ne rapporte rien à l'Assurance maladie, la taxe est supposée payée par les médecins.
+            </p>
+          </div>
+          <div>
+            <h3>Complémentaires santé</h3>
+            <p>
+              TSA : 13,27&nbsp;% des primes (art. L862-4), 6,56&nbsp;Md€ en 2025 (CCSS) ; un point vaut donc environ
+              0,49&nbsp;Md€, supposé répercuté sur les primes. Effet croisé : chaque euro transféré aux complémentaires
+              alourdit les primes, elles-mêmes taxées par la TSA. Contrats d'entreprise : 24,3&nbsp;Md€ de contributions
+              patronales exemptées de cotisations, 5,6&nbsp;Md€ de manque à gagner net en 2026 (PLFSS 2026, annexe 4,
+              tableau 9, santé et prévoyance ensemble) ; le forfait social passe de 8&nbsp;% au taux choisi, sans dépasser
+              ce manque à gagner.
+            </p>
+          </div>
+          <div>
+            <h3>Qui paie, selon quoi</h3>
+            <p>
+              Par âge : franchises selon le modèle ; ticket modérateur selon le ticket modérateur payé à chaque âge ; ALD selon
+              le remboursement de l'Assurance maladie ; dépassements selon les dépassements payés ; hausses de primes selon la
+              prime moyenne de chaque âge (36&nbsp;€ à 20 ans, 142&nbsp;€ à 85 ans). Par niveau de vie : les sommes payées par
+              les patients s'ajoutent en proportion des restes à charge de chaque groupe, celles payées via les primes en
+              proportion des primes (Drees, ER&nbsp;1345). Par niveau de dépense : en proportion de l'effort de chaque groupe ;
+              le bouclier est recalculé sur ces efforts relevés, ce qui augmente son coût.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="section section--methode" id="methode-bilan" aria-labelledby="titre-methode-bilan">
+      <div class="page">
+        <h2 id="titre-methode-bilan" class="titre-section">Le Bilan : doubles comptes et effets croisés</h2>
+        <div class="colonnes-methode">
+          <div>
+            <h3>Une recette, un usage</h3>
+            <p>
+              Chaque simulateur enregistre sa mesure dans le navigateur. Une même recette ne peut servir qu'une fois :
+              l'alignement de la CSG des pensions au taux normal finance soit la baisse de CSG des actifs (Retraites), soit
+              l'Assurance maladie (Santé). Par défaut, la mesure réglée la première la garde ; vous pouvez la réaffecter
+              dans chaque simulateur ou dans le <a href="bilan.html">Bilan</a>.
+            </p>
+          </div>
+          <div>
+            <h3>Effets croisés chiffrés</h3>
+            <p>
+              TVA sociale : la CSG des actifs baisse, donc l'alignement des retraités vise un taux plus bas ; les prix montent,
+              donc les pensions sont revalorisées l'année suivante (coût au moins égal à la perte de pouvoir d'achat moyenne
+              × 400&nbsp;Md€ de pensions). Baisse de CSG des actifs : l'impôt sur le revenu remonte de 12,5&nbsp;% du montant
+              (miroir de l'IPP). CSG des retraités en plus : l'État perd 12,5&nbsp;% en impôt sur le revenu. Gel, plafond ou
+              baisse des pensions : l'assiette de la CSG et de la cotisation des retraités diminue.
+            </p>
+          </div>
+          <div>
+            <h3>Limites</h3>
+            <p>
+              Bouclage partiel : ni l'effet de la TVA sur la dépense de santé (médicaments à 2,1&nbsp;%), ni les effets sur
+              l'emploi, ni les interactions fines avec le barème de l'impôt ne sont chiffrés. Les effets sur les niveaux de
+              vie suivent la méthode de la page Retraites ; ce que paient héritiers, médecins et entreprises n'y figure pas.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
     <section class="section" aria-labelledby="titre-telecharger">
       <div class="page">
         <h2 id="titre-telecharger" class="titre-section">Refaire les calculs</h2>
-        <p class="texte">Le classeur Excel reprend toutes les formules et données de cette partie du site : les leviers (CSG, cotisation maladie, bouclier santé), le taux d'effort avant et après, et le coût du bouclier. Les hypothèses sont dans les cellules jaunes ; modifiez-les pour tester d'autres scénarios. Avec les réglages par défaut, il donne les mêmes résultats que le site.</p>
-        <p><a class="bouton" href="chiffrages/Chiffrage_Sante.xlsx" download>Télécharger le classeur (Chiffrage_Sante.xlsx)</a></p>
+        <p class="texte">Le classeur Excel reprend toutes les formules et données de cette partie du site : les leviers (CSG, cotisation maladie, franchises, ticket modérateur, ALD, dépassements, TSA, contrats d'entreprise, bouclier santé), le taux d'effort avant et après, et le coût du bouclier. Le classeur du Bilan additionne les mesures des trois espaces avec leurs effets croisés. Les hypothèses sont dans les cellules jaunes ; modifiez-les pour tester d'autres scénarios. Avec les réglages par défaut, il donne les mêmes résultats que le site.</p>
+        <p><a class="bouton" href="chiffrages/Chiffrage_Sante.xlsx" download>Télécharger le classeur (Chiffrage_Sante.xlsx)</a> <a class="bouton bouton--contour" href="chiffrages/Chiffrage_Bilan.xlsx" download>Classeur du Bilan (Chiffrage_Bilan.xlsx)</a></p>
       </div>
     </section>
   </main>

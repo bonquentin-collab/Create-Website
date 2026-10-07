@@ -1,6 +1,6 @@
 // En-tête commun à toutes les pages : marque, interrupteur « Héritage | Retraites », sous-navigation
 // « Comprendre · Simuler · Méthode » de l'espace courant, bouton de thème.
-// La page se décrit sur <body data-espace="heritage|retraites|sante|accueil" data-page="comprendre|simuler|methode">.
+// La page se décrit sur <body data-espace="heritage|retraites|sante|bilan|accueil" data-page="comprendre|simuler|methode">.
 // Redirige aussi les anciens liens (ancres des pages d'avant la séparation) vers leur nouvelle page.
 
 import { h } from "./dom.js";
@@ -43,6 +43,7 @@ export function monter(racine) {
     Object.entries(ESPACES).map(([id, e]) =>
       h("a", { class: "espaces__lien", href: e.pages.comprendre, "aria-current": id === espace ? "true" : false }, e.label),
     ),
+    h("a", { class: "espaces__lien espaces__lien--bilan", href: "bilan.html", "aria-current": espace === "bilan" ? "page" : false }, "Bilan"),
   );
   const sousNav =
     espace in ESPACES

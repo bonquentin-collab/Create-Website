@@ -10,6 +10,8 @@ import { macro } from "../params/macro.js";
 import { niveauDeVie } from "../params/niveau-de-vie.js";
 import { effetCsgRetraites } from "../engine/niveau-de-vie.js";
 import { publier } from "./etat-reformes.js";
+import { memoriserFormulaire } from "./etat-bilan.js";
+import { avisRessource } from "./avis-ressource.js";
 
 const unDecimal = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 });
 const taux = (t) => `${unDecimal.format(t * 100)} %`;
@@ -19,6 +21,7 @@ export function monter(racine) {
   const champPension = h("input", { id: "c-pension", name: "pension", inputmode: "decimal", autocomplete: "off", value: "1 800" });
   const selectTaux = h("select", { id: "c-taux", name: "taux" }, bareme.map((t) => h("option", { value: t.id, selected: t.id === "normal" }, t.label)));
   const champSalaire = h("input", { id: "c-salaire", name: "salaire", inputmode: "decimal", autocomplete: "off", value: "2 100" });
+  const avisCsg = h("div", { class: "avis", hidden: true, "aria-live": "polite" });
   const form = h(
     "form",
     { class: "formulaire", novalidate: true },
@@ -33,6 +36,7 @@ export function monter(racine) {
         h("label", {}, h("input", { type: "radio", name: "portee", value: "median-normal" }), "Ceux aux taux médian (6,6 %) et normal (8,3 %)"),
       ),
       h("p", { class: "aide" }, "Les retraités exonérés ou au taux réduit (3,8 %), aux plus petites pensions, ne changent pas."),
+      avisCsg,
     ),
     h("div", { class: "champ" }, h("label", { for: "c-pension" }, "Votre pension brute mensuelle"), h("div", { class: "case" }, champPension, h("span", { "aria-hidden": "true" }, "€"))),
     h(
@@ -67,7 +71,14 @@ export function monter(racine) {
   let dernier = null;
   const rendu = () => {
     const portee = form.querySelector('input[name="portee"]:checked').value;
-    const a = alignementCsg(portee, csg);
+    // Affectation unique : si la hausse du taux normal finance déjà l'Assurance maladie (Santé), seule la part du
+    // taux médian reste ici.
+    const complet = alignementCsg(portee, csg);
+    const normalSeul = alignementCsg("normal", csg);
+    const tauxNormal = bareme.find((t) => t.id === "normal").taux;
+    const a = csgGardee.tient()
+      ? complet
+      : { recettes: complet.recettes - normalSeul.recettes, net: complet.net - normalSeul.net, nouveauTaux: (id) => (id === "normal" ? tauxNormal : complet.nouveauTaux(id)) };
     const pension = lireMontant(champPension.value);
     const actuel = bareme.find((t) => t.id === selectTaux.value);
     const nouveau = a.nouveauTaux(actuel.id);
@@ -110,9 +121,25 @@ export function monter(racine) {
         composition: niveauDeVie.composition,
         pensionsTotales: niveauDeVie.pensionsTotales.valeur,
       }, a.net),
+      bilan: {
+        usagePrincipal: "actifs",
+        net: a.net,
+        usages: { actifs: a.net },
+        ressources: portee === "normal" ? ["csg-pensions-normal"] : ["csg-pensions-normal", "csg-pensions-median"],
+        reglages: [portee === "normal" ? "Taux normal des pensions aligné sur 9,2 %" : "Taux médian et normal des pensions alignés sur 9,2 %", "rendement net reversé aux actifs en baisse de CSG"],
+        details: { portee, brut: a.recettes },
+      },
     });
   };
 
+  const csgGardee = avisRessource(avisCsg, {
+    ressource: "csg-pensions-normal",
+    moi: "csg",
+    quoi: "La hausse de CSG des pensions au taux normal",
+    ailleurs: { sante: { texte: "dans Santé › Simuler, elle finance l'Assurance maladie", lien: "sante-simuler.html" } },
+    surChange: () => rendu(),
+  });
+  memoriserFormulaire(form, "retraites-csg", "csg");
   surChangement(form, rendu);
   rendu();
 }

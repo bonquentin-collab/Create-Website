@@ -40,7 +40,8 @@ export function monter(racine) {
   });
 
   const params = new URLSearchParams(location.hash.slice(1));
-  const onglet = onglets.find((o) => o.dataset.cleLien && params.has(o.dataset.cleLien));
+  // « #onglet=gel » (liens de la page Bilan) ou la clé de partage d'un onglet.
+  const onglet = onglets.find((o) => o.id === `onglet-${params.get("onglet")}`) ?? onglets.find((o) => o.dataset.cleLien && params.has(o.dataset.cleLien));
   if (onglet) {
     activer(onglet);
     requestAnimationFrame(() => racine.closest("section")?.scrollIntoView({ block: "start" }));

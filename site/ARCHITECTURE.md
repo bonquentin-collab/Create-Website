@@ -139,12 +139,36 @@ ressources hors cotisations 1987-2025), `engine/rendement.js` (`recuPour100000`,
 `ui/plafond-pensions.js` : l'économie alimente un répartiteur (préfixe `pl`, lien `#plafond`) et le graphique des
 niveaux de vie (`publier("plafond", …)`).
 
-## Santé › Simuler : répartir l'effort entre âges
+## Santé › Simuler : qui doit payer pour la santé
 
 `params/sante-reformes.js` (déficit maladie 2026, exposition des niveaux de vie aux taux de CSG, effort en primes et
 restes à charge par dixième Drees ER 1345), `engine/sante-reformes.js` (`groupesEffort`, `coutBouclier`,
 `recettesRetraites`, `effortAjouteRetraites`, `perteRetraiteSante`), `ui/sante-reformes.js` (module `sante-reformes`).
 Le coût du bouclier suppose des revenus égaux entre groupes (majorant) et un effort linéaire dans chaque groupe.
+
+Gros consommateurs et complémentaires (même module) : `leviersUsagers` (franchises et participations, ticket
+modérateur des consultations, ALD, dépassements d'honoraires, TSA et TSA induite, forfait social des contrats
+d'entreprise ; chaque levier dit ce que gagne l'Assurance maladie et qui paie : patients, primes, employeurs,
+médecins, avec une répartition par âge) et `effortAjouteUsagers` (points d'effort par niveau de vie). Franchises :
+`franchisesParAge`, modèle log-normal par âge (`calerFranchises`, `moyennePlafonnee`) calé sur les franchises
+observées en 2023 et contrôlé par deux chiffrages officiels (test dédié). Le bouclier est recalculé sur les efforts
+relevés par ces leviers.
+
+## Bilan : toutes les mesures, sans double compte (bilan.html)
+
+`ui/etat-bilan.js` : mémoire commune (localStorage `bilan-mesures-v1`). `enregistrerMesure(id, { espace, label, lien,
+reglages, net, usages, usagePrincipal, ressources, effet, details })` ; `publier()` de `etat-reformes.js` l'appelle
+quand on lui passe `bilan`, la page Santé et l'Héritage (`ui/repartition.js`, mesure `igs`) l'appellent directement.
+`memoriserFormulaire(form, cle, idMesure)` garde les réglages d'une visite à l'autre et marque la mesure comme
+réglée (retenue par défaut dans le Bilan). Ressources (affectation unique) : `csg-pensions-normal`,
+`csg-pensions-median`, `tva`, `igs` ; `detenteur()` dit quelle mesure garde une ressource (choix de l'utilisateur,
+sinon la première réglée). `ui/avis-ressource.js` affiche l'avis « déjà utilisée ailleurs » et le bouton de
+réaffectation dans les simulateurs (Santé, Retraites › CSG). `engine/bilan.js` (`calculerBilan`, pur, testé) :
+recettes recalculées après affectation, effets croisés (taux visé par l'alignement après TVA sociale, assiette des
+pensions réduite par gel / plafond / baisse, retour d'impôt sur la baisse de CSG des actifs, impôt perdu sur la CSG
+santé, revalorisation des pensions après TVA), solde par usage et niveaux de vie cumulés. `ui/bilan.js` : la page.
+Pour ajouter une mesure au Bilan : l'enregistrer avec ses `usages` (actifs, services, maladie, autres) et, si elle
+partage une recette avec une autre, la même clé de `ressources`.
 
 ## Chiffrage de l'IGS (Héritage › Comprendre, repris par Simuler)
 

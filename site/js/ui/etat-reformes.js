@@ -2,15 +2,27 @@
 // sur le niveau de vie d'un actif et d'un retraité (en part du revenu disponible, ex. −0,012 = −1,2 %).
 // Le graphique « niveaux de vie » écoute ces publications et cumule les réformes cochées.
 
+import { enregistrerMesure } from "./etat-bilan.js";
+
 const reformes = new Map();
 const EVENEMENT = "reformes:maj";
 
 /**
  * @param {string} id
- * @param {{ label:string, actifs:number, retraites:number, detail?:string }} effet
+ * @param {{ label:string, actifs:number, retraites:number, bilan?:object }} effet
+ * `bilan` (net, usages, ressources, details, reglages) : la mesure est aussi enregistrée pour la page Bilan.
  */
-export function publier(id, effet) {
+export function publier(id, { bilan, ...effet }) {
   reformes.set(id, { id, ...effet });
+  if (bilan) {
+    enregistrerMesure(id, {
+      espace: "retraites",
+      label: effet.label,
+      lien: `retraites-simuler.html#onglet=${id}`,
+      effet: { actifs: effet.actifs, retraites: effet.retraites },
+      ...bilan,
+    });
+  }
   document.dispatchEvent(new CustomEvent(EVENEMENT, { detail: { id } }));
 }
 

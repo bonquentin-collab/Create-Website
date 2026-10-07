@@ -43,8 +43,15 @@ Chaque page Méthode propose un classeur Excel (`site/chiffrages/`) qui refait l
 modifiables ; il est généré par `tools/chiffrages/construire.sh`.
 
 L'espace **Santé** (`sante.html`, `sante-simuler.html`) montre qui finance et qui utilise la santé selon l'âge,
-puis simule trois leviers : CSG des pensions au taux normal alignée sur les salaires, cotisation maladie sur les
-pensions de base, bouclier santé plafonnant primes et restes à charge ; taux d'effort avant/après (Drees).
+puis simule qui doit payer : retraités (CSG des pensions au taux normal alignée, cotisation maladie sur les
+pensions de base), plus gros consommateurs de soins (franchises et participations, ticket modérateur, ALD),
+médecins (dépassements d'honoraires plafonnés ou taxés), complémentaires (TSA, forfait social des contrats
+d'entreprise), et qui protéger (bouclier santé). Effort ajouté par âge, par niveau de vie et par niveau de dépense.
+
+La page **Bilan** (`bilan.html`) additionne les mesures réglées dans les trois espaces sans double compte : chaque
+recette n'a qu'un usage (la CSG des retraités finance soit la baisse de CSG des actifs, soit l'Assurance maladie),
+les effets croisés sont chiffrés et expliqués (TVA sociale et alignement de la CSG, gel des pensions et assiette de
+la CSG, impôt sur le revenu, revalorisation des pensions), avec l'effet cumulé sur les niveaux de vie.
 
 Site en ligne : https://bonquentin-collab.github.io/Create-Website/
 

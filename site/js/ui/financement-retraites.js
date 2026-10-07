@@ -11,6 +11,7 @@ import { creerRepartiteur } from "./composants/repartiteur.js";
 import { niveauDeVie } from "../params/niveau-de-vie.js";
 import { effetFinancement } from "../engine/niveau-de-vie.js";
 import { publier } from "./etat-reformes.js";
+import { memoriserFormulaire, usagesRepartition } from "./etat-bilan.js";
 
 const PENSIONS_TYPES = [
   { label: "Petite pension", montant: 1000 },
@@ -92,6 +93,7 @@ export function monter(racine) {
   let dernierComblement = { baissePensions: 0, hausseCotisations: 0 };
   let versementActifs = 0;
   let dernierRetire = 0;
+  let repartition = {};
   const publierEffet = () =>
     publier("financement", {
       label: `Retraites sans impôts (${milliards(dernierRetire)} retirés)`,
@@ -100,11 +102,20 @@ export function monter(racine) {
         composition: niveauDeVie.composition,
         masseSalarialeBrute: assiette,
       }),
+      bilan: {
+        usagePrincipal: "actifs",
+        net: dernierRetire,
+        usages: usagesRepartition(repartition, dernierRetire),
+        ressources: [],
+        reglages: [`${milliards(dernierRetire)} de ressources publiques retirées aux retraites`, `comblé par une baisse des pensions de ${pourcent(dernierComblement.baissePensions)} et une hausse des cotisations de ${nombre1(dernierComblement.hausseCotisations * 100)} point`],
+        details: { baissePensions: dernierComblement.baissePensions, hausseCotisations: dernierComblement.hausseCotisations, retire: dernierRetire },
+      },
     });
 
   const repartiteur = creerRepartiteur(zoneRepartiteur, {
     surChangement: (r) => {
       versementActifs = r.actifs ?? 0;
+      repartition = r;
       publierEffet();
     },
     prefixe: "fl",
@@ -159,6 +170,7 @@ export function monter(racine) {
     repartiteur.definirEnveloppe(retire);
   };
 
+  memoriserFormulaire(form, "retraites-financement", "financement");
   surChangement(form, rendu);
   rendu();
 }

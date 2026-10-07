@@ -11,6 +11,7 @@ import { csg } from "../params/prelevements.js";
 import { macro } from "../params/macro.js";
 import { niveauDeVie } from "../params/niveau-de-vie.js";
 import { publier } from "./etat-reformes.js";
+import { memoriserFormulaire } from "./etat-bilan.js";
 
 const deuxDecimales = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 });
 const TMI = [0, 0.11, 0.3, 0.41, 0.45];
@@ -120,9 +121,18 @@ export function monter(racine) {
         composition: niveauDeVie.composition,
         pensionsTotales: niveauDeVie.pensionsTotales.valeur,
       }),
+      bilan: {
+        usagePrincipal: "actifs",
+        net: recettes,
+        usages: { actifs: recettes },
+        ressources: [],
+        reglages: [plafond === 0 ? "Abattement de 10 % des pensions supprimé" : `Abattement de 10 % plafonné à ${euros(plafond)} par foyer`, "recette reversée aux actifs en baisse de CSG"],
+        details: { recettes, plafond },
+      },
     });
   };
 
+  memoriserFormulaire(form, "retraites-abattement", "abattement");
   surChangement(form, rendu);
   rendu();
 }
