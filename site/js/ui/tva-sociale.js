@@ -9,6 +9,7 @@ import { macro } from "../params/macro.js";
 import { niveauDeVie } from "../params/niveau-de-vie.js";
 import { effetTvaSociale } from "../engine/niveau-de-vie.js";
 import { publier } from "./etat-reformes.js";
+import { memoriserFormulaire } from "./etat-bilan.js";
 
 const unDecimal = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 });
 
@@ -114,9 +115,18 @@ export function monter(racine) {
     publier("tva", {
       label: `TVA sociale (+${unDecimal.format(points)} pt)`,
       ...effetTvaSociale(r, { csg, ratioNetSurBrut: macro.ratioNetSurBrut.valeur, composition: niveauDeVie.composition }),
+      bilan: {
+        usagePrincipal: "actifs",
+        net: r.recettes,
+        usages: { actifs: r.recettes },
+        ressources: ["tva"],
+        reglages: [`+${unDecimal.format(points)} point${points > 1 ? "s" : ""} de TVA (${cible === "normal" ? "taux normal" : "tous les taux"})`, `CSG des actifs −${unDecimal.format(r.baisseCsg)} point`, `répercussion dans les prix : ${pourcent(repercussion)}`],
+        details: { points, cible, baisseCsg: r.baisseCsg, pertePrixMoyenne: r.pertePrixMoyenne ?? r.pertePrix, recettes: r.recettes },
+      },
     });
   };
 
+  memoriserFormulaire(form, "retraites-tva", "tva");
   surChangement(form, rendu);
   rendu();
 }

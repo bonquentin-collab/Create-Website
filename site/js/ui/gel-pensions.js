@@ -14,6 +14,7 @@ import { niveauDeVie } from "../params/niveau-de-vie.js";
 import { logement } from "../params/logement.js";
 import { contexte } from "../params/contexte-retraites.js";
 import { publier } from "./etat-reformes.js";
+import { memoriserFormulaire } from "./etat-bilan.js";
 
 const virgule = new Intl.NumberFormat("fr-FR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const deuxDecimales = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 });
@@ -225,9 +226,18 @@ export function monter(racine) {
         composition: niveauDeVie.composition,
         pensionsTotales: niveauDeVie.pensionsTotales.valeur,
       }, r.economie * gel.ipp.effetNet),
+      bilan: {
+        usagePrincipal: "actifs",
+        net: r.economie * gel.ipp.effetNet,
+        usages: { actifs: r.economie * gel.ipp.effetNet },
+        ressources: [],
+        reglages: [`Pensions gelées au-delà de ${euros(seuil)} brut par mois`, mode === "tout" ? "toute la pension de base" : "seulement la part au-dessus du seuil", "gain net reversé aux actifs en baisse de CSG"],
+        details: { economie: r.economie, seuil },
+      },
     });
   };
 
+  memoriserFormulaire(form, "retraites-gel", "gel");
   surChangement(form, rendu);
   rendu();
 }

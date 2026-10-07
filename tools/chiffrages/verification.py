@@ -8,6 +8,13 @@ PUB, GRAPH, CALC, HYP, LOI = "Chiffre publié", "Lu sur un graphique", "Calcul d
 OK, CORR, SEC, EST = "Confirmé", "Corrigé", "Confirmé (source secondaire)", "Estimation, non vérifiable"
 
 U = {
+    "sp_franchises": "https://www.service-public.gouv.fr/particuliers/actualites/A17166",
+    "ps_tm": "https://www.publicsenat.fr/actualites/sante/consultations-medicales-la-ministre-de-la-sante-tempere-sur-la-hausse-du-ticket-moderateur",
+    "jorf_0822": "https://www.legifrance.gouv.fr/jorf/jo/2026/08/22/0195",
+    "rousset": "https://www.apmnews.com/documents/202510231649030.rapport_consolide_depassements_dhonoraires_VF_compressed.pdf",
+    "l8624": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042698839",
+    "plfss26_a4": "https://www.assemblee-nationale.fr/dyn/contenu/visualisation/1088679/file/PLFSS2026-Annexe4-20251014-183718-59-11_avec%20couverture-2.pdf",
+    "drees_usagers": "https://data.drees.solidarites-sante.gouv.fr/explore/dataset/depenses-de-sante-et-restes-a-charge/information/",
     "insee_emploi": "https://www.insee.fr/fr/statistiques/8376894",
     "insee_t6205": "https://www.insee.fr/fr/statistiques/8574681?sommaire=8574832",
     "ccss": "https://www.securite-sociale.fr/files/live/sites/SSFR/files/medias/CCSS/2026/CCSS%20mai%202026_assembl%C3%A9_V2.pdf",
@@ -111,3 +118,30 @@ SANTE = [
     E("evol", "Évolution 2019 → 2024 des dépenses payées par les complémentaires et les ménages", "× 1,186", CALC, "(32,52 + 19,96) ÷ (26,74 + 17,52) Md€.", "Drees, comptes de la santé (données en ligne)", U["cns"]),
     E("partP", "Part des pensions dans le revenu des retraités ; répartition par taux de CSG", "77,8 % ; 29 / 27 %", CALC, "Voir le classeur Retraites.", "COR 2026, figure 3.8 ; Cnav", U["cor2026"]),
 ]
+
+SANTE += [
+    E("franchises", "Franchises (1 € par boîte et acte paramédical, 4 € par transport) et participations (2 €) ; plafonds annuels", "70 € + 70 € depuis le 1er octobre 2026", LOI, "Plafonds relevés de 50 € à 70 € chacun ; montants unitaires inchangés.", "Décret n° 2026-858 du 11 septembre 2026 (service-public.gouv.fr)", U["sp_franchises"]),
+    E("fr_ctrl1", "Doublement des franchises, participations et plafonds (PLFSS 2026, abandonné)", "2,3 Md€", PUB, "Point de contrôle du modèle (retrouvé à 5 % près).", "CCSS, mai 2026, fiche 2.2", U["ccss"]),
+    E("fr_ctrl2", "Doublement des seuls plafonds (100 € + 100 €)", "≈ 0,75 Md€", PUB, "Point de contrôle du modèle ; chiffre annoncé par le gouvernement en juillet 2026.", "Public Sénat, Caducée (juillet-septembre 2026)", "", SEC, "Le rendement du décret finalement pris (70 € + 70 €) n'a pas été publié."),
+    E("fr_obs", "Franchises et participations payées par personne et par âge", "0 à 52 € (2023)", PUB, "Repris tel quel ; sert à caler le modèle par âge.", "Drees, dépenses de santé et restes à charge 2023", U["drees_usagers"]),
+    E("sigma", "Dispersion du modèle de franchises (log-normale)", "1,4", HYP, "Choisie pour retrouver les deux points de contrôle officiels.", "Hypothèse du site", "", EST),
+    E("tm", "Ticket modérateur des consultations : rendement d'un point", "0,11 Md€", CALC, "1,1 Md€ transférés aux complémentaires pour 30 → 40 % (PLFSS 2025) ÷ 10.", "PLFSS 2025, mesure citée par Public Sénat et Previssima", U["ps_tm"], SEC),
+    E("tm2027", "Hausses du ticket modérateur de 2027 (dentaire, dispositifs, médicaments, transports)", "≈ 1,5 Md€", PUB, "Décrets publiés au JO du 22 août 2026 ; montant tiré de la presse spécialisée. Non compté (déjà décidé).", "Décrets n° 2026-809 à 812", U["jorf_0822"], SEC),
+    E("ald", "ALD : cures thermales alignées (0,2 Md€), fin des ALD « non exonérantes » (0,1 Md€)", "0,3 Md€", PUB, "Mesures du PLFSS 2026 abandonnées en LFSS.", "CCSS, mai 2026, fiche 2.2", U["ccss"]),
+    E("dep", "Dépassements d'honoraires 2024 ; part remboursée par les complémentaires", "4,5 Md€ ; 37 à 40 %", PUB, "Repris tel quel (milieu retenu : 38,5 %).", "Mission Rousset-Monnet (octobre 2025)", U["rousset"]),
+    E("sansOc", "Part de la population sans complémentaire santé", "5 %", PUB, "Repris tel quel.", "Mission Rousset-Monnet (octobre 2025)", U["rousset"]),
+    E("tsa", "Taxe de solidarité additionnelle : taux ; recettes 2025", "13,27 % ; 6,558 Md€", LOI, "Valeur d'un point : 6,558 ÷ 13,27 ≈ 0,49 Md€ (un peu forte : certains contrats sont taxés à 20,27 %).", "CSS, art. L862-4 ; CCSS, mai 2026", U["l8624"]),
+    E("entreprise", "Contrats santé et prévoyance d'entreprise : assiette exemptée ; manque à gagner net ; forfait social", "24,3 Md€ ; 5,6 Md€ ; 8 %", PUB, "Prévision 2026, tableau 9 (santé et prévoyance ensemble).", "PLFSS 2026, annexe 4", U["plfss26_a4"]),
+    E("primesAge", "Prime mensuelle de complémentaire à 20 et 85 ans", "36 € ; 142 €", PUB, "Interpolée linéairement entre ces âges pour répartir une hausse de primes.", "Drees, organismes complémentaires (2025)", "https://drees.solidarites-sante.gouv.fr/communique-de-presse-jeux-de-donnees/jeux-de-donnees/250923_DATA_organismes-couvertures-compl%C3%A9mentaires-sant%C3%A9"),
+]
+
+BILAN = [
+    E("tva_point", "Rendement d'un point de TVA au taux normal (net)", "7,5 Md€", PUB, "Repris tel quel.", "DG Trésor, Trésor-Éco n° 371", U["te371"]),
+    E("perte_tva", "Perte de pouvoir d'achat moyenne pour 1 point de TVA au taux normal", "0,30 %", GRAPH, "Graphique 4 (voir le classeur Retraites).", "DG Trésor, Trésor-Éco n° 371", U["te371"]),
+    E("valeur_point", "Valeur d'un point de CSG sur les revenus d'activité", "12,0 Md€", CALC, "110,7 Md€ ÷ 9,2.", "CCSS, mai 2026", U["ccss"]),
+    E("effet_net", "Part de la CSG gardée après impôt sur le revenu", "87,5 %", CALC, "Rendement net ÷ brut des chiffrages de l'IPP ; appliqué en miroir à une baisse de CSG des actifs.", "IPP, note n° 129 (2026)", U["ipp129"]),
+    E("pensions", "Masse des pensions", "400 Md€", PUB, "Arrondi.", "COR, rapport annuel 2026", U["cor2026"]),
+    E("ass", "Assiettes des pensions aux taux normal et médian", "190,5 et 118,7 Md€", CALC, "Calées sur l'IPP (voir le classeur Retraites).", "IPP, note n° 129 (2026)", U["ipp129"]),
+    E("revalo", "Revalorisation des pensions après une hausse de TVA", "perte moyenne × masse des pensions", HYP, "Minimum : l'indice des prix monte un peu plus que la perte moyenne de pouvoir d'achat.", "Hypothèse du site", "", EST),
+]
+

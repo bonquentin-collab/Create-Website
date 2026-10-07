@@ -65,4 +65,90 @@ export const santeReformes = {
   // Passage de 2019 à 2024 : dépenses de soins payées par les complémentaires et les ménages, 44,3 Md€ en 2019,
   // 52,5 Md€ en 2024 (Drees, comptes de la santé).
   evolution2019_2024: (32.52 + 19.96) / (26.74 + 17.52),
+
+  // ----- Gros consommateurs de soins -----
+
+  // Franchises médicales (1 € par boîte et par acte paramédical, 4 € par transport) et participations forfaitaires
+  // (2 € par consultation ou acte), plafonnées chacune à 70 € par an depuis le 1er octobre 2026 (50 € avant).
+  // Exonérés : moins de 18 ans, bénéficiaires de la C2S, femmes enceintes à partir du 6e mois.
+  franchises: {
+    plafondActuel: 140,
+    plafondAvant: 100,
+    source: "Décret n° 2026-858 du 11 septembre 2026 (service-public.gouv.fr, 16 septembre 2026)",
+    url: "https://www.service-public.gouv.fr/particuliers/actualites/A17166",
+    // Modèle du site : montant de franchises « dû » avant plafond, par personne, de loi log-normale de dispersion
+    // `sigma` ; sa moyenne par âge est calée sur les franchises observées en 2023 (Drees, voir params/sante.js), alors
+    // plafonnées à 100 € au total, avec des montants unitaires deux fois plus faibles (doublés en 2024).
+    sigma: 1.4,
+    multiplicateur2023: 2,
+    plafond2023: 100,
+    estimation: true,
+    // Points de contrôle officiels, que le modèle retrouve à 5 % près :
+    controles: [
+      { libelle: "Doubler montants et plafonds (100 € + 100 €), par rapport aux règles de 2025", valeur: 2.3, source: "CCSS, mai 2026, fiche 2.2 (mesure du PLFSS 2026 abandonnée)" },
+      { libelle: "Doubler les seuls plafonds (100 € + 100 €), par rapport aux règles de 2025", valeur: 0.75, source: "Annonce du gouvernement, juillet 2026 (Public Sénat, Caducée)" },
+    ],
+  },
+
+  // Ticket modérateur des consultations de médecins et sages-femmes : 30 % du tarif. Le relever à 40 % transférait
+  // 1,1 Md€ aux complémentaires (PLFSS 2025, mesure abandonnée). Les patients en ALD, en invalidité, les femmes
+  // enceintes et les bénéficiaires de la C2S restent exonérés.
+  ticketModerateur: {
+    tauxActuel: 0.3,
+    rendementParPoint: 0.11,
+    source: "PLFSS 2025, mesure de transfert du ticket modérateur des consultations (1,1 Md€ pour 10 points), citée par Previssima et Public Sénat",
+    url: "https://www.publicsenat.fr/actualites/sante/consultations-medicales-la-ministre-de-la-sante-tempere-sur-la-hausse-du-ticket-moderateur",
+    // Déjà décidé pour 2027 : 4 décrets du 21 août 2026 (n° 2026-809 à 812) relèvent le ticket modérateur des soins
+    // dentaires, dispositifs médicaux, médicaments à service médical rendu modéré et transports, environ 1,5 Md€
+    // transférés aux complémentaires (ALD et C2S épargnées).
+    decrets2027: { valeur: 1.5, source: "JORF du 22 août 2026, décrets n° 2026-809 à 2026-812 ; montant : presse spécialisée (SPAC Actuaires, Caducée)", url: "https://www.legifrance.gouv.fr/jorf/jo/2026/08/22/0195" },
+  },
+
+  // Affections de longue durée : mesures du PLFSS 2026 abandonnées au Parlement (rendement annuel, Md€).
+  ald: {
+    source: "CCSS, mai 2026, fiche 2.2 (mesures d'économies abandonnées en LFSS 2026)",
+    url: "https://www.securite-sociale.fr/files/live/sites/SSFR/files/medias/CCSS/2026/CCSS%20mai%202026_assembl%C3%A9_V2.pdf",
+    mesures: [
+      { id: "cures", libelle: "Cures thermales des patients en ALD remboursées comme pour tous", valeur: 0.2 },
+      { id: "non-exonerantes", libelle: "Suppression des ALD « non exonérantes »", valeur: 0.1 },
+    ],
+  },
+
+  // Dépassements d'honoraires : 4,5 Md€ en 2024, dont 37 à 40 % remboursés par les complémentaires ; 5 % de la
+  // population sans complémentaire. La mission recommande de les plafonner.
+  depassements: {
+    total: 4.5,
+    partComplementaires: 0.385,
+    source: "Rapport de la mission Rousset-Monnet sur les dépassements d'honoraires, octobre 2025",
+    url: "https://www.apmnews.com/documents/202510231649030.rapport_consolide_depassements_dhonoraires_VF_compressed.pdf",
+  },
+
+  // ----- Complémentaires santé -----
+
+  // Taxe de solidarité additionnelle (TSA) : 13,27 % des primes des contrats responsables (20,27 % sinon), 6,56 Md€ en
+  // 2025. Valeur d'un point : 6,56 / 13,27 ≈ 0,49 Md€ (estimation du site, un peu forte car une partie des contrats
+  // est taxée à 20,27 %).
+  tsa: {
+    taux: 0.1327,
+    recettes2025: 6.558,
+    source: "Code de la sécurité sociale, art. L862-4 ; recettes : CCSS, mai 2026 (impôts et taxes affectés)",
+    url: "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000042698839",
+    // Contribution exceptionnelle de 2,05 % des complémentaires en 2026 (1,0 Md€), déjà votée (LFSS 2026).
+    exceptionnelle2026: 1.0,
+  },
+
+  // Protection sociale complémentaire d'entreprise (santé et prévoyance) : contributions des employeurs exemptées de
+  // cotisations, soumises à un forfait social de 8 % (entreprises d'au moins 11 salariés). Prévision 2026 : 24,3 Md€
+  // exemptés, soit 7,2 Md€ de cotisations brutes et 5,6 Md€ nettes (après forfait social et CSG).
+  entreprise: {
+    assiette: 24.3,
+    coutNet: 5.6,
+    forfaitSocial: 0.08,
+    source: "PLFSS 2026, annexe 4, tableau 9 (coût des exemptions d'assiette)",
+    url: "https://www.assemblee-nationale.fr/dyn/contenu/visualisation/1088679/file/PLFSS2026-Annexe4-20251014-183718-59-11_avec%20couverture-2.pdf",
+  },
+
+  // Part des primes de complémentaire dans la population (pour répartir une hausse des primes par âge) : prime
+  // individuelle mensuelle de 36 € à 20 ans, 142 € à 85 ans (voir params/sante.js), interpolée.
+  sansComplementaire: 0.05,
 };

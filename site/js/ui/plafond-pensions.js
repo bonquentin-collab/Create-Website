@@ -10,6 +10,7 @@ import { macro } from "../params/macro.js";
 import { niveauDeVie } from "../params/niveau-de-vie.js";
 import { creerRepartiteur } from "./composants/repartiteur.js";
 import { publier } from "./etat-reformes.js";
+import { memoriserFormulaire, usagesRepartition } from "./etat-bilan.js";
 
 const virgule = new Intl.NumberFormat("fr-FR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const MODELES = [
@@ -46,6 +47,7 @@ export function monter(racine) {
 
   let economie = 0;
   let versementActifs = 0;
+  let repartition = {};
   const publierEffet = () =>
     publier("plafond", {
       label: `Plafond des pensions à ${euros(Number(curseur.value))} (${milliards(economie)})`,
@@ -54,6 +56,14 @@ export function monter(racine) {
         composition: niveauDeVie.composition,
         masseSalarialeBrute: macro.masseSalarialeBrute.valeur / 1e9,
       }),
+      bilan: {
+        usagePrincipal: "actifs",
+        net: economie * gel.ipp.effetNet,
+        usages: usagesRepartition(repartition, economie * gel.ipp.effetNet),
+        ressources: [],
+        reglages: [`Pensions plafonnées à ${euros(Number(curseur.value))} brut par mois`, `gain net : ${milliards(economie * gel.ipp.effetNet)}, dont ${milliards(versementActifs)} aux actifs`],
+        details: { economie },
+      },
     });
 
   const repartiteur = creerRepartiteur(zoneRepartiteur, {
@@ -64,6 +74,7 @@ export function monter(racine) {
     noteActifs: "Versé aux personnes en emploi, par une hausse du salaire net.",
     surChangement: (r) => {
       versementActifs = r.actifs ?? 0;
+      repartition = r;
       publierEffet();
     },
   });
@@ -105,6 +116,7 @@ export function monter(racine) {
     publierEffet();
   };
 
+  memoriserFormulaire(form, "retraites-plafond", "plafond");
   surChangement(form, rendu);
   rendu();
 }
