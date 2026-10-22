@@ -8,5 +8,6 @@ node parametres.mjs > parametres.json
 for f in heritage:Chiffrage_Heritage retraites:Chiffrage_Retraites sante:Chiffrage_Sante bilan:Chiffrage_Bilan; do
   python3 "${f%%:*}.py" "../../site/chiffrages/${f##*:}.xlsx"
 done
+python3 campagne.py ../../campagne/chiffrages/Chiffrage_Campagne.xlsx
 rm parametres.json
-echo "Classeurs écrits dans site/chiffrages/"
+echo "Classeurs écrits dans site/chiffrages/ et campagne/chiffrages/"
