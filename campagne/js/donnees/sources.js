@@ -22,6 +22,11 @@ export const faits = {
   declarations2022: { total: 354_443, payantes: 165_595, source: "Cour des comptes, 2024, tableau 7 (données DGFiP)" },
   ageHeritage: { aujourdhui: 50, en2035: 55, source: "Cour des comptes, 2024, d'après France Stratégie ; CAE, note n° 69" },
   patrimoineRevenu: { 1970: 3, 2020: 6, source: "CAE, note n° 69, 2021 : patrimoine = 300 % du revenu national en 1970, 600 % en 2020" },
+  // Indice des prix des logements anciens, France métropolitaine, CVS, base 100 en 2015 (Insee, idbank 010567059) :
+  // 47,8 au 1er trimestre 2000, 127,3 au 4e trimestre 2025. Prix à la consommation (IPCH, Eurostat) : 78,23 en 2000, 124,43 en 2025.
+  logement: { 2000: 47.8, 2025: 127.3, source: "Insee, indice des prix des logements anciens (série 010567059)", url: "https://www.insee.fr/fr/statistiques/serie/010567059" },
+  prix: { 2000: 78.23, 2025: 124.43, source: "Eurostat, indice des prix à la consommation harmonisé, France" },
+  partHeritee: { 1970: 0.35, 2020: 0.6, source: "CAE, note n° 69, 2021" },
 };
 
 // Flux successoral en % du revenu national, France. Piketty, Le Capital au XXIe siècle, annexe technique,

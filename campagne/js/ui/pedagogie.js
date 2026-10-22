@@ -1,6 +1,7 @@
 // Section « Comprendre » : fiches des niches, cartes des idées reçues, citations, données du graphique des taux.
 import { niches, heritiers, citations, faits, baremes } from "../donnees/sources.js";
 import { bareme } from "../moteur/modele.js";
+import { comparer } from "../moteur/comparaison.js";
 import { nombre } from "./format.js";
 
 const ICONES = {
@@ -45,6 +46,16 @@ const MYTHES = [
   { idee: "Tout le monde hérite un jour d'un beau patrimoine.", gros: "70 000 €",
     texte: () => `La moitié d'une génération reçoit moins que cela sur toute sa vie, souvent rien. Le 1 % qui hérite le plus reçoit 4,2 millions.`,
     source: "CAE, note n° 69, 2021" },
+  { idee: "Ils ont payé des impôts toute leur vie.", gros: () => `+${nombre(100 * (faits.logement[2025] / faits.logement[2000] - 1))} %`,
+    texte: () => `C'est la hausse du prix des logements depuis 2000, contre +${nombre(100 * (faits.prix[2025] / faits.prix[2000] - 1))} % pour les prix. La plus-value sur la résidence principale n'est jamais imposée, et au décès toutes les plus-values sont effacées : un bien peut passer de génération en génération « sans jamais avoir à payer l'impôt sur les plus-values ».`,
+    source: "Insee, prix des logements anciens ; Eurostat, prix à la consommation ; CAE, note n° 69, 2021" },
+  { idee: "Taxer l'héritage, c'est une double imposition.", gros: () => `${nombre(Math.round(100 * comparer().heritage / 300_000))} %`,
+    texte: () => {
+      const c = comparer();
+      const k = (x) => `${nombre(Math.round(x / 100) * 100)} €`;
+      return `C'est ce que paie un enfant qui hérite de 300\u00a0000\u00a0€ d'un parent (${k(c.heritage)}). Gagner la même somme en travaillant coûte ${k(c.salaire)} de CSG et d'impôt sur le revenu, ${k(c.capital)} en dividendes. L'héritier n'a payé aucun impôt sur la formation de ce patrimoine, dont 60 % est lui-même hérité : ne pas le taxer, c'est fabriquer une société d'héritiers.`;
+    },
+    source: "Barèmes 2026, calcul du site (voir Méthode) ; CAE, note n° 69, 2021" },
 ];
 
 export function mythes(conteneur) {
@@ -53,7 +64,7 @@ export function mythes(conteneur) {
       <button type="button" aria-pressed="false" aria-label="Retourner la carte : ${m.idee}">
         <div class="faces">
           <div class="face avant"><q>${m.idee}</q><span class="indice">Ce qu'on entend · retourner</span></div>
-          <div class="face arriere"><span class="gros">${m.gros}</span><p>${m.texte()}</p><span class="source">${m.source}</span></div>
+          <div class="face arriere"><span class="gros">${typeof m.gros === "function" ? m.gros() : m.gros}</span><p>${m.texte()}</p><span class="source">${m.source}</span></div>
         </div>
       </button>
     </div>`).join("");

@@ -76,3 +76,19 @@ test("recettes : proportionnelles au flux successoral", () => {
   const r = evaluer(reglages("cae"));
   proche(r.supplement[15] / r.supplement[0], flux.valeurs[15] / flux.valeurs[0], 1e-9);
 });
+
+import { comparer } from "../campagne/js/moteur/comparaison.js";
+import { faits } from "../campagne/js/donnees/sources.js";
+
+test("comparaison : hériter, gagner ou placer 300 000 €", () => {
+  const c = comparer(300_000);
+  proche(c.heritage, 38_194.35, 0.01);
+  proche(c.capital, 94_200, 0.01);
+  proche(c.salaire, 60_538, 50);
+  assert.ok(c.heritage < c.salaire && c.salaire < c.capital);
+});
+
+test("logement : +166 % depuis 2000 contre +59 % pour les prix", () => {
+  proche(100 * (faits.logement[2025] / faits.logement[2000] - 1), 166, 0.5);
+  proche(100 * (faits.prix[2025] / faits.prix[2000] - 1), 59, 0.5);
+});
