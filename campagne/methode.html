@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Méthode · L'héritage, ça se décide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Public+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="styles/campagne.css">
+</head>
+<body>
+<header class="entete bande">
+  <div class="cadre">
+    <a class="marque" href="index.html">L'héritage, <b>ça se décide</b></a>
+    <a class="btn btn-jaune" href="index.html#decider" style="min-height:40px;padding:0 14px;font-size:14px;margin-left:auto">Ma réforme</a>
+  </div>
+</header>
+<main class="bande methode">
+  <div class="cadre lecture" style="padding-block:clamp(40px,6vw,72px)">
+    <h1 style="font-size:clamp(44px,6vw,72px)">Méthode, hypothèses et sources</h1>
+    <p style="margin-top:18px;font-size:19px">Le site raisonne sur l'ensemble des héritages, jamais sur un cas individuel. Les montants sont des ordres de grandeur : aucune donnée fiscale détaillée n'est publique en France depuis 2006.</p>
+    <p style="margin-top:12px">Tous les calculs sont refaits, formule par formule, dans le <a href="chiffrages/Chiffrage_Campagne.xlsx">classeur Chiffrage_Campagne.xlsx</a>. Le code est testé (tests/campagne.test.mjs).</p>
+
+    <h2>Les chiffres de la pédagogie</h2>
+    <table>
+      <thead><tr><th>Donnée</th><th>Valeur</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td>Patrimoine transmis 2025-2040</td><td class="n">9 059 Md€</td><td>Fondation Jean-Jaurès (2024), tableau 1, d'après le CAE (15 % du PIB en 2021, 23 % en 2050)</td></tr>
+        <tr><td>Flux successoral en % du revenu national, 1820-2010</td><td class="n">24 % → 4 % → 15 %</td><td>Piketty, <i>Le Capital au XXI<sup>e</sup> siècle</i>, annexe technique, tableau S11.1</td></tr>
+        <tr><td>Part du patrimoine net des 10 % les plus riches</td><td class="n">54,6 %</td><td>BCE et Banque de France, comptes distributionnels de patrimoine, 1<sup>er</sup> trimestre 2026</td></tr>
+        <tr><td>Héritage médian sur la vie ; top 1 % ; top 0,1 %</td><td class="n">70 000 € ; 4,2 M€ ; 13 M€</td><td>CAE, note n° 69 (2021)</td></tr>
+        <tr><td>Taux réellement payé par tranche d'héritiers</td><td class="n">0 à 10 %</td><td>CAE, note n° 69, graphique 2 (lecture du graphique, à 1 point près)</td></tr>
+        <tr><td>Décès et déclarations payantes, 2022</td><td class="n">673 637 ; 165 595</td><td>Cour des comptes, <i>Les droits de succession</i>, 2024, tableau 7</td></tr>
+        <tr><td>Âge moyen à l'héritage</td><td class="n">50 ans ; 55 en 2035</td><td>Cour des comptes (2024), d'après France Stratégie ; CAE (2021)</td></tr>
+        <tr><td>Coût du pacte Dutreil</td><td class="n">4,85 Md€ (2024)</td><td>Institut des politiques publiques, rapport n° 62, novembre 2025</td></tr>
+        <tr><td>Assurance-vie ; démembrement</td><td class="n">4-5 ; 2-3 Md€</td><td>CAE, note n° 69 (2021)</td></tr>
+        <tr><td>Plus-values latentes du top 1 % au PFU</td><td class="n">6,6 Md€ (2025)</td><td>Fondation Jean-Jaurès (2024), tableau 8</td></tr>
+        <tr><td>Droits perçus</td><td class="n">20,9 Md€ (2024)</td><td>Voies et moyens, PLF 2026</td></tr>
+      </tbody>
+    </table>
+    <p class="source">Le « 87 % des successions ne paient aucun impôt » souvent cité n'a pas de source officielle : le site retient le chiffre de la Cour des comptes (1 décès sur 4 donne lieu au paiement de droits).</p>
+
+    <h2>Le simulateur</h2>
+    <p>Une génération d'héritiers est découpée en 14 tranches selon ce qu'elle reçoit sur toute sa vie (CAE, 2021). Chaque héritage se partage entre une part déclarée et taxée, des parts exonérées (assurance-vie, démembrement, pacte Dutreil) et une part qui échappe au fisc (donations de plus de 15 ans, biens non déclarés : 35 à 40 % du flux selon le CAE).</p>
+    <ul>
+      <li><b>Nombre d'héritiers.</b> Il est fixé pour retrouver les recettes actuelles mesurées par le CAE (15 Md€) : 1,75 million d'héritiers par an, pour une base de 342 Md€, proche du flux de l'époque.</li>
+      <li><b>Niches.</b> La répartition de chaque niche entre tranches est une hypothèse du site (profils dans le classeur) ; son ampleur est calée pour que la réintégrer au barème actuel coûte ce qu'estime le CAE : 5 Md€ pour l'assurance-vie, 2,8 Md€ pour le démembrement, 1,4 Md€ pour le passage du pacte Dutreil de 75 à 50 %.</li>
+      <li><b>Impôt.</b> Le barème choisi s'applique à ce que chacun reçoit dans sa vie, après l'abattement. Le supplément de recettes est la différence entre la réforme et le droit actuel calculés par le même moteur.</li>
+      <li><b>De 2025 à 2040.</b> Les recettes suivent le flux successoral de la Fondation Jean-Jaurès, comme dans l'étude. Le droit actuel donne ainsi 20,6 Md€ en 2025, pour 20,7 Md€ prévus au budget.</li>
+      <li><b>Plus-values latentes.</b> Série publiée par la Fondation Jean-Jaurès pour le 1 % le plus riche ; « pour tous » double ce montant (hypothèse : le top 1 % détient la moitié des plus-values transmises, résidences principales exonérées).</li>
+    </ul>
+
+    <h2>Validation</h2>
+    <table>
+      <thead><tr><th>Test</th><th>Publié</th><th>Modèle</th></tr></thead>
+      <tbody>
+        <tr><td>Recettes actuelles à l'époque des données du CAE</td><td class="n">15 Md€</td><td class="n">15,1 Md€</td></tr>
+        <tr><td>Recettes actuelles en 2025</td><td class="n">20,7 Md€ (PLF 2026)</td><td class="n">20,6 Md€</td></tr>
+        <tr><td>CAE, « assiette 1, barème 1 »</td><td class="n">+9,3 Md€</td><td class="n">+9,4 Md€</td></tr>
+        <tr><td>CAE, « assiette 2, barème 4 » (proche de l'IGS hors plus-values)</td><td class="n">+12,3 Md€</td><td class="n">+12,8 Md€</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:14px">Pour l'IGS en 2025, la Fondation Jean-Jaurès annonce 18,9 Md€ (12,3 + 6,6) ; le modèle trouve 23,9 Md€ (17,3 + 6,6). L'écart vient du pilier 1 : l'étude part de 10 Md€ en 2021, quand le modèle, calé sur le CAE, retrouve son scénario à 12,3 Md€ puis le fait suivre le flux successoral.</p>
+
+    <h2>Limites</h2>
+    <ul>
+      <li>Aucun effet de comportement (optimisation, départs à l'étranger, donations anticipées).</li>
+      <li>Les successions entre frères, sœurs, neveux ou non-parents, plus taxées aujourd'hui, ne sont pas traitées à part : le moteur compare toutes les réformes au même droit actuel.</li>
+      <li>Les montants par tranche sont lus sur les graphiques du CAE (± 5 %), et chaque tranche est traitée comme un héritier moyen : « paieraient plus » se lit par tranche d'héritiers.</li>
+      <li>Les recettes suivent le flux successoral, sans effet de seuil dû à l'inflation.</li>
+    </ul>
+
+    <h2>Formulaires</h2>
+    <p>Les formulaires de soutien et d'envoi par mail ne transmettent encore rien : ils seront reliés à l'outil de la campagne, avec un responsable de traitement désigné.</p>
+  </div>
+</main>
+<footer class="pied bande"><div class="cadre"><p><a href="index.html">Retour au site</a></p><p>Outil citoyen. Les montants sont des ordres de grandeur.</p></div></footer>
+</body>
+</html>
