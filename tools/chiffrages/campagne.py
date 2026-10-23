@@ -15,7 +15,8 @@ EXPORT = r"""
 const m = await import(process.argv[1] + '/campagne/js/moteur/modele.js');
 const s = await import(process.argv[1] + '/campagne/js/moteur/scenarios.js');
 const d = await import(process.argv[1] + '/campagne/js/donnees/sources.js');
-const out = { calage: m.calage, heritiers: d.heritiers, niches: d.niches, flux: d.flux, plusValues: d.plusValues, baremes: d.baremes,
+const c = await import(process.argv[1] + '/campagne/js/moteur/comparaison.js');
+const out = { comparaison: { parametres: c.parametres2026, resultat: c.comparer(300000) }, faits: d.faits, calage: m.calage, heritiers: d.heritiers, niches: d.niches, flux: d.flux, plusValues: d.plusValues, baremes: d.baremes,
   scenarios: Object.fromEntries(Object.entries(s.scenarios).map(([k, v]) => [k, { nom: v.nom, reglages: v.reglages(), r: m.evaluer(v.reglages()) }])) };
 console.log(JSON.stringify(out, (k, v) => (v === Infinity ? 1e15 : v)));
 """
@@ -31,6 +32,7 @@ lisez_moi(wb, "Chiffrage du site « L'héritage, ça se décide »", [
     "Tranches : les 14 tranches d'héritiers du CAE (2021), la composition de leurs héritages et l'impôt avant et après réforme.",
     "Calage : nombre d'héritiers et ampleur des niches, choisis pour reproduire les recettes et les coûts publiés par le CAE.",
     "Résultats : recettes de 2025 à 2040, qui suivent le flux successoral, plus les plus-values latentes.",
+    "Comparaison : ce que coûte la même somme reçue en héritage, gagnée en salaire ou touchée en dividendes ; hausse des prix du logement depuis 2000.",
     ("Vérification",),
     "Avec les réglages par défaut (IGS), les résultats sont identiques à ceux du site (contrôle en bas de la feuille Résultats).",
     ("Limites",),
@@ -123,10 +125,58 @@ sc = D["scenarios"]["igs"]["r"]
 texte(rs, "A26", "Contrôle : supplément 2025 du site (IGS)"); entree(rs, "F26", round(sc["supplement"][0], 4), MD2, cle=False)
 texte(rs, "A27", "Écart classeur − site (doit être nul)"); formule(rs, "F27", "=ROUND(F7-F26,2)", MD2)
 
+# ---------- Comparaison ----------
+K = D["comparaison"]["parametres"]; KR = D["comparaison"]["resultat"]
+cp = feuille(wb, "Comparaison", "Hériter, gagner ou placer la même somme", "Barèmes 2026, personne seule. Modifiez le montant en B4.", [52, 16, 16, 60])
+texte(cp, "A4", "Montant reçu (€)"); entree(cp, "B4", 300000, EUR)
+texte(cp, "A6", "1. En héritage d'un parent", gras=True)
+texte(cp, "A7", "Abattement (€)"); entree(cp, "B7", 100000, EUR, note="CGI, art. 779")
+texte(cp, "A8", "Droits de succession (€)")
+formule(cp, "B8", impot("MAX(0,$B$4-$B$7)", lambda k: f"Tranches!$R${5+k}", lambda k: f"Tranches!$S${5+k}", 8), EUR, gras=True)
+formule(cp, "C8", "=B8/$B$4", PCT1); texte(cp, "D8", "Barème en ligne directe (CGI, art. 777), feuille Tranches, colonnes R et S.")
+texte(cp, "A10", "2. En salaire brut, sur plusieurs années", gras=True)
+texte(cp, "A11", "Nombre d'années"); entree(cp, "B11", K["annees"], "0")
+texte(cp, "A12", "Cotisations salariales hors CSG (déductibles)"); entree(cp, "B12", K["cotisations"], PCT2, note="Vieillesse 7,30 % + Agirc-Arrco et CEG 4,01 % ; non comptées dans le prélèvement, car elles ouvrent des droits")
+texte(cp, "A13", "CSG et CRDS (sur 98,25 % du brut)"); entree(cp, "B13", K["csgCrds"], PCT2, note="9,2 % + 0,5 %, × 98,25 %")
+texte(cp, "A14", "dont CSG déductible"); entree(cp, "B14", K["csgDeductible"], PCT2, note="6,8 %, × 98,25 %")
+texte(cp, "A15", "Abattement pour frais professionnels"); entree(cp, "B15", K["abattementFraisPro"], PCT1)
+texte(cp, "A16", "Salaire brut annuel (€)"); formule(cp, "B16", "=B4/B11", EUR)
+texte(cp, "A17", "Revenu imposable annuel (€)"); formule(cp, "B17", "=B16*(1-B12-B14)*(1-B15)", EUR)
+entete(cp, 18, ["Barème de l'impôt sur le revenu 2026", "Jusqu'à (€)", "Taux"])
+for k, t in enumerate(K["ir"]):
+    texte(cp, f"A{19+k}", f"Tranche {k+1}"); entree(cp, f"B{19+k}", t["jusqua"] if t["jusqua"] < 1e14 else 1e15, EUR); entree(cp, f"C{19+k}", t["taux"], PCT1)
+def ir(base):
+    termes = []
+    for k in range(5):
+        bas = "0" if k == 0 else f"$B${18+k}"
+        termes.append(f"MAX(0,MIN({base},$B${19+k})-{bas})*$C${19+k}")
+    return "=" + "+".join(termes)
+texte(cp, "A25", "Impôt sur le revenu annuel (€)"); formule(cp, "B25", ir("B17"), EUR)
+texte(cp, "A26", "CSG et CRDS annuelles (€)"); formule(cp, "B26", "=B16*B13", EUR)
+texte(cp, "A27", "CSG, CRDS et impôt sur le revenu, sur la période (€)"); formule(cp, "B27", "=B11*(B25+B26)", EUR, gras=True); formule(cp, "C27", "=B27/$B$4", PCT1)
+texte(cp, "A29", "3. En dividendes ou intérêts", gras=True)
+texte(cp, "A30", "Prélèvement forfaitaire unique 2026"); entree(cp, "B30", K["pfu"], PCT1, note="12,8 % d'impôt + 18,6 % de prélèvements sociaux")
+texte(cp, "A31", "Prélèvement (€)"); formule(cp, "B31", "=B4*B30", EUR, gras=True); formule(cp, "C31", "=B31/$B$4", PCT1)
+texte(cp, "A33", "Contrôle : écart avec le site pour 300 000 € (doit être nul)", gras=True)
+entree(cp, "B33", round(KR["heritage"], 2), EUR, cle=False); formule(cp, "C33", "=IF($B$4=300000,ROUND(B8-B33,0),\"\")", NB)
+entree(cp, "B34", round(KR["salaire"], 2), EUR, cle=False); formule(cp, "C34", "=IF($B$4=300000,ROUND(B27-B34,0),\"\")", NB)
+entree(cp, "B35", round(KR["capital"], 2), EUR, cle=False); formule(cp, "C35", "=IF($B$4=300000,ROUND(B31-B35,0),\"\")", NB)
+texte(cp, "A33", "Contrôle : héritage, salaire, dividendes du site pour 300 000 € (écart en colonne C, doit être nul)", gras=True)
+FA = D["faits"]
+texte(cp, "A37", "Logement : prix des logements anciens depuis 2000", gras=True)
+texte(cp, "A38", "Indice 1er trimestre 2000"); entree(cp, "B38", FA["logement"]["2000"], NB1, cle=False)
+texte(cp, "A39", "Indice 4e trimestre 2025"); entree(cp, "B39", FA["logement"]["2025"], NB1, cle=False)
+texte(cp, "A40", "Hausse"); formule(cp, "B40", "=B39/B38-1", PCT1, gras=True); texte(cp, "D38", "Insee, série 010567059 (base 100 en 2015, CVS)")
+texte(cp, "A41", "Prix à la consommation 2000 ; 2025"); entree(cp, "B41", FA["prix"]["2000"], NB1, cle=False); entree(cp, "C41", FA["prix"]["2025"], NB1, cle=False)
+texte(cp, "A42", "Hausse des prix"); formule(cp, "B42", "=C41/B41-1", PCT1, gras=True); texte(cp, "D41", "Eurostat, IPCH France")
+
 sources(wb, [
     ("Tranches d'héritiers, taux payés, recettes et coûts des niches", "CAE, « Repenser l'héritage », note n° 69 et Focus n° 77, 2021", "https://www.cae-eco.fr/repenser-lheritage"),
     ("Flux successoral 2025-2040, plus-values latentes du top 1 %, barème de l'IGS", "Fondation Jean-Jaurès, novembre 2024, tableaux 1, 6 et 8", "https://www.jean-jaures.org/publication/face-a-la-grande-transmission-limpot-sur-les-grandes-successions/"),
     ("Barème actuel en ligne directe", "Code général des impôts, art. 777 et 779", "https://www.legifrance.gouv.fr/"),
+    ("Barème de l'impôt sur le revenu 2026, PFU 31,4 %", "Loi de finances pour 2026 ; LFSS 2026", "https://www.legifrance.gouv.fr/"),
+    ("Prix des logements anciens", "Insee, série 010567059", "https://www.insee.fr/fr/statistiques/serie/010567059"),
+    ("Prix à la consommation", "Eurostat, IPCH (prc_hicp_aind)", "https://ec.europa.eu/eurostat/databrowser/view/prc_hicp_aind/default/table"),
 ])
 police_partout(wb)
 wb.save(sys.argv[1])

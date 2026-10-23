@@ -25,7 +25,7 @@
       <a href="#recettes">Financer</a>
       <a href="#engager">S'engager</a>
     </nav>
-    <a class="btn btn-jaune" href="#decider" style="min-height:40px;padding:0 14px;font-size:14px">Ma réforme</a>
+    <a class="btn btn-jaune" href="#decider" data-ma-reforme style="min-height:40px;padding:0 14px;font-size:14px">Ma réforme</a>
   </div>
   <div class="progression" id="progression"></div>
 </header>
@@ -60,10 +60,16 @@
     <div class="cadre">
       <div class="intro">
         <h2>Ce qu'il faut savoir avant de décider</h2>
-        <p>Cinq faits sur la transmission des patrimoines en France, sourcés et vérifiables.</p>
+        <p>Quatre faits sur la transmission des patrimoines en France, sourcés et vérifiables. Touchez une bulle pour la découvrir.</p>
       </div>
-
-      <article class="fait">
+      <div class="bulles" role="tablist" aria-label="Ce qu'il faut savoir">
+        <button class="bulle-fait" role="tab" id="b-transmission" aria-selected="false" aria-controls="p-transmission" data-panneau="p-transmission"><span class="bulle-nombre">+46 %</span><span class="bulle-titre">La grande transmission</span></button>
+        <button class="bulle-fait" role="tab" id="b-retour" aria-selected="false" aria-controls="p-retour" data-panneau="p-retour"><span class="bulle-nombre">×3</span><span class="bulle-titre">Le retour de l'héritage</span></button>
+        <button class="bulle-fait" role="tab" id="b-concentration" aria-selected="false" aria-controls="p-concentration" data-panneau="p-concentration"><span class="bulle-nombre">55 €</span><span class="bulle-titre">Un patrimoine très concentré</span></button>
+        <button class="bulle-fait" role="tab" id="b-impot" aria-selected="false" aria-controls="p-impot" data-panneau="p-impot"><span class="bulle-nombre">10 %</span><span class="bulle-titre">Un impôt qui épargne les plus gros héritages</span></button>
+      </div>
+      <div class="panneau" role="tabpanel" id="p-transmission" aria-labelledby="b-transmission" hidden>
+        <article class="fait">
         <div class="texte">
           <h3>La grande transmission</h3>
           <p class="nombre">+46 %<small>de patrimoine transmis chaque année entre 2025 et 2040, de 464 à 677 milliards d'euros.</small></p>
@@ -71,8 +77,9 @@
         </div>
         <div class="figure" id="fig-flux"></div>
       </article>
-
-      <article class="fait">
+      </div>
+      <div class="panneau" role="tabpanel" id="p-retour" aria-labelledby="b-retour" hidden>
+        <article class="fait">
         <div class="texte">
           <h3>Le retour de l'héritage</h3>
           <p>Avant 1914, ce qu'on héritait chaque année pesait un quart du revenu national. Les guerres et l'après-guerre l'ont fait tomber à 4 %. Depuis 1980, il remonte vers les niveaux du XIX<sup>e</sup> siècle.</p>
@@ -80,8 +87,9 @@
         </div>
         <div class="figure" id="fig-piketty"></div>
       </article>
-
-      <article class="fait">
+      </div>
+      <div class="panneau" role="tabpanel" id="p-concentration" aria-labelledby="b-concentration" hidden>
+        <article class="fait">
         <div class="texte">
           <h3>Un patrimoine très concentré</h3>
           <p>Sur 100 € de patrimoine en France, les 10 % les plus riches en possèdent 55. La moitié de la population se partage 5 €.</p>
@@ -94,8 +102,9 @@
           <p class="source" id="source-patrimoine"></p>
         </div>
       </article>
-
-      <article class="fait">
+      </div>
+      <div class="panneau" role="tabpanel" id="p-impot" aria-labelledby="b-impot" hidden>
+        <article class="fait">
         <div class="texte">
           <h3>Un impôt qui épargne les plus gros héritages</h3>
           <p>Le barème monte jusqu'à 45 %. Mais les niches font fondre ce qui est réellement payé, et d'autant plus que l'héritage est gros : les 0,1 % qui héritent le plus paient environ 10 % de ce qu'ils reçoivent, au lieu de 41 %.</p>
@@ -106,6 +115,8 @@
       <div class="verdict">
         <b>&lt;&nbsp;5&nbsp;%</b>
         <p>C'est ce que l'État prélève en moyenne sur tout ce qui se transmet. À peine 10 % pour les plus grandes fortunes.</p>
+      </div>
+
       </div>
 
       <article class="fait" style="margin-top:clamp(36px,5vw,64px)">
@@ -183,9 +194,18 @@
     <div class="cadre">
       <div class="intro">
         <h2>Et l'argent, on en fait quoi ?</h2>
-        <p>Répartissez les recettes de votre réforme en 2025 : <b id="u-total">—</b>. Pour chaque usage, ce que cela représente dans le budget actuel.</p>
+        <p>Votre réforme remplit un pot : les recettes en plus de l'année 2025. Distribuez-le entre les usages ; on ne peut pas dépenser plus que ce qu'il contient.</p>
       </div>
-      <div class="repartition" id="repartition" aria-hidden="true"></div>
+      <div class="pot" aria-live="polite">
+        <div class="pot-chiffres">
+          <div><span>Le pot</span><strong id="pot-total">—</strong></div>
+          <div><span>Attribué</span><strong id="pot-attribue">—</strong></div>
+          <div><span>Reste à attribuer</span><strong id="pot-reste">—</strong></div>
+          <button class="btn btn-ligne" type="button" id="pot-vider">Tout remettre dans le pot</button>
+        </div>
+        <div class="repartition" id="repartition" role="img" aria-label="Répartition du pot"></div>
+        <p class="pot-alerte" id="pot-alerte" hidden></p>
+      </div>
       <div class="usages" id="usages"></div>
       <p class="source">Budgets : PLF 2025 (crédits de paiement) ; défense : loi de programmation militaire 2024-2030 ; CSG : un point sur les revenus d'activité rapporte 12 Md€ (CCSS, mai 2026). Sur l'éducation, voir aussi les <a href="https://publicfinancelab.eu/nos-publications/">travaux du Public Finance Lab</a>.</p>
     </div>

@@ -23,7 +23,9 @@ export function monterSimulateur() {
 
   depart.innerHTML = Object.values(scenarios).map((s) => `
     <button type="button" data-s="${s.id}" aria-pressed="false"><strong>${s.nom}</strong><span>${s.resume}</span></button>`).join("")
-    + `<button type="button" data-s="perso" aria-pressed="false" hidden><strong>Ma réforme</strong><span>Vos réglages, à partir du scénario choisi.</span></button>`;
+    + `<button type="button" data-s="perso" aria-pressed="false"><strong>Ma réforme</strong><span id="perso-aide">Partez du scénario choisi et réglez vous-même le barème et les niches.</span></button>`;
+  const panneauReglages = document.getElementById("reglages");
+  let base = "igs"; // dernier scénario choisi, point de départ de « Ma réforme »
 
   function dessinerTranches() {
     tranches.innerHTML = reglages.bareme.map((t, i) => {
@@ -68,6 +70,7 @@ export function monterSimulateur() {
 
   function choisir(id) {
     courant = id;
+    base = id;
     reglages = scenarios[id].reglages();
     dessinerTranches(); dessinerChoix(); calculer();
   }
@@ -75,7 +78,6 @@ export function monterSimulateur() {
   function calculer() {
     depart.querySelectorAll("button").forEach((b) => {
       b.setAttribute("aria-pressed", b.dataset.s === courant);
-      if (b.dataset.s === "perso") b.hidden = courant !== "perso";
     });
     const r = evaluer(reglages);
     const sup = r.supplement[0];
@@ -94,11 +96,24 @@ export function monterSimulateur() {
     foule.innerHTML = classes.slice(0, 100).map((c) => `<span class="${c}"></span>`).join("");
     foule.setAttribute("aria-label", `Sur 100 héritiers : ${n.plus} paieraient plus, ${n.moins} moins, ${n.egal} autant.`);
     for (const k of ["plus", "moins", "egal"]) document.getElementById(`n-${k}`).textContent = nombre(n[k]);
+    document.getElementById("perso-aide").textContent = courant === "perso"
+      ? `Vos réglages, à partir du scénario « ${scenarios[base].nom} ». Modifiez-les ci-dessous.`
+      : "Partez du scénario choisi et réglez vous-même le barème et les niches.";
     const nom = courant === "perso" ? "Ma réforme de l'héritage" : scenarios[courant].nom;
     document.dispatchEvent(new CustomEvent("reforme", { detail: { nom, r, reglages } }));
   }
 
-  depart.querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { if (b.dataset.s !== "perso") choisir(b.dataset.s); }));
+  // « Ma réforme » : ouvre tout de suite les réglages, à partir du scénario choisi, et y amène la page.
+  function maReforme() {
+    courant = "perso";
+    panneauReglages.open = true;
+    calculer();
+    const doux = matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
+    panneauReglages.scrollIntoView({ behavior: doux, block: "start" });
+    setTimeout(() => document.querySelector("#tranches input[type=range]")?.focus({ preventScroll: true }), 400);
+  }
+  depart.querySelectorAll("button").forEach((b) => b.addEventListener("click", () => { if (b.dataset.s === "perso") maReforme(); else choisir(b.dataset.s); }));
+  document.querySelectorAll("[data-ma-reforme]").forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); maReforme(); }));
   choisir("igs");
 
   // Barre de résultat fixe sur mobile, tant que le panneau de résultats n'est pas visible.
