@@ -7,12 +7,39 @@ import { monterPartage } from "./ui/partage.js";
 
 const $ = (id) => document.getElementById(id);
 
+// Graphiques de chaque bulle, dessinés quand son panneau est visible (ils prennent la largeur réelle).
+const DESSINS = {
+  "p-transmission": () => graphiqueFlux($("fig-flux")),
+  "p-retour": () => graphiquePiketty($("fig-piketty")),
+  "p-concentration": () => gaufre($("gaufre"), $("gaufre-legende"), $("source-patrimoine")),
+  "p-impot": () => graphiqueTaux($("fig-taux"), donneesTaux()),
+};
+
 function graphiques() {
   mur($("mur"));
-  graphiqueFlux($("fig-flux"));
-  graphiquePiketty($("fig-piketty"));
-  gaufre($("gaufre"), $("gaufre-legende"), $("source-patrimoine"));
-  graphiqueTaux($("fig-taux"), donneesTaux());
+  document.querySelectorAll(".panneau:not([hidden])").forEach((p) => DESSINS[p.id]?.());
+}
+
+// Bulles : un clic ouvre son panneau et referme l'autre ; un second clic sur la même bulle la referme.
+function bulles() {
+  const boutons = [...document.querySelectorAll(".bulle-fait")];
+  const ouvrir = (b) => {
+    const deja = b.getAttribute("aria-selected") === "true";
+    boutons.forEach((x) => { x.setAttribute("aria-selected", "false"); $(x.dataset.panneau).hidden = true; });
+    if (deja) return;
+    b.setAttribute("aria-selected", "true");
+    const p = $(b.dataset.panneau);
+    p.hidden = false;
+    DESSINS[p.id]?.();
+    if (p.getBoundingClientRect().top > innerHeight * 0.8) p.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+  };
+  boutons.forEach((b, i) => {
+    b.addEventListener("click", () => ouvrir(b));
+    b.addEventListener("keydown", (e) => {
+      const k = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+      if (k) { e.preventDefault(); boutons[(i + k + boutons.length) % boutons.length].focus(); }
+    });
+  });
 }
 
 function navigation() {
@@ -36,6 +63,7 @@ citationsTextes();
 monterRecettes();
 monterPartage();
 monterSimulateur();
+bulles();
 graphiques();
 navigation();
 

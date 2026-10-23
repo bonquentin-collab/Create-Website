@@ -3,7 +3,7 @@
 import { md, pct, nombre } from "./format.js";
 
 let reforme = null;
-let repartition = [];
+let repartition = { usages: [], reste: 0 };
 
 function dessinerImage() {
   const c = document.createElement("canvas");
@@ -27,10 +27,11 @@ function dessinerImage() {
   x.font = "400 32px 'Public Sans', Arial, sans-serif";
   x.fillText(`${md(r.cumul, 0)} de 2025 à 2040 · ${nombre(Math.round(100 * r.parts.plus))} héritiers sur 100 paieraient plus`, 80, y + 370);
   let yy = y + 460;
-  if (repartition.length && r.supplement[0] > 0) {
+  if (repartition.usages?.length && r.supplement[0] > 0) {
     x.font = "600 32px 'Public Sans', Arial, sans-serif"; x.fillText("Et l'argent irait à :", 80, yy); yy += 56;
     x.font = "400 32px 'Public Sans', Arial, sans-serif";
-    for (const u of repartition.slice(0, 5)) { x.fillText(`${u.nom} : ${pct(u.part)}`, 110, yy); yy += 48; }
+    for (const u of repartition.usages.slice(0, 5)) { x.fillText(`${u.nom} : ${nombre(u.montant, 1)} Md€`, 110, yy); yy += 48; }
+    if (repartition.reste > 0.05) { x.fillText(`Non attribué : ${nombre(repartition.reste, 1)} Md€`, 110, yy); yy += 48; }
   }
   x.fillStyle = jaune; x.fillRect(80, 1220, 920, 4);
   x.fillStyle = papier; x.font = "64px Anton, Impact, sans-serif";
