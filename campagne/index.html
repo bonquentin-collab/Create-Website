@@ -148,9 +148,9 @@
         <div>
           <p class="etape">1. Choisissez un point de départ</p>
           <div class="depart" id="depart" role="group" aria-label="Scénarios"></div>
-          <details class="reglages" id="reglages">
-            <summary class="etape" style="cursor:pointer;margin:0">2. Ajustez le barème et les niches</summary>
-            <div style="display:grid;gap:22px;margin-top:16px">
+          <div class="reglages" id="reglages" hidden>
+            <p class="etape" style="margin:0">2. Ajustez le barème et les niches</p>
+            <div style="display:grid;gap:22px;margin-top:4px">
               <div>
                 <h4>Barème, sur ce que chacun reçoit dans sa vie</h4>
                 <p class="aide">Seuil haut de chaque tranche (en euros) et taux appliqué.</p>
@@ -158,7 +158,7 @@
               </div>
               <div class="choix" id="choix"></div>
             </div>
-          </details>
+          </div>
         </div>
         <aside class="resultats" aria-live="polite">
           <p class="titre" id="r-titre">Votre réforme rapporterait</p>

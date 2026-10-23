@@ -225,7 +225,6 @@ svg .axe { stroke: var(--trait); stroke-width: 1; }
 .usage input[type="range"] { width: 100%; accent-color: var(--encre); }
 .usage .equivalent { font-size: 15px; }
 .usage .equivalent b { font-variant-numeric: tabular-nums; }
-@media (max-width: 760px) { .usage { grid-template-columns: 40px minmax(0, 1fr); } .usage input, .usage .equivalent { grid-column: 2; } }
 
 /* 5. S'engager */
 .engager { background: var(--tampon); color: var(--sur-tampon); }
@@ -304,3 +303,28 @@ dialog::backdrop { background: rgba(8, 15, 28, 0.66); }
 .usage input:disabled { opacity: 0.4; }
 @media (max-width: 760px) { .pot { top: 56px; } .pot-chiffres .btn { margin-left: 0; } }
 @media (max-width: 760px) { .bulle-fait { padding: 12px; gap: 4px; } .bulle-titre { font-size: 12.5px; } .bulle-nombre { font-size: 30px; } }
+
+/* Réglages de « Ma réforme » : visibles seulement quand cette option est choisie. */
+.reglages[hidden] { display: none; }
+@media (prefers-reduced-motion: no-preference) { .reglages:not([hidden]) { animation: devoiler 0.4s ease both; } }
+
+/* Répartition du pot sur mobile : nom et montant sur une ligne, curseur pleine largeur dessous, jauge compacte en haut. */
+@media (max-width: 760px) {
+  .usage { grid-template-columns: 32px minmax(0, 1fr) auto; grid-template-areas: "icone nom montant" "curseur curseur curseur" "equiv equiv equiv"; gap: 8px 12px; padding-block: 16px; }
+  .usage svg { grid-area: icone; width: 30px; height: 30px; }
+  .usage label { grid-area: nom; font-size: 16px; }
+  .usage label small { font-size: 12.5px; }
+  .usage .usage-reglage { display: contents; }
+  .usage input[type="range"] { grid-area: curseur; grid-column: 1 / -1; height: 36px; }
+  .usage .usage-montant { grid-area: montant; }
+  .usage .usage-montant input { width: 72px; font-size: 16px; padding: 8px 6px; }
+  .usage .equivalent { grid-area: equiv; grid-column: 1 / -1; font-size: 14px; color: var(--encre-2); }
+  .pot { top: 52px; gap: 8px; padding-block: 8px; }
+  .pot-chiffres { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px 10px; }
+  .pot-chiffres span { font-size: 12px; }
+  .pot-chiffres strong { font-size: 22px; }
+  .pot-chiffres .btn { grid-column: 1 / -1; min-height: 34px; font-size: 13px; justify-self: start; padding: 0 12px; }
+  .pot .repartition { height: 34px; }
+  .repartition span { font-size: 12px; }
+  .pot-alerte { font-size: 14px; padding: 8px 10px; }
+}
