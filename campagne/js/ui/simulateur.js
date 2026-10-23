@@ -76,6 +76,7 @@ export function monterSimulateur() {
   }
 
   function calculer() {
+    panneauReglages.hidden = courant !== "perso";
     depart.querySelectorAll("button").forEach((b) => {
       b.setAttribute("aria-pressed", b.dataset.s === courant);
     });
@@ -104,9 +105,10 @@ export function monterSimulateur() {
   }
 
   // « Ma réforme » : ouvre tout de suite les réglages, à partir du scénario choisi, et y amène la page.
+  // Les réglages n'existent que pour « Ma réforme » : ils repartent du dernier scénario choisi.
   function maReforme() {
+    if (courant !== "perso") { reglages = scenarios[base].reglages(); dessinerTranches(); dessinerChoix(); }
     courant = "perso";
-    panneauReglages.open = true;
     calculer();
     const doux = matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
     panneauReglages.scrollIntoView({ behavior: doux, block: "start" });
