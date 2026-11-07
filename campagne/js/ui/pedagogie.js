@@ -49,9 +49,9 @@ const heritage300 = () => 2 * bareme(150_000 - 100_000, baremes.actuel);
 const salaire300 = () => comparer(300_000, { ...parametres2026, annees: 10 }).salaire;
 
 const MYTHES = [
-  { idee: "Tout le monde paie des droits de succession", gros: () => `${nombre(Math.round(100 * (1 - faits.declarations2022.payantes / faits.deces[2022]) / 5) * 5)} %`,
-    texte: () => `des successions ne paient aucun droit : en 2022, sur ${nombre(faits.deces[2022])} décès, ${nombre(faits.declarations2022.payantes)} seulement ont donné lieu au paiement de droits.`,
-    source: "Cour des comptes, Les droits de succession, 2024, tableau 7 (données DGFiP)" },
+  { idee: "Tout le monde paie des droits de succession", gros: () => `${nombre(Math.round(100 - faits.heritagesMontant.total.plus100000))} %`,
+    texte: () => `des héritages reçus sont inférieurs à 100 000 €, l'abattement dont bénéficie chaque enfant sur ce que lui laisse chacun de ses parents : reçus d'un père ou d'une mère, ils ne paient aucun droit. En 2022, seules ${nombre(Math.round((100 * faits.declarations2022.payantes) / faits.declarations2022.total))} % des déclarations de succession ont donné lieu au paiement de droits.`,
+    source: "Insee, Transmissions intergénérationnelles en 2021 (enquête Histoire de vie et Patrimoine), 2024 ; Cour des comptes, Les droits de succession, 2024, tableau 7" },
   { idee: "L'héritage est un coup de pouce aux jeunes", gros: "50 ans",
     texte: () => `C'est l'âge moyen auquel on hérite aujourd'hui, contre 30 ans au début du XX<sup>e</sup> siècle. Ce sera ${faits.ageHeritage.en2035} ans en 2035.`,
     source: "CAE, note n° 69, 2021 ; Cour des comptes, 2024, d'après France Stratégie" },
