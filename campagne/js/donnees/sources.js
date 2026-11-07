@@ -20,6 +20,14 @@ export const droitsPercus = { 2024: 20.9, 2025: 20.7, 2026: 21.4, source: "Éval
 export const faits = {
   deces: { 2014: 559_293, 2022: 673_637, source: "Cour des comptes, Les droits de succession, septembre 2024" },
   declarations2022: { total: 354_443, payantes: 165_595, source: "Cour des comptes, 2024, tableau 7 (données DGFiP)" },
+  // Répartition des héritages reçus au cours de la vie selon leur montant (au moment de la transmission), en %.
+  // Héritages reçus par la personne de référence du ménage ou son conjoint ; montants inconnus exclus (12 %).
+  heritagesMontant: {
+    total: { moins8000: 35.1, de8000a30000: 27.1, de30000a100000: 23.1, plus100000: 14.7 },
+    pere: 16.9, mere: 16.6, deuxParents: 15.5, // part des héritages de 100 000 € ou plus, selon le défunt
+    source: "Insee, Transmissions intergénérationnelles en 2021, enquête Histoire de vie et Patrimoine 2020-2021, Insee Résultats, novembre 2024 (fichier hvp_herit, onglet PERS_ORIG_TRANSM)",
+    url: "https://www.insee.fr/fr/statistiques/8270227?sommaire=8270239",
+  },
   ageHeritage: { aujourdhui: 50, en2035: 55, source: "Cour des comptes, 2024, d'après France Stratégie ; CAE, note n° 69" },
   patrimoineRevenu: { 1970: 3, 2020: 6, source: "CAE, note n° 69, 2021 : patrimoine = 300 % du revenu national en 1970, 600 % en 2020" },
   // Indice des prix des logements anciens, France métropolitaine, CVS, base 100 en 2015 (Insee, idbank 010567059) :
