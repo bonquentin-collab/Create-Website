@@ -1,20 +1,20 @@
-// Données du site « L'héritage, ça se décide ». Chaque valeur porte sa source ; vérifiées en octobre 2026.
+// Données du site « L'héritage pour tous ». Chaque valeur porte sa source ; vérifiées en octobre 2026.
 // Les lectures de graphiques sont signalées (précision ± 1 point ou ± 5 %).
 
-const annees = Array.from({ length: 16 }, (_, i) => 2025 + i);
+const annees = Array.from({ length: 15 }, (_, i) => 2026 + i);
 
 // Flux successoral annuel (donations + successions), Md€ courants. Fondation Jean-Jaurès (2024), tableau 1,
-// d'après le CAE (15 % du PIB en 2021, 23 % en 2050).
+// d'après le CAE (15 % du PIB en 2021, 23 % en 2050) ; l'étude part de 2025 (464 Md€), le site de 2026.
 export const flux = {
   annees,
-  valeurs: [464, 476, 489, 502, 516, 529, 543, 557, 571, 585, 600, 615, 630, 645, 661, 677],
-  total: 9059,
+  valeurs: [476, 489, 502, 516, 529, 543, 557, 571, 585, 600, 615, 630, 645, 661, 677],
+  total: 8596, // somme 2026-2040 ; 9 059 Md€ avec 2025
   source: "Fondation Jean-Jaurès, « Face à la grande transmission, l'impôt sur les grandes successions », novembre 2024, tableau 1",
   url: "https://www.jean-jaures.org/publication/face-a-la-grande-transmission-limpot-sur-les-grandes-successions/",
 };
 
 // Droits de mutation à titre gratuit (successions + donations), Md€. DGFiP ; Voies et moyens, PLF 2026.
-export const droitsPercus = { 2024: 20.9, 2025: 20.7, source: "Évaluation des voies et moyens, PLF 2026, tome I" };
+export const droitsPercus = { 2024: 20.9, 2025: 20.7, 2026: 21.4, source: "Évaluation des voies et moyens, PLF 2026, tome I" };
 
 // Faits démographiques et patrimoniaux.
 export const faits = {
@@ -29,15 +29,14 @@ export const faits = {
   partHeritee: { 1970: 0.35, 2020: 0.6, source: "CAE, note n° 69, 2021" },
 };
 
-// Flux successoral en % du revenu national, France. Piketty, Le Capital au XXIe siècle, annexe technique,
-// tableau S11.1 (série Bt/Yt, d'après Piketty 2011, QJE, tableau A4) ; projection : scénario central.
-export const piketty = {
-  observe: [[1820, 20.3], [1830, 20.8], [1840, 21.1], [1850, 20.0], [1860, 20.2], [1870, 22.3], [1880, 24.4], [1890, 23.9],
-    [1900, 24.1], [1910, 22.7], [1920, 9.8], [1930, 11.0], [1940, 9.8], [1950, 4.4], [1960, 5.9], [1970, 6.2], [1980, 6.4],
-    [1990, 7.7], [2000, 11.4], [2010, 14.5]],
-  projection: [[2010, 14.5], [2020, 14.1], [2030, 14.6], [2040, 15.7], [2050, 16.0]],
-  source: "Thomas Piketty, Le Capital au XXIe siècle (2013), annexe technique, tableau S11.1",
-  url: "http://piketty.pse.ens.fr/fr/capital21c",
+// Part du patrimoine hérité dans le patrimoine privé total, France. Alvaredo, Garbinti et Piketty (2017), figure 3,
+// définition simplifiée (borne basse), lecture du graphique (± 1 point) ; 2020 : CAE, note n° 69 (60 %, contre 35 %
+// au début des années 1970).
+export const retourHeritage = {
+  serie: [[1890, 0.771], [1900, 0.77], [1910, 0.78], [1920, 0.657], [1930, 0.625], [1940, 0.568], [1950, 0.504],
+    [1960, 0.42], [1970, 0.34], [1980, 0.355], [1990, 0.407], [2000, 0.47], [2010, 0.551], [2020, 0.6]],
+  source: "Alvaredo, Garbinti et Piketty (2017), « On the Share of Inheritance in Aggregate Wealth: Europe and the USA, 1900–2010 », Economica, figure 3 (définition simplifiée, borne basse) ; 2020 : Conseil d'analyse économique (2021)",
+  url: "http://piketty.pse.ens.fr/files/AlvaredoGarbintiPiketty2015.pdf",
 };
 
 // Part du patrimoine net des ménages, 1er trimestre 2026 (%). BCE et Banque de France, comptes distributionnels de
@@ -52,6 +51,9 @@ export const patrimoine = {
     { id: "d10", label: "Les 10 % les plus riches", court: "10 % du haut", part: 54.64 },
   ],
   top5: 40.84,
+  // Parts du patrimoine net des adultes (partage égal au sein des couples), France, 2024 : World Inequality Database,
+  // variable shweal992j (fichier WID_data_FR.csv, novembre 2026) : 27,68 %, 59,88 % et 4,84 %.
+  wid: { top1: 28, top10: 60, bas50: 4.8, annee: 2024, source: "World Inequality Database (WID.world)", url: "https://wid.world/country/france/" },
   total: 13_959,
   periode: "1er trimestre 2026",
   source: "BCE et Banque de France, comptes distributionnels de patrimoine des ménages (DWA)",
@@ -104,7 +106,7 @@ export const niches = {
       cout: "4,85 Md€", periode: "en 2024", detail: "Jusqu'à 5,7 Md€ en comptant les dossiers non repérés ; Bercy affichait 500 M€.",
       source: "Institut des politiques publiques, rapport n° 62, novembre 2025", url: "https://www.ipp.eu/" },
     { id: "assuranceVie", nom: "Assurance-vie", article: "CGI, art. 990 I et 757 B",
-      principe: "Hors succession : 152 500 € exonérés par bénéficiaire, puis 20 % et 31,25 %, loin du barème.",
+      principe: "152 500 € exonérés par bénéficiaire, puis 20 % et 31,25 %, loin du barème.",
       cout: "4 à 5 Md€", periode: "par an", detail: "44 Md€ transmis par assurance-vie en 2019.",
       source: "CAE, note n° 69, 2021", url: "https://www.cae-eco.fr/repenser-lheritage" },
     { id: "demembrement", nom: "Démembrement", article: "CGI, art. 669 et 1133",
@@ -112,12 +114,12 @@ export const niches = {
       cout: "2 à 3 Md€", periode: "par an", detail: "Une donation à 65 ans n'est taxée que sur 60 % de la valeur.",
       source: "CAE, note n° 69, 2021", url: "https://www.cae-eco.fr/repenser-lheritage" },
     { id: "abattement", nom: "Abattement de 100 000 €", article: "CGI, art. 779",
-      principe: "Par enfant et par parent, renouvelable tous les 15 ans par donation.",
+      principe: "Par enfant et par parent, renouvelable tous les 15 ans.",
       cout: "100 000 €", periode: "exonérés par enfant et par parent", detail: "C'est ce qui exonère la plupart des héritages modestes.",
       source: "Code général des impôts", url: "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000025062418" },
     { id: "pvl", nom: "Plus-values effacées", article: "CGI, art. 150-0 A",
-      principe: "Au décès, les plus-values accumulées disparaissent : l'héritier repart de la valeur du jour.",
-      cout: "6,6 Md€", periode: "en 2025, pour le 1 % le plus riche", detail: "Elles ne sont jamais imposées.",
+      principe: "Au décès, les plus-values accumulées disparaissent : l'héritier repart de la valeur au jour de l'héritage.",
+      cout: "7,0 Md€", periode: "en 2026, pour le 1 % le plus riche", detail: "Elles ne sont jamais imposées.",
       source: "Fondation Jean-Jaurès, 2024, tableau 8", url: "https://www.jean-jaures.org/publication/face-a-la-grande-transmission-limpot-sur-les-grandes-successions/" },
   ],
 };
@@ -126,7 +128,7 @@ export const niches = {
 // Fondation Jean-Jaurès (2024), tableau 8. « Pour tous » : hypothèse du site, le top 1 % détenant la moitié des
 // plus-values latentes transmises (hors résidence principale, exonérée).
 export const plusValues = {
-  top1: [6.62, 6.95, 7.3, 7.67, 8.05, 8.45, 8.87, 9.36, 9.86, 10.39, 10.95, 11.54, 12.16, 12.86, 13.54, 14.26],
+  top1: [6.95, 7.3, 7.67, 8.05, 8.45, 8.87, 9.36, 9.86, 10.39, 10.95, 11.54, 12.16, 12.86, 13.54, 14.26],
   partTop1: 0.5,
 };
 
@@ -162,7 +164,6 @@ export const usages = [
 export const citations = {
   cae: { texte: "Pour parvenir tout en haut de la distribution des niveaux de vie, il devient quasiment impératif d'avoir la chance d'hériter.",
     source: "Conseil d'analyse économique, note n° 69, 2021", url: "https://www.cae-eco.fr/repenser-lheritage" },
-  mirabeau: { texte: "Mirabeau soutient que la propriété n'est légitime que du vivant de celui qui l'a acquise, mais qu'à sa mort, sa propriété sans titulaire s'interrompt, ce qui rend pleinement légitime le droit de l'État à déterminer la façon dont elle peut être transmise.",
-    source: "Pierre Crétois, « Les inégalités, de père en fils », La Vie des idées, janvier 2026, à propos de Mélanie Plouviez, L'injustice en héritage (La Découverte, 2025)",
-    url: "https://laviedesidees.fr/Les-inegalites-de-pere-en-fils" },
+  // Citation de la carte « La propriété s'arrête au décès » : à choisir (le bloc reste masqué tant qu'elle manque).
+  mirabeau: null,
 };

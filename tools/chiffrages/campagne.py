@@ -1,4 +1,4 @@
-# Classeur du site de campagne « L'héritage, ça se décide » (campagne/chiffrages/Chiffrage_Campagne.xlsx).
+# Classeur du site de campagne « L'héritage pour tous » (campagne/chiffrages/Chiffrage_Campagne.xlsx).
 # Les données et le calage viennent du code du site (export Node ci-dessous) ; tous les calculs sont des formules.
 import json
 import os
@@ -26,12 +26,12 @@ T = D["heritiers"]["tranches"]
 NT = len(T)
 
 wb = nouveau()
-lisez_moi(wb, "Chiffrage du site « L'héritage, ça se décide »", [
+lisez_moi(wb, "Chiffrage du site « L'héritage pour tous »", [
     ("Contenu",),
     "Réforme : réglages modifiables (cellules jaunes) : barème sur ce que chacun reçoit dans sa vie, abattement, traitement de chaque niche.",
     "Tranches : les 14 tranches d'héritiers du CAE (2021), la composition de leurs héritages et l'impôt avant et après réforme.",
     "Calage : nombre d'héritiers et ampleur des niches, choisis pour reproduire les recettes et les coûts publiés par le CAE.",
-    "Résultats : recettes de 2025 à 2040, qui suivent le flux successoral, plus les plus-values latentes.",
+    "Résultats : recettes de 2026 à 2040, qui suivent le flux successoral, plus les plus-values latentes.",
     "Comparaison : ce que coûte la même somme reçue en héritage, gagnée en salaire ou touchée en dividendes ; hausse des prix du logement depuis 2000.",
     ("Vérification",),
     "Avec les réglages par défaut (IGS), les résultats sont identiques à ceux du site (contrôle en bas de la feuille Résultats).",
@@ -107,7 +107,9 @@ for i, t in enumerate(T):
     formule(ts, f"O{r}", impot(f"MAX(0,M{r}-{ABAT})", lambda k: f"Réforme!$B${5+k}", lambda k: f"Réforme!$C${5+k}", r), EUR)
 
 # ---------- Résultats ----------
-rs = feuille(wb, "Résultats", "Recettes de 2025 à 2040 (Md€ courants)", None, [10, 14, 14, 14, 14, 14])
+A0, A1 = D["flux"]["annees"][0], D["flux"]["annees"][-1]
+NA = len(D["flux"]["annees"])
+rs = feuille(wb, "Résultats", f"Recettes de {A0} à {A1} (Md€ courants)", None, [10, 14, 14, 14, 14, 14])
 texte(rs, "A3", "Recettes actuelles du modèle, époque CAE (Md€)"); formule(rs, "D3", f"=Calage!$B$5*SUMPRODUCT(Tranches!$B$6:$B${5+NT},Tranches!$N$6:$N${5+NT})/1e9", MD2)
 texte(rs, "A4", "Recettes de la réforme, époque CAE (Md€)"); formule(rs, "D4", f"=Calage!$B$5*SUMPRODUCT(Tranches!$B$6:$B${5+NT},Tranches!$O$6:$O${5+NT})/1e9", MD2)
 entete(rs, 6, ["Année", "Flux (Md€)", "Droits actuels", "Supplément barème", "Plus-values", "Supplément total"])
@@ -120,10 +122,11 @@ for k, (a, f) in enumerate(zip(D["flux"]["annees"], D["flux"]["valeurs"])):
     formule(rs, f"E{r}", f"=G{r}*IF({TOUT}=1,{1/D['plusValues']['partTop1']},{PV})", MD)
     formule(rs, f"F{r}", f"=D{r}+E{r}", MD, gras=True)
 texte(rs, "G6", "Plus-values top 1 % (FJJ)")
-texte(rs, "A24", "Total 2025-2040", gras=True); formule(rs, "F24", "=SUM(F7:F22)", MD, gras=True)
+LT = 7 + NA + 1
+texte(rs, f"A{LT}", f"Total {A0}-{A1}", gras=True); formule(rs, f"F{LT}", f"=SUM(F7:F{6 + NA})", MD, gras=True)
 sc = D["scenarios"]["igs"]["r"]
-texte(rs, "A26", "Contrôle : supplément 2025 du site (IGS)"); entree(rs, "F26", round(sc["supplement"][0], 4), MD2, cle=False)
-texte(rs, "A27", "Écart classeur − site (doit être nul)"); formule(rs, "F27", "=ROUND(F7-F26,2)", MD2)
+texte(rs, f"A{LT + 2}", f"Contrôle : supplément {A0} du site (IGS)"); entree(rs, f"F{LT + 2}", round(sc["supplement"][0], 4), MD2, cle=False)
+texte(rs, f"A{LT + 3}", "Écart classeur − site (doit être nul)"); formule(rs, f"F{LT + 3}", f"=ROUND(F7-F{LT + 2},2)", MD2)
 
 # ---------- Comparaison ----------
 K = D["comparaison"]["parametres"]; KR = D["comparaison"]["resultat"]
@@ -172,7 +175,7 @@ texte(cp, "A42", "Hausse des prix"); formule(cp, "B42", "=C41/B41-1", PCT1, gras
 
 sources(wb, [
     ("Tranches d'héritiers, taux payés, recettes et coûts des niches", "CAE, « Repenser l'héritage », note n° 69 et Focus n° 77, 2021", "https://www.cae-eco.fr/repenser-lheritage"),
-    ("Flux successoral 2025-2040, plus-values latentes du top 1 %, barème de l'IGS", "Fondation Jean-Jaurès, novembre 2024, tableaux 1, 6 et 8", "https://www.jean-jaures.org/publication/face-a-la-grande-transmission-limpot-sur-les-grandes-successions/"),
+    ("Flux successoral 2026-2040, plus-values latentes du top 1 %, barème de l'IGS", "Fondation Jean-Jaurès, novembre 2024, tableaux 1, 6 et 8", "https://www.jean-jaures.org/publication/face-a-la-grande-transmission-limpot-sur-les-grandes-successions/"),
     ("Barème actuel en ligne directe", "Code général des impôts, art. 777 et 779", "https://www.legifrance.gouv.fr/"),
     ("Barème de l'impôt sur le revenu 2026, PFU 31,4 %", "Loi de finances pour 2026 ; LFSS 2026", "https://www.legifrance.gouv.fr/"),
     ("Prix des logements anciens", "Insee, série 010567059", "https://www.insee.fr/fr/statistiques/serie/010567059"),

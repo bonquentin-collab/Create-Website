@@ -4,6 +4,14 @@ import { scenarios } from "../moteur/scenarios.js";
 import { graphiqueRecettes } from "./graphiques.js";
 import { md, nombre, pct } from "./format.js";
 
+// Le panneau de résultats reste collé à l'écran sauf s'il est plus haut que la fenêtre.
+function collant() {
+  const p = document.querySelector(".resultats");
+  const maj = () => p.classList.toggle("non-collant", p.offsetHeight > innerHeight - 100);
+  new ResizeObserver(maj).observe(p);
+  addEventListener("resize", maj);
+}
+
 const CHOIX = [
   { cle: "abattement", nom: "Abattement de 100 000 € par parent", options: [[0, "Supprimer"], [100_000, "Maintenir"], [200_000, "Passer à 200 000 €"]] },
   { cle: "tout", nom: "Tout imposer, sans aucune niche", aide: "Toutes les transmissions de la vie, à leur valeur réelle, plus-values comprises.", options: [[true, "Oui"], [false, "Non"]] },
@@ -15,6 +23,7 @@ const CHOIX = [
 ];
 
 export function monterSimulateur() {
+  collant();
   let courant = "igs";
   let reglages = scenarios.igs.reglages();
   const depart = document.getElementById("depart");
@@ -32,14 +41,14 @@ export function monterSimulateur() {
       const dernier = t.jusqua === Infinity;
       return `<div class="tranche">
         <label class="sr" for="seuil-${i}">Seuil de la tranche ${i + 1}</label>
-        ${dernier ? `<span>Au-delà</span>` : `<input type="number" id="seuil-${i}" min="0" step="1000" value="${t.jusqua}">`}
+        ${dernier ? `<span>Au-delà</span>` : `<input type="text" inputmode="numeric" id="seuil-${i}" value="${nombre(t.jusqua)}">`}
         <input type="range" id="taux-${i}" min="0" max="60" step="1" value="${Math.round(t.taux * 100)}" aria-label="Taux de la tranche ${i + 1}">
         <output for="taux-${i}">${Math.round(t.taux * 100)} %</output>
       </div>`;
     }).join("");
     reglages.bareme.forEach((t, i) => {
       const s = document.getElementById(`seuil-${i}`);
-      if (s) s.addEventListener("change", () => { t.jusqua = Math.max(0, Number(s.value) || 0); personnaliser(); });
+      if (s) s.addEventListener("change", () => { t.jusqua = Math.max(0, Number(s.value.replace(/\D/g, "")) || 0); s.value = nombre(t.jusqua); personnaliser(); });
       const r = document.getElementById(`taux-${i}`);
       r.addEventListener("input", () => { t.taux = Number(r.value) / 100; r.nextElementSibling.textContent = `${r.value} %`; personnaliser(); });
     });
@@ -83,20 +92,11 @@ export function monterSimulateur() {
     const r = evaluer(reglages);
     const sup = r.supplement[0];
     document.getElementById("r-titre").textContent = sup < 0 ? "Votre réforme coûterait" : "Votre réforme rapporterait";
-    document.getElementById("r-gain").innerHTML = `${md(sup)}<small>de recettes ${sup < 0 ? "en moins" : "en plus"} en 2025, puis ${md(r.supplement[15])} en 2040</small>`;
+    document.getElementById("r-gain").innerHTML = `${md(sup)}<small>de recettes ${sup < 0 ? "en moins" : "en plus"} en ${r.annees[0]}, puis ${md(r.supplement.at(-1))} en ${r.annees.at(-1)}</small>`;
     document.getElementById("r-cumul").textContent = md(r.cumul, 0);
     document.getElementById("r-taux").textContent = pct(r.tauxMoyen, 1);
     document.getElementById("bm-gain").textContent = md(sup);
     graphiqueRecettes(document.getElementById("fig-recettes"), r);
-    // Foule de 100 héritiers, du moins doté (à gauche) au mieux doté (à droite).
-    const n = { plus: Math.round(100 * r.parts.plus), moins: Math.round(100 * r.parts.moins) };
-    n.egal = 100 - n.plus - n.moins;
-    const classes = [];
-    r.parTranche.forEach((t) => { for (let k = 0; k < Math.round(t.p * 100); k++) classes.push(t.sens); });
-    const foule = document.getElementById("foule");
-    foule.innerHTML = classes.slice(0, 100).map((c) => `<span class="${c}"></span>`).join("");
-    foule.setAttribute("aria-label", `Sur 100 héritiers : ${n.plus} paieraient plus, ${n.moins} moins, ${n.egal} autant.`);
-    for (const k of ["plus", "moins", "egal"]) document.getElementById(`n-${k}`).textContent = nombre(n[k]);
     document.getElementById("perso-aide").textContent = courant === "perso"
       ? `Vos réglages, à partir du scénario « ${scenarios[base].nom} ». Modifiez-les ci-dessous.`
       : "Partez du scénario choisi et réglez vous-même le barème et les niches.";

@@ -1,4 +1,4 @@
-# L'héritage, ça se décide
+# L'héritage pour tous
 
 Site de campagne sur la taxation des héritages, à part du site principal (`site/`), publié sous `/campagne/`.
 Une seule page (`index.html`) et une annexe (`methode.html`), sans compilation ni dépendance.
@@ -12,7 +12,7 @@ campagne/
     ├── main.js                relie les sections
     ├── donnees/sources.js     toutes les données, chacune avec sa source
     ├── moteur/                modèle calé sur le CAE et scénarios (calcul pur, testé dans tests/campagne.test.mjs)
-    └── ui/                    graphiques, pédagogie, simulateur, recettes, image à partager
+    └── ui/                    graphiques, pédagogie, simulateur, recettes, image à partager (période 2026-2040)
 ```
 
 Tester : `npm test`. Voir en local : `python3 -m http.server 8000 --directory campagne`.

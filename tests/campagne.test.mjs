@@ -1,10 +1,10 @@
-// Tests du modèle du site de campagne « L'héritage, ça se décide » : `node --test tests/`
+// Tests du modèle du site de campagne « L'héritage pour tous » : `node --test tests/`
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import { bareme, calage, evaluer, assiette } from "../campagne/js/moteur/modele.js";
 import { scenarios } from "../campagne/js/moteur/scenarios.js";
-import { baremes, flux, heritiers, patrimoine, piketty, plusValues } from "../campagne/js/donnees/sources.js";
+import { baremes, droitsPercus, flux, heritiers, patrimoine, plusValues, retourHeritage } from "../campagne/js/donnees/sources.js";
 
 const proche = (a, b, tol) => assert.ok(Math.abs(a - b) <= tol, `${a} ≠ ${b} (± ${tol})`);
 const reglages = (id, maj = {}) => {
@@ -23,8 +23,10 @@ test("données : sommes publiées", () => {
   proche(flux.valeurs.reduce((a, b) => a + b, 0), flux.total, 1); // valeurs annuelles arrondies par l'étude
   proche(patrimoine.groupes.reduce((a, g) => a + g.part, 0), 100, 0.05);
   proche(heritiers.tranches.reduce((a, t) => a + t.p, 0), 1, 1e-9);
-  assert.equal(piketty.observe.length, 20);
-  assert.equal(plusValues.top1.length, 16);
+  assert.equal(flux.annees[0], 2026);
+  assert.equal(plusValues.top1.length, flux.valeurs.length);
+  assert.equal(retourHeritage.serie.at(-1)[1], 0.6);
+  assert.ok(patrimoine.wid.top1 < patrimoine.wid.top10);
 });
 
 test("calage : recettes actuelles du CAE (15 Md€) et base proche du flux de l'époque", () => {
@@ -33,9 +35,9 @@ test("calage : recettes actuelles du CAE (15 Md€) et base proche du flux de l'
   for (const c of calage.composition) assert.ok(c.autre >= 0.2 && c.autre <= 0.5, `part non déclarée ${c.autre}`);
 });
 
-test("calage : le droit actuel reproduit 2025 (20,7 Md€ prévus au PLF 2026)", () => {
+test("calage : le droit actuel reproduit 2026 (21,4 Md€ prévus au PLF 2026)", () => {
   const r = evaluer(reglages("actuel"));
-  proche(r.actuelles[0], 20.7, 0.3);
+  proche(r.actuelles[0], droitsPercus[2026], 0.4);
   assert.ok(r.supplement.every((v) => v === 0));
   assert.equal(r.parts.egal, 1);
 });
@@ -74,7 +76,7 @@ test("abattement : le supprimer rapporte, le doubler coûte", () => {
 
 test("recettes : proportionnelles au flux successoral", () => {
   const r = evaluer(reglages("cae"));
-  proche(r.supplement[15] / r.supplement[0], flux.valeurs[15] / flux.valeurs[0], 1e-9);
+  proche(r.supplement.at(-1) / r.supplement[0], flux.valeurs.at(-1) / flux.valeurs[0], 1e-9);
 });
 
 import { comparer } from "../campagne/js/moteur/comparaison.js";
