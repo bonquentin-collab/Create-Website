@@ -1,7 +1,7 @@
-// Section « Comprendre » : fiches des niches, cartes des idées reçues, citations, données du graphique des taux.
+// Section « Comprendre » : fiches des niches, cartes des mythes, citations, données du graphique des taux.
 import { niches, heritiers, citations, faits, baremes } from "../donnees/sources.js";
 import { bareme } from "../moteur/modele.js";
-import { comparer } from "../moteur/comparaison.js";
+import { comparer, parametres2026 } from "../moteur/comparaison.js";
 import { nombre } from "./format.js";
 
 const ICONES = {
@@ -23,47 +23,52 @@ export function fichesNiches(conteneur) {
     </article>`).join("");
 }
 
-const NOMS = { "P80-90": "Top 20 à 10 %", "P90-95": "Top 10 à 5 %", "P95-99": "Top 5 à 1 %", "P99-99,5": "Top 1 à 0,5 %", "P99,5-99,9": "Top 0,5 à 0,1 %", "P99,9-100": "Top 0,1 %" };
+const NOMS = { "P80-90": "Top 20–10 %", "P90-95": "Top 10–5 %", "P95-99": "Top 5–1 %", "P99-99,5": "Top 1–0,5 %", "P99,5-99,9": "Top 0,5–0,1 %", "P99,9-100": "Top 0,1 %" };
 const montant = (a) => (a >= 1e6 ? `${nombre(a / 1e6, a >= 1e7 ? 0 : 1)} M€` : `${nombre(a / 1000)} 000 €`);
 
-// Taux du barème : héritage net moyen de la tranche, reçu pour moitié de chaque parent, 100 000 € d'abattement chacun.
+// Taux théorique (droits / héritage déclaré) et taux effectivement payé (droits / héritage économique), en %.
+// Les 80 % du bas sont regroupés, pondérés par ce qu'ils reçoivent.
 export function donneesTaux() {
-  return heritiers.tranches.filter((t) => NOMS[t.id]).map((t) => ({
-    nom: NOMS[t.id],
-    montant: montant(t.a),
-    bareme: (100 * 2 * bareme(Math.max(0, t.a / 2 - 100_000), baremes.actuel)) / t.a,
-    reel: 100 * t.tauxEco,
-  }));
+  const bas = heritiers.tranches.filter((t) => !NOMS[t.id]);
+  const masse = bas.reduce((s, t) => s + t.p * t.a, 0);
+  const poids = bas.reduce((s, t) => s + t.p, 0);
+  return [
+    {
+      nom: "80 % du bas",
+      montant: montant(Math.round(masse / poids / 1000) * 1000),
+      declare: (100 * bas.reduce((s, t) => s + t.p * t.a * t.tauxDeclare, 0)) / masse,
+      reel: (100 * bas.reduce((s, t) => s + t.p * t.a * t.tauxEco, 0)) / masse,
+    },
+    ...heritiers.tranches.filter((t) => NOMS[t.id]).map((t) => ({ nom: NOMS[t.id], montant: montant(t.a), declare: 100 * t.tauxDeclare, reel: 100 * t.tauxEco })),
+  ];
 }
 
+// Héritier de 300 000 € (150 000 € de chaque parent, 100 000 € d'abattement par parent) et même somme gagnée
+// en salaire brut sur dix ans (CSG, CRDS et impôt sur le revenu 2026 : moteur/comparaison.js).
+const heritage300 = () => 2 * bareme(150_000 - 100_000, baremes.actuel);
+const salaire300 = () => comparer(300_000, { ...parametres2026, annees: 10 }).salaire;
+
 const MYTHES = [
-  { idee: "Tout le monde paie des droits de succession.", gros: "1 sur 4",
-    texte: () => `En 2022, sur ${nombre(faits.deces[2022])} décès, ${nombre(faits.declarations2022.payantes)} seulement ont donné lieu au paiement de droits.`,
-    source: "Cour des comptes, Les droits de succession, 2024, tableau 7" },
-  { idee: "L'héritage aide à démarrer dans la vie.", gros: "50 ans",
-    texte: () => `C'est l'âge moyen auquel on hérite de ses parents, et ce sera ${faits.ageHeritage.en2035} ans en 2035. L'héritage arrive quand la vie est déjà faite.`,
-    source: "Cour des comptes, 2024, d'après France Stratégie" },
-  { idee: "Tout le monde hérite un jour d'un beau patrimoine.", gros: "70 000 €",
-    texte: () => `La moitié d'une génération reçoit moins que cela sur toute sa vie, souvent rien. Le 1 % qui hérite le plus reçoit 4,2 millions.`,
+  { idee: "Tout le monde paie des droits de succession", gros: () => `${nombre(Math.round(100 * (1 - faits.declarations2022.payantes / faits.deces[2022]) / 5) * 5)} %`,
+    texte: () => `des successions ne paient aucun droit : en 2022, sur ${nombre(faits.deces[2022])} décès, ${nombre(faits.declarations2022.payantes)} seulement ont donné lieu au paiement de droits.`,
+    source: "Cour des comptes, Les droits de succession, 2024, tableau 7 (données DGFiP)" },
+  { idee: "L'héritage est un coup de pouce aux jeunes", gros: "50 ans",
+    texte: () => `C'est l'âge moyen auquel on hérite aujourd'hui, contre 30 ans au début du XX<sup>e</sup> siècle. Ce sera ${faits.ageHeritage.en2035} ans en 2035.`,
+    source: "CAE, note n° 69, 2021 ; Cour des comptes, 2024, d'après France Stratégie" },
+  { idee: "Tout le monde hérite un jour d'un beau patrimoine", gros: "70 000 €",
+    texte: () => "La moitié d'une génération reçoit moins que cela sur toute sa vie. Le 1 % qui hérite le plus reçoit 4,2 millions en moyenne.",
     source: "CAE, note n° 69, 2021" },
-  { idee: "Ils ont payé des impôts toute leur vie.", gros: () => `+${nombre(100 * (faits.logement[2025] / faits.logement[2000] - 1))} %`,
-    texte: () => `C'est la hausse du prix des logements depuis 2000, contre +${nombre(100 * (faits.prix[2025] / faits.prix[2000] - 1))} % pour les prix. La plus-value sur la résidence principale n'est jamais imposée, et au décès toutes les plus-values sont effacées : un bien peut passer de génération en génération « sans jamais avoir à payer l'impôt sur les plus-values ».`,
-    source: "Insee, prix des logements anciens ; Eurostat, prix à la consommation ; CAE, note n° 69, 2021" },
-  { idee: "Taxer l'héritage, c'est une double imposition.", gros: () => `${nombre(Math.round(100 * comparer().heritage / 300_000))} %`,
-    texte: () => {
-      const c = comparer();
-      const k = (x) => `${nombre(Math.round(x / 100) * 100)} €`;
-      return `C'est ce que paie un enfant qui hérite de 300\u00a0000\u00a0€ d'un parent (${k(c.heritage)}). Gagner la même somme en travaillant coûte ${k(c.salaire)} de CSG et d'impôt sur le revenu, ${k(c.capital)} en dividendes. L'héritier n'a payé aucun impôt sur la formation de ce patrimoine, dont 60 % est lui-même hérité : ne pas le taxer, c'est fabriquer une société d'héritiers.`;
-    },
-    source: "Barèmes 2026, calcul du site (voir Méthode) ; CAE, note n° 69, 2021" },
+  { idee: "Taxer l'héritage est injuste", gros: () => `${nombre((100 * heritage300()) / 300_000, 1)} %`,
+    texte: () => `C'est ce que paie en impôt un enfant qui hérite de 300 000 € de ses parents (150 000 € de chacun), ce qui le place déjà parmi les 15 % qui héritent le plus. Gagner la même somme en salaire sur dix ans coûterait environ ${nombre(Math.round(salaire300() / 1000) * 1000)} € de CSG et d'impôt sur le revenu, soit ${nombre((100 * salaire300()) / 300_000)} %.`,
+    source: "Barèmes 2026, abattement de 100 000 € par parent, calcul du site ; top 15 % : CAE, note n° 69, 2021" },
 ];
 
 export function mythes(conteneur) {
-  conteneur.innerHTML = MYTHES.map((m, i) => `
+  conteneur.innerHTML = MYTHES.map((m) => `
     <div class="carte-mythe" data-retournee="false">
       <button type="button" aria-pressed="false" aria-label="Retourner la carte : ${m.idee}">
         <div class="faces">
-          <div class="face avant"><q>${m.idee}</q><span class="indice">Ce qu'on entend · retourner</span></div>
+          <div class="face avant"><q>${m.idee}</q></div>
           <div class="face arriere"><span class="gros">${typeof m.gros === "function" ? m.gros() : m.gros}</span><p>${m.texte()}</p><span class="source">${m.source}</span></div>
         </div>
       </button>
@@ -80,6 +85,9 @@ export function mythes(conteneur) {
 export function citationsTextes() {
   const cae = document.getElementById("citation-cae");
   cae.innerHTML = `« ${citations.cae.texte} »<footer><a href="${citations.cae.url}">${citations.cae.source}</a></footer>`;
-  document.getElementById("citation-mirabeau").textContent = `« ${citations.mirabeau.texte} »`;
-  document.getElementById("source-mirabeau").innerHTML = `<a href="${citations.mirabeau.url}">${citations.mirabeau.source}</a>.`;
+  const bloc = document.getElementById("citation-mirabeau");
+  const src = document.getElementById("source-mirabeau");
+  if (!citations.mirabeau) { bloc.hidden = true; src.hidden = true; return; }
+  bloc.textContent = `« ${citations.mirabeau.texte} »`;
+  src.innerHTML = citations.mirabeau.url ? `<a href="${citations.mirabeau.url}">${citations.mirabeau.source}</a>.` : `${citations.mirabeau.source}.`;
 }

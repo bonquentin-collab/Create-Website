@@ -1,15 +1,16 @@
 <!doctype html>
 <html lang="fr">
-<head>
-<meta charset="utf-8">
+<head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>L'héritage, ça se décide</title>
-<meta name="description" content="9 000 milliards d'euros vont changer de mains d'ici 2040. Comment les taxer, et que faire des recettes : construisez votre réforme de l'héritage.">
-<meta property="og:title" content="L'héritage, ça se décide">
-<meta property="og:description" content="9 000 milliards d'euros vont changer de mains d'ici 2040. Construisez votre réforme de l'héritage.">
+<title>L'héritage pour tous</title>
+<meta name="description" content="8 600 milliards d'euros vont changer de mains d'ici 2040. Comment taxer cette Grande Transmission, et que faire des recettes : construisez votre réforme de l'héritage.">
+<meta property="og:title" content="L'héritage pour tous">
+<meta property="og:description" content="8 600 milliards d'euros vont changer de mains d'ici 2040. Construisez votre réforme de l'héritage pour faire face à la Grande Transmission.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Public+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=DM+Mono:wght@400;500&display=swap">
+
+
 <link rel="stylesheet" href="styles/campagne.css">
 <script type="module" src="js/main.js"></script>
 </head>
@@ -18,14 +19,12 @@
 
 <header class="entete bande">
   <div class="cadre">
-    <a class="marque" href="#haut">L'héritage, <b>ça se décide</b></a>
+    <a class="marque" href="#haut">L'héritage <b>pour tous</b></a>
     <nav class="nav" aria-label="Sections de la page">
-      <a href="#comprendre">Comprendre</a>
-      <a href="#decider">Décider</a>
-      <a href="#recettes">Financer</a>
-      <a href="#engager">S'engager</a>
+      <a href="#comprendre">Je comprends</a>
+      <a href="#decider">Je décide</a>
     </nav>
-    <a class="btn btn-jaune" href="#decider" data-ma-reforme style="min-height:40px;padding:0 14px;font-size:14px">Ma réforme</a>
+    <a class="btn btn-jaune" href="#engager">Je m'engage</a>
   </div>
   <div class="progression" id="progression"></div>
 </header>
@@ -35,21 +34,25 @@
   <div class="accroche bande">
     <div class="cadre">
       <div>
-        <h1>9&nbsp;000 milliards d'euros vont changer de mains d'ici <span class="an">2040</span></h1>
-        <p class="message">La manière dont on les taxe, et ce qu'on fait des recettes, est un choix collectif et politique. Emparez-vous-en.</p>
+        <h1><span class="an">8&nbsp;600 milliards d'euros</span> vont changer de mains d'ici 2040</h1>
+        <p class="message">La manière dont on taxe cette «&nbsp;Grande Transmission&nbsp;» des patrimoines et ce que l'on fait des recettes est un choix politique collectif. Emparez-vous-en.</p>
         <div class="actions">
-          <a class="btn btn-jaune" href="#decider">Construire ma réforme</a>
-          <a class="btn btn-ligne" href="#engager">Je soutiens la campagne</a>
+          <a class="btn" href="#decider">Construire ma réforme</a>
+          <a class="btn" href="#engager">Soutenir la campagne</a>
         </div>
       </div>
       <figure class="mur" style="margin:0">
-        <canvas id="mur" width="900" height="558" role="img" aria-label="9 059 carrés, un par milliard d'euros transmis de 2025 à 2040 ; plus de la moitié viendra des 10 % les plus riches."></canvas>
+        <div class="carreaux" id="carreaux" role="img"></div>
+        <div class="bascule" role="group" aria-label="Groupe affiché">
+          <button type="button" data-vue="d10" aria-pressed="true">Les 10 % les plus riches</button>
+          <button type="button" data-vue="b50" aria-pressed="false">Les 50 % les moins riches</button>
+        </div>
+        <div class="legende" id="carreaux-legende">
+          <span data-groupe="haut"><i style="background:var(--encre)"></i><span id="carreaux-nom">Patrimoine des 10 % les plus riches</span></span>
+          <span data-groupe="bas"><i style="background:var(--contexte)"></i>Reste de la population</span>
+        </div>
         <figcaption>
-          <div class="legende">
-            <span><i style="background:var(--encre)"></i>Patrimoines des 10 % les plus riches</span>
-            <span><i style="background:var(--contexte)"></i>Tous les autres</span>
-          </div>
-          <p class="source"><span id="unite-mur">Un carré = 1 milliard d'euros</span> transmis de 2025 à 2040 (Fondation Jean-Jaurès, 2024), réparti comme le patrimoine des ménages (Banque de France, 2026).</p>
+          <p class="source" id="carreaux-note"></p>
         </figcaption>
       </figure>
     </div>
@@ -59,21 +62,21 @@
   <section id="comprendre" class="bande">
     <div class="cadre">
       <div class="intro">
-        <h2>Ce qu'il faut savoir avant de décider</h2>
-        <p>Quatre faits sur la transmission des patrimoines en France, sourcés et vérifiables. Touchez une bulle pour la découvrir.</p>
+        <h2>Comprendre l'enjeu</h2>
+        <p>Quatre données sur la concentration et la transmission des patrimoines en France.</p>
       </div>
       <div class="bulles" role="tablist" aria-label="Ce qu'il faut savoir">
-        <button class="bulle-fait" role="tab" id="b-transmission" aria-selected="false" aria-controls="p-transmission" data-panneau="p-transmission"><span class="bulle-nombre">+46 %</span><span class="bulle-titre">La grande transmission</span></button>
-        <button class="bulle-fait" role="tab" id="b-retour" aria-selected="false" aria-controls="p-retour" data-panneau="p-retour"><span class="bulle-nombre">×3</span><span class="bulle-titre">Le retour de l'héritage</span></button>
-        <button class="bulle-fait" role="tab" id="b-concentration" aria-selected="false" aria-controls="p-concentration" data-panneau="p-concentration"><span class="bulle-nombre">55 €</span><span class="bulle-titre">Un patrimoine très concentré</span></button>
-        <button class="bulle-fait" role="tab" id="b-impot" aria-selected="false" aria-controls="p-impot" data-panneau="p-impot"><span class="bulle-nombre">10 %</span><span class="bulle-titre">Un impôt qui épargne les plus gros héritages</span></button>
+        <button class="bulle-fait" role="tab" id="b-transmission" aria-selected="false" aria-controls="p-transmission" data-panneau="p-transmission"><span class="bulle-nombre">573&nbsp;Md€</span><span class="bulle-titre">Montant annuel transmis</span></button>
+        <button class="bulle-fait" role="tab" id="b-retour" aria-selected="false" aria-controls="p-retour" data-panneau="p-retour"><span class="bulle-nombre">60 %</span><span class="bulle-titre">Le retour de l'héritage</span></button>
+        <button class="bulle-fait" role="tab" id="b-concentration" aria-selected="false" aria-controls="p-concentration" data-panneau="p-concentration"><span class="bulle-nombre">28 %</span><span class="bulle-titre">Le patrimoine du top 1 %</span></button>
+        <button class="bulle-fait" role="tab" id="b-impot" aria-selected="false" aria-controls="p-impot" data-panneau="p-impot"><span class="bulle-nombre">&lt;&nbsp;5 %</span><span class="bulle-titre">La faible taxation de l'héritage</span></button>
       </div>
       <div class="panneau" role="tabpanel" id="p-transmission" aria-labelledby="b-transmission" hidden>
         <article class="fait">
         <div class="texte">
-          <h3>La grande transmission</h3>
-          <p class="nombre">+46 %<small>de patrimoine transmis chaque année entre 2025 et 2040, de 464 à 677 milliards d'euros.</small></p>
-          <p>Deux forces le poussent. La démographie : les générations du baby-boom arrivent au grand âge, et les décès sont passés de 559&nbsp;000 en 2014 à 674&nbsp;000 en 2022. L'accumulation du capital : le patrimoine des Français vaut six années de revenu national, deux fois plus qu'en 1970.</p>
+          <h3>Montant annuel transmis</h3>
+          <p class="nombre">573&nbsp;Md€<small>de patrimoine transmis en moyenne chaque année entre 2026 et 2040, l'équivalent de plus de six fois le budget de l'Éducation nationale.</small></p>
+          <p>Deux raisons en sont à l'origine. 1) La démographie : les générations du baby-boom arrivent au grand âge, et le nombre de décès va naturellement augmenter. 2) L'accumulation du capital : le patrimoine des Français a connu une croissance très forte et un mouvement de concentration depuis les années 1970.</p>
         </div>
         <div class="figure" id="fig-flux"></div>
       </article>
@@ -82,47 +85,43 @@
         <article class="fait">
         <div class="texte">
           <h3>Le retour de l'héritage</h3>
-          <p>Avant 1914, ce qu'on héritait chaque année pesait un quart du revenu national. Les guerres et l'après-guerre l'ont fait tomber à 4 %. Depuis 1980, il remonte vers les niveaux du XIX<sup>e</sup> siècle.</p>
+          <p class="nombre">60 %<small>du patrimoine des Français est hérité, et non accumulé au cours de la vie.</small></p>
+          <p>Au début du XX<sup>e</sup> siècle, près de 80 % du patrimoine venait de l'héritage. Les guerres et la croissance de l'après-guerre ont fait tomber cette part à 34 % en 1970. Depuis, elle remonte.</p>
           <blockquote class="citation" id="citation-cae"></blockquote>
         </div>
-        <div class="figure" id="fig-piketty"></div>
+        <div class="figure" id="fig-heritage"></div>
       </article>
       </div>
       <div class="panneau" role="tabpanel" id="p-concentration" aria-labelledby="b-concentration" hidden>
         <article class="fait">
         <div class="texte">
-          <h3>Un patrimoine très concentré</h3>
-          <p>Sur 100 € de patrimoine en France, les 10 % les plus riches en possèdent 55. La moitié de la population se partage 5 €.</p>
-          <p>Côté héritiers, c'est pire : la moitié d'une génération reçoit moins de 70&nbsp;000 € sur toute sa vie, quand le 1 % qui hérite le plus reçoit 4,2 millions en moyenne, et les 0,1 % du haut 13 millions.</p>
-          <p class="source">Héritiers : CAE, note n° 69, 2021.</p>
+          <h3>Le patrimoine du top 1 %</h3>
+          <p class="nombre">28 %<small>du patrimoine des Français est détenu par le 1 % le plus riche.</small></p>
+          <p class="source">World Inequality Database (WID.world), 2024.</p>
         </div>
         <div class="figure">
-          <div class="gaufre" id="gaufre" role="img" aria-label="Sur 100 euros de patrimoine : 55 aux 10 % les plus riches, 17 au 9e dixième, 11 au 8e, 7 au 7e, 5 au 6e, 5 à la moitié la moins dotée."></div>
-          <div class="gaufre-legende" id="gaufre-legende"></div>
-          <p class="source" id="source-patrimoine"></p>
+          <div id="fig-topun" class="pyramide"></div>
+          <p class="source">Part de la population adulte et part du patrimoine net, France. World Inequality Database (WID.world), 2024. Survolez un groupe pour le détail.</p>
         </div>
       </article>
       </div>
       <div class="panneau" role="tabpanel" id="p-impot" aria-labelledby="b-impot" hidden>
         <article class="fait">
         <div class="texte">
-          <h3>Un impôt qui épargne les plus gros héritages</h3>
-          <p>Le barème monte jusqu'à 45 %. Mais les niches font fondre ce qui est réellement payé, et d'autant plus que l'héritage est gros : les 0,1 % qui héritent le plus paient environ 10 % de ce qu'ils reçoivent, au lieu de 41 %.</p>
+          <h3>La faible taxation de l'héritage</h3>
+          <p class="nombre">Moins de 5 %<small>C'est ce que l'État prélève en moyenne sur tout ce qui se transmet (4,4 % selon le modèle du site).</small></p>
+          <p>En théorie, le barème monte jusqu'à 45 %. Mais les niches font fondre ce qui est réellement payé, et d'autant plus que l'héritage est important : les 0,1 % qui héritent le plus paient environ 10 % de tout ce qu'ils reçoivent, contre 31 % sur la seule part qu'ils déclarent.</p>
         </div>
         <div class="figure" id="fig-taux"></div>
       </article>
       <div class="niches" id="niches"></div>
-      <div class="verdict">
-        <b>&lt;&nbsp;5&nbsp;%</b>
-        <p>C'est ce que l'État prélève en moyenne sur tout ce qui se transmet. À peine 10 % pour les plus grandes fortunes.</p>
-      </div>
 
       </div>
 
       <article class="fait" style="margin-top:clamp(36px,5vw,64px)">
         <div class="texte" style="grid-column:1/-1">
-          <h3>Ce qu'on entend, ce qui est</h3>
-          <p class="discret">Touchez une carte pour la retourner.</p>
+          <h3>Déconstruire les mythes</h3>
+          <p class="discret">Touchez une carte pour découvrir la réalité.</p>
         </div>
       </article>
       <div class="mythes" id="mythes"></div>
@@ -137,7 +136,7 @@
     </div>
   </section>
 
-  <!-- 3. Simulateur -->
+  <!-- 3. Simulateur : taxer et dépenser, une seule réforme -->
   <section id="decider" class="simulateur bande">
     <div class="cadre">
       <div class="intro">
@@ -145,39 +144,54 @@
         <p>Partez d'un scénario, puis changez les taux, les seuils et les niches. Le simulateur calcule ce que rapporterait l'impôt chaque année jusqu'en 2040, pour l'ensemble des héritages.</p>
       </div>
       <div class="atelier">
-        <div>
-          <p class="etape">1. Choisissez un point de départ</p>
-          <div class="depart" id="depart" role="group" aria-label="Scénarios"></div>
-          <div class="reglages" id="reglages" hidden>
-            <p class="etape" style="margin:0">2. Ajustez le barème et les niches</p>
-            <div style="display:grid;gap:22px;margin-top:4px">
-              <div>
-                <h4>Barème, sur ce que chacun reçoit dans sa vie</h4>
-                <p class="aide">Seuil haut de chaque tranche (en euros) et taux appliqué.</p>
-                <div class="tranches" id="tranches"></div>
+        <div class="saisie">
+          <div class="parametres">
+            <p class="etape"><span class="pastille" aria-hidden="true">1</span><span><span class="sr">1. </span>Choisissez un point de départ</span></p>
+            <div class="depart" id="depart" role="group" aria-label="Scénarios"></div>
+            <div class="reglages" id="reglages" hidden>
+              <p class="etape" style="margin:0"><span class="pastille" aria-hidden="true">2</span><span><span class="sr">2. </span>Ajustez le barème et les niches</span></p>
+              <div style="display:grid;gap:22px;margin-top:4px">
+                <div>
+                  <h4>Barème, sur ce que chacun reçoit dans sa vie</h4>
+                  <p class="aide">Seuil haut de chaque tranche (en euros) et taux appliqué.</p>
+                  <div class="tranches" id="tranches"></div>
+                </div>
+                <div class="choix" id="choix"></div>
               </div>
-              <div class="choix" id="choix"></div>
             </div>
           </div>
+
+          <div class="depenser" id="recettes">
+            <p class="etape"><span class="pastille" aria-hidden="true">3</span><span><span class="sr">3. </span>Répartissez les recettes</span></p>
+            <h3>Et l'argent, on en fait quoi ?</h3>
+            <p class="aide">Votre réforme remplit un pot : les recettes en plus de l'année 2026. Distribuez-le entre les usages ; on ne peut pas dépenser plus que ce qu'il contient.</p>
+            <div class="usages" id="usages"></div>
+            <p class="pot-alerte" id="pot-alerte" hidden></p>
+            <div class="depenser-pied">
+              <button class="btn btn-ligne" type="button" id="pot-vider">Tout remettre dans le pot</button>
+            </div>
+            <p class="source">Budgets : PLF 2025 (crédits de paiement) ; défense : loi de programmation militaire 2024-2030 ; CSG : un point sur les revenus d'activité rapporte 12 Md€ (CCSS, mai 2026). Sur l'éducation, voir aussi les <a href="https://publicfinancelab.eu/nos-publications/">travaux du Public Finance Lab</a>.</p>
+          </div>
         </div>
+
         <aside class="resultats" aria-live="polite">
           <p class="titre" id="r-titre">Votre réforme rapporterait</p>
           <p class="gain" id="r-gain">—<small></small></p>
           <div class="mini">
-            <div><strong id="r-cumul">—</strong><span>de 2025 à 2040</span></div>
-            <div><strong id="r-taux">—</strong><span>prélevés sur tout ce qui se transmet en 2025, contre 4,4 % aujourd'hui</span></div>
+            <div><strong id="r-cumul">—</strong><span>de 2026 à 2040</span></div>
+            <div><strong id="r-taux">—</strong><span>prélevés sur tout ce qui se transmet en 2026, contre 4,4 % aujourd'hui</span></div>
           </div>
           <div id="fig-recettes"></div>
-          <div>
-            <p class="titre" style="margin-bottom:8px">Sur 100 héritiers, combien paieraient plus ?</p>
-            <div class="foule" id="foule" role="img"></div>
-            <p class="foule-legende" style="margin-top:8px">
-              <span><i style="background:var(--tampon)"></i><b id="n-plus">0</b> plus</span>
-              <span><i style="background:var(--nuit-serie-1)"></i><b id="n-moins">0</b> moins</span>
-              <span><i style="background:var(--nuit-trait)"></i><b id="n-egal">100</b> autant</span>
-            </p>
+          <div class="pot sous-carte">
+            <div class="pot-chiffres">
+              <div><span>Le pot</span><strong id="pot-total">—</strong></div>
+              <div><span>Attribué</span><strong id="pot-attribue">—</strong></div>
+              <div><span>Reste</span><strong id="pot-reste">—</strong></div>
+            </div>
+            <div class="repartition" id="repartition" role="img" aria-label="Répartition du pot"></div>
           </div>
           <div class="partage">
+            <button class="btn" type="button" id="repartir">Répartir mes recettes</button>
             <button class="btn btn-jaune" type="button" id="partager">Télécharger « Ma réforme de l'héritage »</button>
           </div>
         </aside>
@@ -185,42 +199,20 @@
     </div>
   </section>
   <div class="barre-mobile" id="barre-mobile" hidden>
-    <span>Ma réforme : <b id="bm-gain">—</b> par an</span>
-    <a class="btn" href="#decider" style="min-height:40px;padding:0 14px;background:#14284a;color:#f1f3ee;border-color:#14284a">Voir</a>
+    <span>Ma réforme : <b id="bm-gain">—</b> par an · <span id="bm-attribue">0</span> attribués</span>
+    <a class="btn btn-jaune" href="#decider">Voir</a>
   </div>
-
-  <!-- 4. Recettes -->
-  <section id="recettes" class="bande">
-    <div class="cadre">
-      <div class="intro">
-        <h2>Et l'argent, on en fait quoi ?</h2>
-        <p>Votre réforme remplit un pot : les recettes en plus de l'année 2025. Distribuez-le entre les usages ; on ne peut pas dépenser plus que ce qu'il contient.</p>
-      </div>
-      <div class="pot" aria-live="polite">
-        <div class="pot-chiffres">
-          <div><span>Le pot</span><strong id="pot-total">—</strong></div>
-          <div><span>Attribué</span><strong id="pot-attribue">—</strong></div>
-          <div><span>Reste à attribuer</span><strong id="pot-reste">—</strong></div>
-          <button class="btn btn-ligne" type="button" id="pot-vider">Tout remettre dans le pot</button>
-        </div>
-        <div class="repartition" id="repartition" role="img" aria-label="Répartition du pot"></div>
-        <p class="pot-alerte" id="pot-alerte" hidden></p>
-      </div>
-      <div class="usages" id="usages"></div>
-      <p class="source">Budgets : PLF 2025 (crédits de paiement) ; défense : loi de programmation militaire 2024-2030 ; CSG : un point sur les revenus d'activité rapporte 12 Md€ (CCSS, mai 2026). Sur l'éducation, voir aussi les <a href="https://publicfinancelab.eu/nos-publications/">travaux du Public Finance Lab</a>.</p>
-    </div>
-  </section>
 
   <!-- 5. S'engager -->
   <section id="engager" class="engager bande">
     <div class="cadre">
       <h2>Je soutiens la campagne</h2>
-      <p class="lecture" style="margin-top:14px;font-size:19px">Pour que les conditions de la transmission soient débattues et décidées ensemble, et que la grande transmission profite à tous.</p>
+      <p class="lecture" style="margin-top:14px;font-size:18px">Pour que les conditions de la transmission soient débattues et décidées ensemble, et que la grande transmission profite à tous.</p>
       <form class="formulaire" id="f-engager" novalidate>
         <label>Prénom<input id="e-prenom" name="prenom" type="text" autocomplete="given-name" required></label>
         <label>Adresse mail<input id="e-mail" name="email" type="email" autocomplete="email" required></label>
         <label>Code postal<input id="e-cp" name="cp" type="text" inputmode="numeric" pattern="[0-9]{5}" autocomplete="postal-code" required></label>
-        <button class="btn" type="submit">Je signe</button>
+        <button class="btn btn-jaune" type="submit">Je signe</button>
       </form>
       <p class="confirmation" id="e-confirmation" hidden></p>
       <p class="rgpd">Vos données ne servent qu'à la campagne et ne sont jamais cédées. Vous pouvez vous désinscrire à tout moment. Responsable du traitement : à compléter.</p>
@@ -245,11 +237,13 @@
       <label>Prénom<input type="text" id="p-prenom" autocomplete="given-name"></label>
       <label>Adresse mail<input type="email" id="p-mail" autocomplete="email" required></label>
       <label class="case"><input type="checkbox" id="p-signe" checked> Je signe pour une meilleure taxation des successions</label>
-      <button class="btn" type="submit" id="p-envoyer">Recevoir et signer</button>
+      <button class="btn btn-jaune" type="submit" id="p-envoyer">Recevoir et signer</button>
       <a class="btn btn-ligne" id="telecharger" download="ma-reforme-heritage.png" href="#">Télécharger l'image</a>
       <p class="confirmation" id="p-confirmation" hidden></p>
     </form>
   </div>
 </dialog>
+
+
 </body>
 </html>

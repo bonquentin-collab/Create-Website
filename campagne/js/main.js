@@ -1,5 +1,5 @@
-// Point d'entrée du site « L'héritage, ça se décide ».
-import { mur, graphiqueFlux, graphiquePiketty, gaufre, graphiqueTaux } from "./ui/graphiques.js";
+// Point d'entrée du site « L'héritage pour tous ».
+import { carreaux, pyramide, graphiqueFlux, graphiqueHeritage, graphiqueTaux } from "./ui/graphiques.js";
 import { fichesNiches, mythes, citationsTextes, donneesTaux } from "./ui/pedagogie.js";
 import { monterSimulateur } from "./ui/simulateur.js";
 import { monterRecettes } from "./ui/recettes.js";
@@ -10,13 +10,12 @@ const $ = (id) => document.getElementById(id);
 // Graphiques de chaque bulle, dessinés quand son panneau est visible (ils prennent la largeur réelle).
 const DESSINS = {
   "p-transmission": () => graphiqueFlux($("fig-flux")),
-  "p-retour": () => graphiquePiketty($("fig-piketty")),
-  "p-concentration": () => gaufre($("gaufre"), $("gaufre-legende"), $("source-patrimoine")),
+  "p-retour": () => graphiqueHeritage($("fig-heritage")),
+  "p-concentration": () => pyramide($("fig-topun")),
   "p-impot": () => graphiqueTaux($("fig-taux"), donneesTaux()),
 };
 
 function graphiques() {
-  mur($("mur"));
   document.querySelectorAll(".panneau:not([hidden])").forEach((p) => DESSINS[p.id]?.());
 }
 
@@ -57,6 +56,7 @@ function navigation() {
   maj();
 }
 
+carreaux($("carreaux"), $("carreaux-legende"));
 fichesNiches($("niches"));
 mythes($("mythes"));
 citationsTextes();

@@ -1,9 +1,11 @@
-// Section « Et l'argent, on en fait quoi ? » : le pot (recettes en plus de 2025, Md€) est réparti entre cinq usages.
+// Section « Et l'argent, on en fait quoi ? » : le pot (recettes en plus de la première année, 2026, Md€) est réparti entre cinq usages.
 // Au départ tout reste à attribuer ; un usage ne peut pas recevoir plus que ce qui reste dans le pot.
 import { usages } from "../donnees/sources.js";
 import { nombre } from "./format.js";
 
-const COULEURS = ["#2f6b4f", "#2f5da8", "#7a4fa0", "#5b6472", "#b07400"]; // texte blanc lisible sur chaque teinte
+const COULEURS = ["#2B7A59", "#290F95", "#ED174C", "#FFC93C", "#A33BB5"];
+const TEXTES = ["#fff", "#fff", "#fff", "#170B3B", "#fff"]; // texte lisible sur chaque teinte
+const TRAITS = ["#2B7A59", "#290F95", "#ED174C", "#C99400", "#A33BB5"]; // icônes : jaune foncé pour le contraste
 const ICONES = {
   ecologie: '<path d="M8 32c0-14 10-22 24-24-2 14-10 24-24 24z"/><path d="M8 32 22 18"/>',
   recherche: '<circle cx="17" cy="17" r="9"/><path d="m24 24 9 9"/><path d="M13 17h8M17 13v8"/>',
@@ -12,6 +14,9 @@ const ICONES = {
   csg: '<rect x="6" y="9" width="28" height="22" rx="2"/><path d="M6 15h28"/><path d="M13 23h6M24 21l4 4 4-4"/>',
 };
 const PAS = 0.1;
+const equivalent = (u, m) => (u.pointCsg
+  ? `${nombre(m / u.pointCsg, 1)} point de CSG en moins sur les salaires`
+  : `+${nombre((100 * m) / u.budget)} % ${u.unite}`);
 const arrondi = (x) => Math.round(x / PAS) * PAS;
 
 export function monterRecettes() {
@@ -23,7 +28,7 @@ export function monterRecettes() {
 
   $("usages").innerHTML = usages.map((u, i) => `
     <div class="usage">
-      <svg viewBox="0 0 40 40" aria-hidden="true" style="stroke:${COULEURS[i]}">${ICONES[u.id]}</svg>
+      <svg viewBox="0 0 40 40" aria-hidden="true" style="stroke:${TRAITS[i]}">${ICONES[u.id]}</svg>
       <label for="u-${u.id}">${u.nom}<small>${u.note}</small></label>
       <div class="usage-reglage">
         <input type="range" id="u-${u.id}" min="0" max="1" step="${PAS}" value="0" aria-describedby="q-${u.id}">
@@ -66,7 +71,7 @@ export function monterRecettes() {
     $("pot-vider").disabled = total === 0;
     // Jauge : une part par usage, puis le reste (hachuré).
     const segments = usages.map((u, i) => montants[u.id] > 0
-      ? `<span style="flex-grow:${montants[u.id]};background:${COULEURS[i]}" title="${u.nom} : ${nombre(montants[u.id], 1)} Md€">${montants[u.id] / Math.max(pot, 1e-9) >= 0.12 ? `${nombre(montants[u.id], 1)}` : ""}</span>` : "");
+      ? `<span style="flex-grow:${montants[u.id]};background:${COULEURS[i]};color:${TEXTES[i]}" title="${u.nom} : ${nombre(montants[u.id], 1)} Md€">${montants[u.id] / Math.max(pot, 1e-9) >= 0.12 ? `${nombre(montants[u.id], 1)}` : ""}</span>` : "");
     if (reste() > 0.05 || total === 0) segments.push(`<span class="reste" style="flex-grow:${Math.max(reste(), 0.001)}">${pot > 0 ? `Reste ${nombre(reste(), 1)} Md€` : "Pas de recettes en plus"}</span>`);
     $("repartition").innerHTML = segments.join("");
     $("repartition").setAttribute("aria-label", `Pot de ${nombre(pot, 1)} Md€ : ${nombre(total, 1)} attribués, ${nombre(reste(), 1)} restants.`);
@@ -79,11 +84,11 @@ export function monterRecettes() {
       const q = $(`q-${u.id}`);
       if (pot <= 0) q.textContent = "Votre réforme ne dégage pas de recettes en plus.";
       else if (m === 0) q.textContent = "Rien d'attribué pour l'instant.";
-      else q.innerHTML = u.pointCsg
-        ? `soit ${nombre(m / u.pointCsg, 1)} point de CSG en moins sur les salaires`
-        : `soit +${nombre((100 * m) / u.budget)} % ${u.unite}`;
+      else q.innerHTML = `soit ${equivalent(u, m)}`;
     });
-    document.dispatchEvent(new CustomEvent("repartition", { detail: { pot, reste: reste(), usages: usages.filter((u) => montants[u.id] > 0).map((u) => ({ nom: u.nom, montant: montants[u.id] })) } }));
+    const bm = $("bm-attribue");
+    if (bm) bm.textContent = `${nombre(total, 1)} Md€`;
+    document.dispatchEvent(new CustomEvent("repartition", { detail: { pot, reste: reste(), usages: usages.map((u, i) => ({ nom: u.nom, montant: montants[u.id], couleur: COULEURS[i], equivalent: equivalent(u, montants[u.id]) })).filter((u) => u.montant > 0) } }));
   }
 
   // Nouveau pot à chaque réglage de la réforme : si l'on a déjà trop attribué, tout est réduit dans la même proportion.
