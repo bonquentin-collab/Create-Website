@@ -55,6 +55,10 @@ la CSG, impôt sur le revenu, revalorisation des pensions), avec l'effet cumulé
 
 Site en ligne : https://bonquentin-collab.github.io/Create-Website/
 
+Le dépôt héberge aussi **EU Funding Gateway**, un guichet unique non officiel des financements européens ouverts
+(subventions, appels d'offres, fonds régionaux, instruments financiers), mis à jour chaque jour :
+https://bonquentin-collab.github.io/Create-Website/financements-ue/ (voir [`financements-ue/README.md`](financements-ue/README.md)).
+
 ## Travailler sur le site
 
 - Lancer en local : `npm run serve`, puis ouvrir http://localhost:8000 (Python requis)
@@ -65,7 +69,8 @@ Site en ligne : https://bonquentin-collab.github.io/Create-Website/
 ## Déploiement
 
 Le workflow `.github/workflows/site.yml` lance les tests sur chaque pull request et publie le dossier `site/`
-sur GitHub Pages à chaque push sur `main`. À activer une fois : Settings, puis Pages, puis Source « GitHub Actions ».
+sur GitHub Pages à chaque push sur `main` (avec `campagne/` et `financements-ue/`). Il collecte aussi chaque jour
+les données de `financements-ue/`. À activer une fois : Settings, puis Pages, puis Source « GitHub Actions ».
 
 ## Sources
 
