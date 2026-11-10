@@ -5,9 +5,16 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+  # Collecte quotidienne des financements européens (05:17 UTC), puis republication.
+  schedule:
+    - cron: '17 5 * * *'
 
 permissions:
   contents: read
+
+concurrency:
+  group: site-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   tests:
@@ -19,9 +26,40 @@ jobs:
           node-version: 22
       - run: npm test
 
-  deploy:
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+  # Met à jour financements-ue/data/ et la commite sur main (planifié ou lancé à la main).
+  financements-ue-data:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     needs: tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Collecter les sources
+        run: node tools/financements-ue/run.mjs
+      - name: Commiter les données
+        run: |
+          if git diff --quiet -- financements-ue/data; then
+            echo "Aucune donnée modifiée."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add financements-ue/data
+          git commit -m "Financements UE : données du $(date -u +%Y-%m-%d)"
+          git push
+
+  deploy:
+    # Après la collecte quand elle a tourné, sinon directement après les tests.
+    needs: [tests, financements-ue-data]
+    if: >-
+      always() &&
+      needs.tests.result == 'success' &&
+      (needs.financements-ue-data.result == 'success' || needs.financements-ue-data.result == 'skipped') &&
+      github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -31,12 +69,17 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # Relit main pour publier les données que la collecte vient de commiter.
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - uses: actions/configure-pages@v5
-      # Le site principal à la racine, le site de campagne sous /campagne/.
+      # Le site principal à la racine, le site de campagne sous /campagne/,
+      # le guichet des financements européens sous /financements-ue/.
       - run: |
           cp -r site _site
           cp -r campagne _site/campagne
+          cp -r financements-ue _site/financements-ue
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

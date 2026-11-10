@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EU Funding Gateway</title>
+  <meta name="description" content="Tous les financements européens ouverts au même endroit : subventions, appels d’offres, fonds régionaux et instruments financiers. Service indépendant, non officiel.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400;0,600;0,800;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <script type="module" src="assets/js/app.mjs"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Aller au contenu</a>
+  <header class="masthead">
+    <div class="masthead__inner">
+      <a class="brand" href="#/" aria-label="EU Funding Gateway, accueil">
+        <svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="3" width="26" height="26" rx="6" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M10 21V11h8M10 16h6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="22" cy="21" r="2.4" fill="currentColor"/></svg>
+        <span>EU Funding Gateway</span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
+      <nav id="nav" class="nav" aria-label="Navigation principale">
+        <a href="#/" data-route="explorer">Explorer</a>
+        <a href="#/calendrier" data-route="calendrier">Calendrier</a>
+        <a href="#/tableau-de-bord" data-route="tableau-de-bord">Tableau de bord</a>
+        <a href="#/fonds-regionaux" data-route="fonds-regionaux">Fonds régionaux</a>
+        <a href="#/instruments" data-route="instruments">Instruments financiers</a>
+        <a href="#/sources" data-route="sources">Sources</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="freshness" id="freshness" role="status" aria-live="polite"></div>
+
+  <main id="main" tabindex="-1">
+    <p class="loading">Chargement des données…</p>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <p><strong>Service indépendant, non officiel.</strong> EU Funding Gateway agrège des données publiques de la Commission européenne. La page officielle de chaque appel fait foi : vérifiez-y les conditions et les dates avant de candidater.</p>
+      <p><a href="#/sources">Sources et méthode</a></p>
+    </div>
+  </footer>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
