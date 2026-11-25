@@ -76,12 +76,13 @@ jobs:
       - uses: actions/configure-pages@v5
       # Le site principal à la racine, le site de campagne sous /campagne/,
       # le guichet des financements européens sous /financements-ue/,
-      # l'atlas de la Renaissance sous /atlas-renaissance/.
+      # l'atlas de la Renaissance sous /atlas-renaissance/, le jeu Dilution sous /fondateur/.
       - run: |
           cp -r site _site
           cp -r campagne _site/campagne
           cp -r financements-ue _site/financements-ue
           cp -r atlas-renaissance _site/atlas-renaissance
+          cp -r fondateur _site/fondateur
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

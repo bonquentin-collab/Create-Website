@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dilution : maquettes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  body { padding: 0; }
+  .cadre { width: 1280px; height: 820px; overflow: hidden; position: relative; background: var(--bureau); }
+  .cadre.mobile { width: 100%; max-width: 390px; height: 844px; }
+  .cadre.fond { display: grid; place-items: center; padding: 30px; }
+  .gap { height: 40px; background: #000; }
+  .cote-a-cote { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+</style>
+</head>
+<body>
+
+<!-- 1. Écran de jeu, bureau -->
+<section class="cadre" id="jeu" style="height:900px">
+  <header class="entete">
+    <h1 class="marque">Dilution<small>le jeu du fondateur qui ne lisait pas ses term sheets</small></h1>
+    <div class="calendrier"><strong>Mois 17</strong>Levée Seed en cours</div>
+    <button class="bouton-entete">Lexique</button>
+    <button class="bouton-entete" aria-pressed="true">Mode prof</button>
+  </header>
+  <div class="jauges apercu-actif" id="jauges"></div>
+  <main class="plateau">
+    <div class="scene">
+      <div class="qui" id="qui-ma"></div>
+      <article class="carte" style="transform: rotate(3deg) translateX(26px)">
+        <div class="bandeau-choix droite" style="opacity:.92">Signer</div>
+        <p class="ts-titre" style="margin-top:34px">Term sheet, strictement confidentielle</p>
+        <p class="ts-fonds">Marc-Antoine Capital</p>
+        <table class="ts">
+          <tr><th>Montant</th><td>3 M€</td></tr>
+          <tr><th>Valorisation pré-money</th><td>12 M€ <span class="ts-petit">(« la meilleure du marché, crois-moi »)</span></td></tr>
+          <tr><th>Préférence de liquidation</th><td><span class="piege">2x, participative</span></td></tr>
+          <tr><th>Anti-dilution</th><td><span class="piege">Ratchet total</span></td></tr>
+          <tr><th>Pool BSPCE</th><td><span class="piege">15 % post-money, créé en pré-money</span></td></tr>
+          <tr><th>Board</th><td>2 sièges investisseurs</td></tr>
+        </table>
+        <p class="ts-petit">« On signe ce soir et je t'invite à dîner. »</p>
+      </article>
+      <div class="choix">
+        <button class="g"><kbd>←</kbd> Négocier</button>
+        <button class="d">Signer <kbd>→</kbd></button>
+      </div>
+      <div class="outils">
+        <button class="outil">Décrypter cette offre</button>
+        <button class="outil discret">Journal</button>
+      </div>
+    </div>
+    <aside class="table">
+      <section class="bloc">
+        <h2>La table de capitalisation</h2>
+        <ul class="captable">
+          <li><i class="pastille" style="background:var(--galette)"></i>Vous<span class="pct">60,0 %</span></li>
+          <li><i class="pastille" style="background:var(--galette-2)"></i>Inès, cofondatrice<span class="pct">40,0 %</span></li>
+          <li><i class="pastille" style="background:var(--part-inv)"></i><span>Gérard &amp; co<span class="pref">BSA AIR de 200 k€, pas encore converti</span></span><span class="pct">0,0 %</span></li>
+        </ul>
+      </section>
+      <section class="bloc">
+        <h2>Les chiffres</h2>
+        <dl class="kpis">
+          <div><dt>Trésorerie</dt><dd>96 k€</dd></div>
+          <div><dt>Runway</dt><dd>4 mois</dd></div>
+          <div><dt>MRR</dt><dd>18,4 k€</dd></div>
+          <div><dt>Burn mensuel</dt><dd>42 k€</dd></div>
+        </dl>
+      </section>
+      <section class="bloc">
+        <h2>Le board</h2>
+        <div class="board"><i class="siege f"></i><i class="siege f"></i><span>&nbsp;2 fondateurs, la fève est à vous</span></div>
+      </section>
+    </aside>
+  </main>
+</section>
+
+<div class="gap"></div>
+
+<!-- 2. Mobile, carte vesting -->
+<section class="cadre mobile" id="mobile">
+  <header class="entete">
+    <h1 class="marque">Dilution</h1>
+    <div class="calendrier"><strong>Mois 1</strong>Pré-seed</div>
+  </header>
+  <div class="jauges" id="jauges-m"></div>
+  <main class="plateau">
+    <div class="scene">
+      <div class="qui" id="qui-ines"></div>
+      <article class="carte" style="transform: rotate(-2deg) translateX(-10px)">
+        <div class="bandeau-choix gauche" style="opacity:.9">On se fait confiance</div>
+        <p style="margin-top:44px">« Avant d'aller voir des investisseurs, je propose qu'on mette nos actions sous <span class="terme">vesting</span> : 4 ans, avec 1 an de <span class="terme">cliff</span>. »</p>
+        <p>« Si l'un de nous part tôt, il rend ce qui n'est pas acquis. Ce n'est pas que je doute de toi. Enfin, un peu de moi. »</p>
+      </article>
+      <div class="choix">
+        <button class="g"><kbd>←</kbd> On se fait confiance</button>
+        <button class="d">Signer le vesting <kbd>→</kbd></button>
+      </div>
+    </div>
+  </main>
+</section>
+
+<div class="gap"></div>
+
+<!-- 3. Décrypter -->
+<section class="cadre fond" id="decrypter">
+  <div class="panneau" style="max-width:760px">
+    <h2>Décrypter l'offre de Marc-Antoine Capital</h2>
+    <p class="sous">Ce que la term sheet annonce, et ce qu'elle fait vraiment à votre part.</p>
+    <div class="onglets" role="tablist">
+      <button role="tab" aria-selected="false">Ce que vous signez</button>
+      <button role="tab" aria-selected="true">Le calcul</button>
+      <button role="tab" aria-selected="false">À la vente</button>
+    </div>
+    <ol class="etapes">
+      <li><div><b>Le pool BSPCE est créé avant la levée.</b> Pour qu'il pèse 15 % après la levée, on crée 230 769 actions dont seuls les actionnaires actuels paient le prix.
+        <div class="formule">pré-money effective = 12 M€ − valeur du pool 2,25 M€ = <span class="piege">9,75 M€</span></div></div></li>
+      <li><div><b>Le prix par action.</b>
+        <div class="formule">12 000 000 € ÷ 1 230 769 actions = <span class="surligne">9,75 € par action</span></div></div></li>
+      <li><div><b>Le BSA AIR de Gérard se convertit.</b> Plafond de valorisation 2 M€, soit 2 € par action, bien plus bas que 9,75 € × 80 % (décote) = 7,80 €.
+        <div class="formule">200 000 € ÷ 2 € = <span class="piege">100 000 actions</span> <em>pour Gérard, 5 fois plus qu'il n'en aurait eu sans plafond</em></div></div></li>
+      <li><div><b>Votre part.</b>
+        <div class="formule">60,0 % <em>aujourd'hui</em> → <span class="surligne">36,6 %</span> <em>après signature, et non 48 % comme le laisse croire 3 M€ sur 15 M€</em></div></div></li>
+    </ol>
+  </div>
+</section>
+
+<div class="gap"></div>
+
+<!-- 4. À la vente + lexique -->
+<section class="cadre fond" id="vente">
+  <div class="cote-a-cote" style="max-width:1180px">
+    <div class="panneau">
+      <h2>À la vente</h2>
+      <p class="sous">Ce que vous toucheriez selon le prix de vente, avec chaque offre.</p>
+      <table class="compare">
+        <thead><tr><th>Prix de vente</th><th>36,6 % du prix</th><th>Claire (8 M€, 1x)</th><th>Marc-Antoine (12 M€, 2x part.)</th></tr></thead>
+        <tbody>
+          <tr><td>8 M€</td><td>2,9 M€</td><td>2,9 M€</td><td class="ecart">0,7 M€</td></tr>
+          <tr><td>20 M€</td><td>7,3 M€</td><td>7,9 M€</td><td class="ecart">5,1 M€</td></tr>
+          <tr><td>60 M€</td><td>22,0 M€</td><td>23,6 M€</td><td>19,8 M€</td></tr>
+        </tbody>
+      </table>
+      <p style="margin:16px 0 0;font-size:15.5px">Avec une préférence <span class="piege">2x participative</span>, Marc-Antoine récupère d'abord 6 M€, puis prend encore sa part du reste. L'offre « la mieux valorisée » vous rapporte moins à tous les prix.</p>
+    </div>
+    <div class="panneau">
+      <div class="definition">
+        <h3>Vesting</h3>
+        <p>Vos actions vous sont acquises petit à petit, et non le jour de la création.</p>
+        <div class="frise-vesting">
+          <span style="flex:12;background:var(--stabilo-rose)">cliff : 0 %</span>
+          <span style="flex:36;background:linear-gradient(90deg,var(--stabilo) 0,var(--galette) 100%)">puis 1/48 par mois jusqu'à 100 %</span>
+        </div>
+        <p class="ex">Inès part au mois 20 : elle garde 20/48 de ses actions, soit 167 000 sur 400 000. Le reste est annulé.</p>
+        <p><b>Le piège :</b> sans vesting, une associée qui part au bout de six mois garde ses 40 %. Les investisseurs appellent ça du « capital mort » et baissent leur offre.</p>
+      </div>
+      <div class="definition">
+        <h3>BSA AIR (le SAFE à la française)</h3>
+        <p>De l'argent versé aujourd'hui, transformé en actions à la prochaine levée, au prix le plus bas entre le prix du tour décoté et le plafond de valorisation.</p>
+        <p class="ex">Il ne change rien à votre part le jour où vous le signez. C'est pour ça qu'on l'oublie.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="gap"></div>
+
+<!-- 5. Fin -->
+<section class="cadre fond" id="fin" style="height:900px">
+  <div class="fin">
+    <h2>Mois 74 : vous vendez à Hexaflow pour 120 M€</h2>
+    <p style="margin:0;color:var(--encre-douce)">Trois levées, une crise, une Allemagne qui n'a pas marché et un CFO imposé. Bravo quand même.</p>
+    <div class="verdict">
+      <div class="naif"><span class="montant">16,8 M€</span><p>Ce que vous pensiez toucher : 14 % de 120 M€.</p></div>
+      <div><span class="montant">3,2 M€</span><p>Ce que vous touchez vraiment, après 41 M€ de préférences dont une 2x participative.</p></div>
+    </div>
+    <div class="fin-grille">
+      <div>
+        <h3>Le film de la dilution</h3>
+        <svg class="film" viewBox="0 0 440 220" width="100%">
+          <g stroke="var(--trait)"><path d="M40 20h390M40 70h390M40 120h390M40 170h390"/></g>
+          <text x="0" y="24">60 %</text><text x="0" y="74">40 %</text><text x="0" y="124">20 %</text><text x="4" y="174">0 %</text>
+          <path d="M40 20H120V71H210V96H290V110H330V128H430" stroke="var(--galette-croute)" stroke-width="3" fill="none"/>
+          <g fill="var(--papier)" stroke="var(--encre)" stroke-width="2"><circle cx="120" cy="71" r="5"/><circle cx="210" cy="96" r="5"/><circle cx="290" cy="110" r="5"/><circle cx="330" cy="128" r="5"/></g>
+          <text class="etiquette" x="126" y="64">Seed + BSA AIR</text>
+          <text class="etiquette" x="216" y="90">Série A</text>
+          <text class="etiquette" x="250" y="146">ratchet (crise)</text>
+          <text class="etiquette" x="336" y="122">Série B</text>
+          <text x="40" y="200">mois 0</text><text x="392" y="200">mois 74</text>
+        </svg>
+        <p style="font-size:14.5px;margin:6px 0 0;color:var(--encre-douce)">Cliquez sur un point pour revoir le calcul de chaque chute.</p>
+      </div>
+      <div>
+        <h3>Qui touche quoi sur 120 M€</h3>
+        <div class="cascade">
+          <div class="ligne"><span>Marc-Antoine</span><i class="barre" style="width:100%"></i><span class="val">38,1 M€</span><span class="mode">2x + participation</span></div>
+          <div class="ligne"><span>Fonds Série B</span><i class="barre" style="width:66%"></i><span class="val">25,0 M€</span><span class="mode">préférence 1x</span></div>
+          <div class="ligne"><span>Fonds Série A</span><i class="barre" style="width:55%"></i><span class="val">21,0 M€</span><span class="mode">conversion</span></div>
+          <div class="ligne"><span>Pool BSPCE</span><i class="barre esop" style="width:54%"></i><span class="val">20,7 M€</span></div>
+          <div class="ligne"><span>Gérard</span><i class="barre" style="width:22%"></i><span class="val">8,4 M€</span></div>
+          <div class="ligne"><span>Inès</span><i class="barre" style="width:10%;background:var(--galette-2)"></i><span class="val">3,6 M€</span></div>
+          <div class="ligne"><span><b>Vous</b></span><i class="barre vous" style="width:8.4%"></i><span class="val">3,2 M€</span></div>
+        </div>
+      </div>
+    </div>
+    <p style="margin:26px 0 0"><button class="bouton-plein">Rejouer</button> <button class="outil discret" style="color:var(--encre);border-color:var(--trait)">Voir les 9 clauses que vous avez signées</button></p>
+  </div>
+</section>
+
+<script type="module">
+  import { portrait } from '../js/portraits.js';
+  import { ICONES } from '../js/icones.js';
+  import { galette } from '../js/galette.js';
+
+  const qui = (id, nom, role) => `${portrait(id, 58)}<div><strong>${nom}</strong><span>${role}</span></div>`;
+  document.getElementById('qui-ma').innerHTML = qui('marcantoine', 'Marc-Antoine', 'associé chez Marc-Antoine Capital, « mais appelle-moi Marco »');
+  document.getElementById('qui-ines').innerHTML = qui('ines', 'Inès', 'votre cofondatrice');
+
+  const jauges = (niveaux, apercus, pct, parts, taille = 92) => `
+    ${[['tresorerie', 'Trésorerie'], ['equipe', 'Équipe'], ['produit', 'Produit'], ['investisseurs', 'Investisseurs']].map(([k, n], i) => `
+      <div class="jauge ${niveaux[i] < 25 ? 'basse' : ''}">
+        <i class="apercu ${apercus[i] ? 'on' : ''} ${apercus[i] === 1 ? 'petit' : ''}"></i>
+        ${ICONES[k]}
+        <div class="tube"><i style="height:${niveaux[i]}%"></i></div>
+        <span class="nom">${n}</span>
+      </div>`).join('')}
+    <div class="jauge-galette">${galette(parts, { taille })}<div><div class="chiffre">${pct}</div><div class="legende">votre part<br>de la galette</div></div></div>`;
+
+  const avant = [{ id: 'vous', categorie: 'fondateur', pct: .6 }, { id: 'ines', categorie: 'fondateur', pct: .4 }];
+  document.getElementById('jauges').innerHTML = jauges([18, 62, 55, 48], [2, 1, 0, 2], '60,0 %', avant);
+  document.getElementById('jauges-m').innerHTML = jauges([80, 60, 40, 50], [0, 2, 0, 1], '60 %', avant, 52);
+</script>
+</body>
+</html>
