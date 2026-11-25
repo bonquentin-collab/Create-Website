@@ -1,0 +1,106 @@
+/* Compléments du jeu : fenêtres, journal, lexique, écran de fin, interactions. */
+
+.evitement { position: absolute; left: -9999px; }
+.evitement:focus { left: 16px; top: 12px; z-index: 10; background: var(--stabilo); color: var(--encre); padding: 8px 12px; border-radius: 6px; }
+
+.pied { max-width: 1180px; margin: 0 auto; padding: 0 28px 28px; font: 500 13px/1.45 var(--titre); color: var(--sur-bureau-doux); }
+
+/* Mots du lexique cliquables dans les cartes */
+button.terme { border: 0; background: none; padding: 0; font: inherit; color: inherit; text-decoration: underline dotted 2px; text-underline-offset: 3px; cursor: help; }
+.carte button.terme:hover { background: var(--stabilo); }
+
+.carte { display: flex; flex-direction: column; }
+.carte.info { background: var(--papier-2); }
+.carte .prix-sortie { font: 800 40px/1 var(--titre); letter-spacing: -.02em; margin: 6px 0 14px; font-variant-numeric: tabular-nums; }
+.carte .ts td .piege, .carte .ts td .surligne { box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.carte.sortie-anim { transition: transform .3s ease, opacity .3s ease; }
+.carte .contenu { margin-top: 0; }
+.carte.drag .contenu, .carte.tilt .contenu { margin-top: 0; }
+
+.choix button:hover, .choix button:focus-visible { background: var(--bureau-2); }
+.choix button:disabled { opacity: .4; cursor: default; }
+
+.jauges .apercu.on { opacity: 1; }
+.jauge-galette { position: relative; background: none; border: 0; color: inherit; text-align: left; font: inherit; padding-top: 0; padding-bottom: 0; }
+.jauge-galette .chiffre, .jauge-galette .legende { display: block; }
+.jauge-galette:hover .chiffre { text-decoration: underline dotted 2px; text-underline-offset: 5px; }
+.carte.sans-transition { transition: none; }
+.jauge-galette .apercu { position: absolute; top: -12px; left: 40px; width: 10px; height: 10px; border-radius: 50%; background: var(--stabilo-rose); opacity: 0; }
+.jauge-galette .apercu.on { opacity: 1; }
+.jauge-galette .chiffre.bouge { animation: bouge .6s ease; }
+@keyframes bouge { 0% { color: var(--stabilo-rose); transform: translateY(-3px); } 100% { color: inherit; transform: none; } }
+
+.pourquoi { cursor: pointer; text-align: left; color: var(--sur-bureau); }
+.pourquoi:hover { border-color: var(--sur-bureau-doux); }
+.pourquoi b.hausse { color: var(--part-esop); }
+
+.captable li.vous { font-weight: 700; }
+.captable .attente { opacity: .75; }
+
+/* ───────── Fenêtres ───────── */
+.fenetre {
+  border: 0; padding: 0; background: transparent; max-width: min(820px, calc(100vw - 24px)); width: 100%;
+  max-height: calc(100dvh - 32px); color: var(--encre);
+}
+.fenetre::backdrop { background: rgba(8, 11, 40, .62); }
+.fenetre-corps { position: relative; background: var(--papier); border-radius: 16px; padding: 26px 28px; box-shadow: var(--ombre); overflow: auto; max-height: calc(100dvh - 32px); }
+.fenetre.large { max-width: min(1040px, calc(100vw - 24px)); }
+.fenetre h2 { font: 800 26px/1.1 var(--titre); margin: 0 36px 6px 0; letter-spacing: -.01em; }
+.fenetre .sous { margin: 0 0 18px; color: var(--encre-douce); }
+.fermer {
+  position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 50%;
+  border: 1px solid var(--trait); background: var(--papier); font: 600 22px/1 var(--titre);
+}
+.fenetre .onglets button { cursor: pointer; }
+.fenetre p { margin: 0 0 12px; }
+.fenetre .note { font-size: 14.5px; color: var(--encre-douce); }
+.lignes-ts { display: grid; gap: 14px; margin: 0; }
+.lignes-ts div { border-left: 4px solid var(--trait); padding-left: 14px; }
+.lignes-ts div.piege-ligne { border-left-color: var(--stabilo-rose); }
+.lignes-ts dt { font: 700 15px/1.3 var(--titre); }
+.lignes-ts dd { margin: 2px 0 0; }
+.lignes-ts .explique { font-size: 15px; color: var(--encre-douce); }
+
+/* Journal */
+.journal { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.journal li { display: grid; grid-template-columns: 70px 1fr auto; gap: 12px; align-items: baseline; padding: 10px 0; border-top: 1px solid var(--trait); }
+.journal .m { font: 600 13px/1.2 var(--titre); color: var(--encre-douce); }
+.journal b { font: 700 16px/1.3 var(--titre); display: block; }
+.journal .delta { font: 800 16px/1 var(--titre); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.journal .delta.baisse { color: var(--refuser); }
+.journal .delta.hausse { color: var(--signer); }
+.journal .etiquette-cachee { font: 700 12px/1 var(--titre); background: var(--stabilo-rose); color: var(--encre); border-radius: 4px; padding: 3px 6px; margin-left: 6px; }
+.lien { border: 0; background: none; padding: 0; font: 700 14px/1.3 var(--titre); color: var(--encre); text-decoration: underline; text-underline-offset: 3px; }
+
+/* Lexique */
+.lexique-nav { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+.lexique-nav button { border: 1px solid var(--trait); background: var(--papier); border-radius: 999px; padding: 6px 11px; font: 600 13.5px/1 var(--titre); }
+.lexique-nav button[aria-current="true"] { background: var(--encre); color: var(--papier); border-color: var(--encre); }
+.definition .piege-texte { margin-top: 4px; }
+
+/* Écran de fin */
+.fenetre .fin { box-shadow: none; padding: 0; max-width: none; }
+.film .point { cursor: pointer; }
+.film .point:hover circle, .film .point:focus circle { fill: var(--stabilo); }
+.fin .clauses { margin-top: 26px; }
+.fin .clauses ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.fin .actions { margin: 26px 0 0; display: flex; gap: 10px; flex-wrap: wrap; }
+.fin .actions .outil.discret { color: var(--encre); border-color: var(--trait); }
+
+@media (max-width: 900px) {
+  .fenetre-corps { padding: 20px 18px; }
+  .fenetre h2 { font-size: 22px; }
+  .journal li { grid-template-columns: 1fr auto; }
+  .journal .m { grid-column: 1 / -1; }
+  .pied { padding: 0 16px 20px; }
+  .calendrier { font-size: 13px; }
+  .calendrier strong { font-size: 17px; }
+  .bouton-entete { padding: 7px 10px; font-size: 13px; }
+  .entete { flex-wrap: wrap; }
+  .table { order: 2; }
+}
+@media (max-width: 520px) {
+  .entete .calendrier { margin-left: auto; }
+  #btn-journal, #btn-lexique, #btn-prof { flex: 1; }
+  .entete { row-gap: 10px; }
+}

@@ -63,6 +63,11 @@ Il héberge enfin l'**Atlas de la Renaissance peinte**, une carte interactive de
 expliqués en détail : https://bonquentin-collab.github.io/Create-Website/atlas-renaissance/ (voir
 [`atlas-renaissance/README.md`](atlas-renaissance/README.md)).
 
+Il héberge aussi **Dilution**, un jeu de cartes à deux choix sur le parcours d'un fondateur de startup : levées,
+term sheets, BSA AIR, pool BSPCE, anti-dilution, et à la fin la cascade de liquidation qui dit ce qu'on touche
+vraiment. Chaque calcul est expliqué pas à pas : https://bonquentin-collab.github.io/Create-Website/fondateur/
+(voir [`fondateur/README.md`](fondateur/README.md)).
+
 ## Travailler sur le site
 
 - Lancer en local : `npm run serve`, puis ouvrir http://localhost:8000 (Python requis)

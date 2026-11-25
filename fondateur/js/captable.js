@@ -50,6 +50,16 @@ export function lever(table, o) {
   let prix;
   if (o.poolPreMoney && cible > 0) {
     ajoutPool = poolPreMoney({ actionsExistantes: S, poolExistant: esop.actions, cible, montant: o.montant, preMoney: o.preMoney });
+    // Les BSA AIR convertis s'ajoutent au capital après la levée : on ajuste le pool par point fixe
+    // pour qu'il pèse bien `cible` une fois tout converti.
+    if (o.notes?.length) {
+      for (let i = 0; i < 40; i++) {
+        const p = o.preMoney / (S + ajoutPool);
+        const actionsNotes = o.notes.reduce((s, n) => s + n.montant / Math.min(p * (1 - (n.decote ?? 0)), n.plafondValo ? n.plafondValo / S : Infinity), 0);
+        const T = S + ajoutPool + o.montant / p + actionsNotes;
+        ajoutPool = Math.max(0, cible * T - esop.actions);
+      }
+    }
     esop.actions += ajoutPool;
     prix = o.preMoney / (S + ajoutPool);
   } else {

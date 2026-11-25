@@ -24,6 +24,10 @@ export const PORTRAITS = {
   mere: `${corps('#8d5fa8')}${tete('#efc6a4')}<path d="M16 34c-2-12 6-19 16-19s18 7 16 19c-2-6-4-9-6-10-6 3-15 3-20 0-3 1-5 4-6 10z" fill="#e9e9ef"/>${yeux}<path d="M28 41q4-2 8 0" stroke="#15182c" stroke-width="1.8" fill="none" stroke-linecap="round"/>`,
   // Théo, le CTO : bonnet, barbe, t-shirt noir.
   cto: `${corps('#25262b')}${tete('#d9a47c')}<path d="M18 37c1 10 7 14 14 14s13-4 14-14c-3 3-8 4-14 4s-11-1-14-4z" fill="#5a3a24"/><path d="M16 29c0-9 7-14 16-14s16 5 16 14z" fill="#e2452b"/><rect x="15" y="27" width="34" height="5" rx="2.5" fill="#b8341f"/>${yeux}`,
+  // Sophie, directrice de l'innovation d'un grand groupe : blazer rouge, badge, cheveux longs.
+  corporate: `${corps('#b8323a')}<rect x="38" y="52" width="8" height="6" rx="1" fill="#fbfbf8"/>${tete('#f0c7a5')}<path d="M15 50V30c0-10 7-15 17-15s17 5 17 15v20h-5V29c-6-3-18-3-24 0v21z" fill="#7a4a24"/>${yeux}${sourire}`,
+  // Bertrand, fonds de croissance : doudoune sans manches sur chemise, cheveux gris coiffés en arrière.
+  croissance: `${corps('#3d4a5c')}<path d="M24 48h16l-3 16H27z" fill="#a9c6e8"/>${tete('#e2b28a')}<path d="M17 30c0-9 7-14 15-14s15 5 15 14c-4-4-9-6-15-6s-11 2-15 6z" fill="#9a9aa2"/>${yeux}${sourire}`,
   // Le marché, personnage abstrait : un graphique qui parle.
   marche: `<rect x="6" y="10" width="52" height="44" rx="8" fill="#15182c"/><path d="M12 44l10-10 8 6 10-16 12 8" stroke="#ffe14d" stroke-width="3" fill="none" stroke-linejoin="round"/><circle cx="52" cy="32" r="3" fill="#ff8fc4"/>`,
 };
