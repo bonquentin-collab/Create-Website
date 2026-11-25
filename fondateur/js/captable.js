@@ -40,6 +40,8 @@ function trouverPool(t) {
  * Tour de financement en actions de préférence.
  * o : { id, nom, serie, montant, preMoney, poolCible, poolPreMoney, multiple, participatif, plafond, antiDilution, notes }
  * notes : BSA AIR / SAFE en attente [{ id, nom, montant, decote, plafondValo }] convertis à ce tour.
+ * participants : tour à plusieurs fonds [{ id, nom, montant }], tous au même prix et aux mêmes conditions
+ *   que le chef de file ; par défaut, le seul fonds décrit par `o`. `o.montant` est alors le total du tour.
  */
 export function lever(table, o) {
   const t = copie(table);
@@ -99,14 +101,17 @@ export function lever(table, o) {
     conversions.push({ id: n.id, nom: n.nom, prix: pc, actions });
   }
 
-  t.push({
-    id: o.id, nom: o.nom, categorie: 'investisseur', actions: nouvelles,
-    pref: {
-      serie: o.serie, investi: o.montant, prixOrig: prix, prixConv: prix,
-      multiple: o.multiple ?? 1, participatif: !!o.participatif, plafond: o.plafond ?? null,
-      antiDilution: o.antiDilution ?? 'moyenne',
-    },
-  });
+  const participants = o.participants ?? [{ id: o.id, nom: o.nom, montant: o.montant }];
+  for (const pa of participants) {
+    t.push({
+      id: pa.id, nom: pa.nom, categorie: 'investisseur', actions: pa.montant / prix,
+      pref: {
+        serie: o.serie, investi: pa.montant, prixOrig: prix, prixConv: prix,
+        multiple: o.multiple ?? 1, participatif: !!o.participatif, plafond: o.plafond ?? null,
+        antiDilution: o.antiDilution ?? 'moyenne',
+      },
+    });
+  }
 
   // Pool créé après la levée : il dilue tout le monde, nouveaux investisseurs compris.
   if (!o.poolPreMoney && cible > 0) {

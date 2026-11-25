@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 
 import { creerTable, lever, cascade, part, total, preferencesTotales } from '../fondateur/js/captable.js';
 import { nouvellePartie, partVous } from '../fondateur/js/etat.js';
-import { piocher, jouer, decrypter } from '../fondateur/js/moteur.js';
+import { piocher, jouer, decrypter, options, agirLevee, composerTour, genererOffres, valoMarche } from '../fondateur/js/moteur.js';
 import { contenus } from '../fondateur/js/contenus/fr/index.js';
 import { LEXIQUE } from '../fondateur/js/contenus/fr/lexique.js';
 
@@ -125,7 +125,13 @@ test('300 parties jouées au hasard : aucune erreur, chaque partie se termine', 
     while (!e.fin && coups < 800) {
       const c = piocher(e, contenus, rng);
       assert.ok(c, `partie ${i} : plus de carte au mois ${e.mois}`);
-      jouer(e, c, rng() < 0.5 ? 'gauche' : 'droite', rng);
+      if (c.type === 'levee') {
+        const ids = e.levee.offres.map((o) => o.id);
+        const t = rng();
+        if (t < 0.15) agirLevee(e, { type: 'negocier', id: ids[Math.floor(rng() * ids.length)] }, rng);
+        else if (t < 0.2) agirLevee(e, { type: 'refuser' }, rng);
+        else agirLevee(e, { type: 'signer', ids: ids.slice(0, 1 + Math.floor(rng() * ids.length)) }, rng);
+      } else jouer(e, c, Math.floor(rng() * options(c).length), rng);
       coups++;
     }
     assert.ok(e.fin, `partie ${i} sans fin`);
@@ -133,4 +139,36 @@ test('300 parties jouées au hasard : aucune erreur, chaque partie se termine', 
     proche(somme, e.fin.prix, 1);
     assert.ok(total(e.table) > 0);
   }
+});
+
+test('levée à plusieurs fonds : le chef de file fixe le prix, un suiveur trop éloigné se retire', () => {
+  const e = nouvellePartie();
+  e.mrr = 20_000;
+  e.levee = { etapeCible: 1, offres: [
+    { ...base, id: 'chef', nom: 'Chef', etapeCible: 1, montant: 2e6, preMoney: 10e6, sieges: 1, independant: 0, autres: [] },
+    { ...base, id: 'proche', nom: 'Proche', etapeCible: 1, montant: 1e6, preMoney: 9e6, sieges: 0, independant: 0, autres: [] },
+    { ...base, id: 'loin', nom: 'Loin', etapeCible: 1, montant: 1e6, preMoney: 6e6, sieges: 1, independant: 0, autres: [] },
+  ], messages: [] };
+  const c = composerTour(e, ['chef', 'proche', 'loin']);
+  assert.deepEqual(c.suiveurs.map((x) => x.id), ['proche']);
+  assert.deepEqual(c.refus.map((x) => x.id), ['loin']);
+  proche(c.tour.montant, 2e6 + 0.6e6);
+  agirLevee(e, { type: 'signer', ids: ['chef', 'proche', 'loin'] }, () => 0.5);
+  const prixChef = e.table.find((d) => d.id === 'chef').pref.prixOrig;
+  proche(e.table.find((d) => d.id === 'proche').pref.prixOrig, prixChef);
+  assert.ok(!e.table.some((d) => d.id === 'loin'));
+  assert.equal(e.etape, 1);
+});
+
+test('valorisations dans les fourchettes du marché pour chaque étape', () => {
+  const e = nouvellePartie();
+  for (const [etape, min, max] of [[1, 2e6, 9e6], [2, 8e6, 40e6], [3, 30e6, 130e6], [4, 90e6, 400e6]]) {
+    for (const mrr of [0, 10e3, 100e3, 1e6]) {
+      e.mrr = mrr;
+      const v = valoMarche(e, etape);
+      assert.ok(v >= min && v <= max, `étape ${etape}, MRR ${mrr} : ${v}`);
+    }
+  }
+  e.etape = 0;
+  assert.ok(genererOffres(e, contenus.cadre, Math.random).length >= 3);
 });

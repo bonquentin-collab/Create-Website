@@ -3,19 +3,21 @@ import cadreFr from '../../cadres/fr.js';
 import { CARTES, ROLES } from './cartes.js';
 import { LEXIQUE } from './lexique.js';
 import { euros, pct, mois } from './format.js';
-import { signerOffre, negocier, vendre, genererSortie, valoMarche, runway, partVous } from '../../moteur.js';
+import { vendre, valoMarche, runway, partVous } from '../../moteur.js';
 import { bouger, noter } from '../../etat.js';
 import { preferencesTotales } from '../../captable.js';
 
-const ACCROCHES = {
-  propre: "« J'ai lu vos chiffres deux fois. Voici une offre standard, sans surprise. Je préfère vous prévenir : je lis aussi les annexes. »",
-  flatteur: "« Franchement ? Tu es le meilleur fondateur que j'ai vu cette année. La valo, c'est la meilleure du marché, crois-moi. On signe ce soir et je t'invite à dîner. »",
-  corporate: "« Notre groupe croit énormément en vous. Nous apportons de l'argent et des synergies. Le droit de préemption ? Une simple formalité. »",
-  croissance: "« On aime les boîtes qui scalent. Notre préférence est un peu participative, mais plafonnée : c'est très standard chez nous. »",
+export const ACCROCHES = {
+  propre: "« J'ai lu vos chiffres deux fois. Offre standard, sans surprise. Je lis aussi les annexes. »",
+  flatteur: "« Tu es le meilleur fondateur que j'ai vu cette année. La valo la plus haute du marché, crois-moi. On signe ce soir ? »",
+  corporate: "« Notre groupe croit énormément en vous. De l'argent et des synergies. La préemption ? Une formalité. »",
+  croissance: "« On aime les boîtes qui scalent. Préférence un peu participative, mais plafonnée : très standard. »",
+  angels: "« Petit ticket, pas de siège, pas de chichis. On suit volontiers un fonds, on ne mène pas. »",
 };
-const APRES_NEGO = {
-  mieux: "« Bon. J'ai parlé à mes associés. On peut faire un geste. »",
-  pareil: "« C'est notre dernière offre. À prendre ou à laisser. »",
+export const ISSUES_NEGO = {
+  mieux: (n) => `${n} fait un geste : une clause s'améliore.`,
+  pareil: (n) => `${n} ne bouge pas : « C'est notre dernier mot. »`,
+  retrait: (n) => `${n} se retire : « Ce n'est pas vous, c'est notre thèse d'investissement. »`,
 };
 
 const info = (qui, texte, label = 'Continuer', extra = {}) => ({
@@ -32,23 +34,10 @@ export function lignesTermSheet(o) {
     { cle: 'Valorisation pré-money', val: euros(o.preMoney), terme: 'premoney' },
     { cle: 'Préférence de liquidation', val: pref, terme: o.participatif ? 'participative' : 'preference', piege: o.participatif || o.multiple > 1 },
     { cle: 'Anti-dilution', val: o.antiDilution === 'ratchet' ? 'Ratchet total' : 'Moyenne pondérée large', terme: o.antiDilution === 'ratchet' ? 'ratchet' : 'moyenne', piege: o.antiDilution === 'ratchet' },
-    { cle: 'Pool BSPCE', val: `${pct(o.poolCible, 0)} après la levée, créé ${o.poolPreMoney ? 'avant la levée' : 'après la levée'}`, terme: o.poolPreMoney ? 'shuffle' : 'bspce', piege: o.poolPreMoney && o.poolCible >= 0.15 },
-    { cle: 'Board', val: `${o.sieges} siège${o.sieges > 1 ? 's' : ''} investisseur${o.sieges > 1 ? 's' : ''}${o.independant ? ' et 1 indépendant' : ''}`, terme: 'board', piege: o.sieges >= 2 },
+    { cle: 'Pool BSPCE', val: o.poolCible ? `${pct(o.poolCible, 0)} après la levée, créé ${o.poolPreMoney ? 'avant la levée' : 'après la levée'}` : 'Pas de nouveau pool', terme: o.poolPreMoney ? 'shuffle' : 'bspce', piege: o.poolPreMoney && o.poolCible >= 0.15 },
+    { cle: 'Board', val: o.sieges ? `${o.sieges} siège${o.sieges > 1 ? 's' : ''} investisseur${o.sieges > 1 ? 's' : ''}${o.independant ? ' et 1 indépendant' : ''}` : 'Aucun siège', terme: 'board', piege: o.sieges >= 2 },
     ...(autres.length ? [{ cle: 'Autres clauses', val: autres.join(', '), terme: o.autres[0] === 'drag' ? 'drag' : 'preemption', piege: true }] : []),
   ];
-}
-
-function carteOffre(c, e) {
-  const o = c.offre;
-  return {
-    type: 'offre', qui: o.perso, offre: o,
-    texte: c.issue ? APRES_NEGO[c.issue] : ACCROCHES[o.profil],
-    g: o.negociee
-      ? { label: 'Refuser', effet: (et) => { noter(et, { type: 'evenement', titre: `Offre de ${o.nom} refusée`, texte: '' }); } }
-      : { label: 'Négocier', effet: (et, rng) => negocier(et, o, rng) },
-    d: { label: 'Signer', effet: (et) => signerOffre(et, o) },
-    diluteVisible: (cote) => cote === 'droite',
-  };
 }
 
 function carteSortie(c, e) {
@@ -81,14 +70,15 @@ export const contenus = {
   },
   special(c, e) {
     switch (c.special) {
-      case 'annonceLevee':
-        return info('claire', `Il vous reste ${mois(runway(e))} de trésorerie. Il est temps de lever votre ${cadreFr.etapes[Math.min(4, e.etape + 1)]}. Les term sheets vont arriver, une par une. Chaque mois de négociation se paie en trésorerie.`, 'Ouvrir la data room');
-      case 'offre':
-        return carteOffre(c, e);
-      case 'retrait':
-        return info(c.offre.perso, `« Finalement, on va passer. Ce n'est pas vous, c'est notre thèse d'investissement. » ${c.offre.nom} se retire.`);
+      case 'levee':
+        if (!e.levee) return null;
+        return {
+          type: 'levee', qui: 'claire', sansTemps: true, options: [],
+          texte: `Il vous reste ${mois(runway(e))} de trésorerie. Levée ${cadreFr.etapes[e.levee.etapeCible]} : choisissez un fonds chef de file, et éventuellement des fonds qui le suivent au même prix. Chaque négociation prend un mois.`,
+        };
       case 'echecLevee': {
         if (!e.levee) return null;
+        e.levee.offres = [];
         const avecInvestisseurs = e.table.some((d) => d.categorie === 'investisseur' && d.pref);
         return {
           qui: avecInvestisseurs ? 'claire' : 'mere',

@@ -1,7 +1,8 @@
 # Dilution, le jeu du fondateur
 
-Un jeu de cartes à deux choix (glisser à gauche ou à droite) sur le parcours d'un fondateur de startup. Vous levez des
-fonds, signez des term sheets, recrutez, survivez aux crises… et découvrez à la vente ce que vous touchez vraiment.
+Un jeu de cartes sur le parcours d'un fondateur de startup : chaque mois, une situation et deux ou trois cartes de
+choix. Vous levez des fonds, choisissez vos investisseurs, recrutez, survivez aux crises… et découvrez à la vente ce que
+vous touchez vraiment.
 
 Le sujet central est la dilution qu'on ne voit pas venir : un BSA AIR qui ne change rien le jour de la signature, un pool
 BSPCE créé avant la levée, une anti-dilution qui se réveille pendant une crise, une préférence de liquidation
@@ -11,9 +12,15 @@ En ligne : https://bonquentin-collab.github.io/Create-Website/fondateur/
 
 ## Ce que le joueur voit
 
+- **Les levées** : toutes les offres arrivent ensemble sur une table (fonds « propre », fonds flatteur, corporate,
+  club d'angels, fonds de croissance), avec des valorisations proches du marché français (Seed de 2 à 9 M€ de
+  pré-money, Série A de 8 à 40 M€…). On choisit un **chef de file**, qui fixe la valorisation et les conditions, et
+  éventuellement des fonds qui le **suivent** au même prix avec un ticket réduit. Un suiveur dont l'offre est plus de
+  15 % sous la valorisation du chef de file refuse de suivre. Négocier une offre prend un mois.
 - **Quatre jauges** (Trésorerie, Équipe, Produit, Investisseurs) : si l'une tombe à zéro, la partie s'arrête.
-- **La galette** : votre part du capital. La fève indique qui contrôle le board. Avant un choix, un point annonce les
-  jauges qui vont bouger, mais seule la dilution visible (l'argent du nouvel investisseur) est annoncée sur la galette.
+- **La galette** : votre part du capital. La fève indique qui contrôle le board. Au survol d'une carte de choix, un
+  point annonce les jauges qui vont bouger ; sur la galette, seule la dilution visible est annoncée.
+- **Le tableau de bord**, ouvert à la demande : cap table, chiffres (trésorerie, runway, MRR, burn) et board.
 - **Les outils pédagogiques**, pour qui veut comprendre :
   - « Décrypter cette offre » : ce que dit chaque clause, le calcul pas à pas (pré-money effective, prix par action,
     conversion du BSA AIR, anti-dilution, part réelle contre règle de trois) et ce que vous toucheriez à la vente ;
@@ -33,7 +40,7 @@ En ligne : https://bonquentin-collab.github.io/Create-Website/fondateur/
 | `js/moteur.js` | règles : mois qui passent, levées et offres, ventes, fins, aperçus, décryptage |
 | `js/cadres/` | cadres nationaux (`fr.js`) : noms des instruments, usages, financements locaux |
 | `js/contenus/fr/` | cartes, personnages, textes, lexique et mise en forme en français |
-| `js/ui.js` | interface : rendu, glisser, fenêtres pédagogiques |
+| `js/ui.js` | interface : situation, cartes de choix, table des offres, fenêtres pédagogiques |
 | `js/portraits.js`, `js/galette.js`, `js/icones.js` | dessins en SVG |
 | `maquettes/` | maquettes d'intention (HTML et captures) |
 

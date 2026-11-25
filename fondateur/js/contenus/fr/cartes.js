@@ -134,15 +134,17 @@ export const CARTES = [
         bouger(e, { equipe: 10, investisseurs: 5 });
       },
     },
-    diluteVisible: () => false,
   },
 
   // ───────── Produit ─────────
   {
     id: 'dette-technique', qui: 'cto', delai: 14,
     texte: "« Le code ressemble à un plat de spaghetti que quelqu'un aurait renversé. Il me faut trois mois pour tout refaire. »",
-    g: { label: 'Plus tard, on livre', effet: (e) => { bouger(e, { produit: -10, equipe: -5 }); e.croissanceBonus += 0.01; } },
-    d: { label: 'Trois mois de refonte', effet: (e) => { bouger(e, { produit: 16, equipe: 5 }); e.croissanceBonus -= 0.02; } },
+    options: [
+      { label: 'Plus tard, on livre', effet: (e) => { bouger(e, { produit: -10, equipe: -5 }); e.croissanceBonus += 0.01; } },
+      { label: 'Refondre le cœur seulement', effet: (e) => { bouger(e, { produit: 7 }); e.croissanceBonus -= 0.008; } },
+      { label: 'Trois mois de refonte', effet: (e) => { bouger(e, { produit: 16, equipe: 5 }); e.croissanceBonus -= 0.02; } },
+    ],
   },
   {
     id: 'pivot-ia', qui: 'marcantoine', unique: true,
@@ -176,8 +178,11 @@ export const CARTES = [
   {
     id: 'pub', qui: 'cto', delai: 10,
     texte: "« Si on double le budget d'acquisition payante, les courbes montent. Le coût par client aussi, mais les courbes montent. »",
-    g: { label: 'Croissance organique', effet: (e) => bouger(e, { investisseurs: -3 }) },
-    d: { label: 'Doubler le budget', effet: (e) => { e.burn += 12_000; e.croissanceBonus += 0.045; } },
+    options: [
+      { label: 'Croissance organique', effet: (e) => bouger(e, { investisseurs: -3 }) },
+      { label: 'Tester un seul canal', effet: (e) => { e.burn += 4_000; e.croissanceBonus += 0.015; } },
+      { label: 'Doubler le budget', effet: (e) => { e.burn += 12_000; e.croissanceBonus += 0.045; } },
+    ],
   },
   {
     id: 'prix', qui: 'claire', delai: 14, cond: aInvestisseurs,
@@ -208,8 +213,11 @@ export const CARTES = [
   {
     id: 'crise', qui: 'marche', delai: 30, cond: (e) => e.mois >= 14 && e.marche > 0.85, poids: 0.8,
     texte: "Les taux montent, les fonds gèlent leurs investissements et les valorisations s'effondrent de 40 %. Sur LinkedIn, tout le monde parle soudain de « rentabilité ».",
-    g: { label: 'Couper le burn de 30 %', effet: (e) => { e.marche *= 0.6; e.burn *= 0.7; bouger(e, { equipe: -15 }); e.croissanceBonus -= 0.02; } },
-    d: { label: 'Garder le cap', effet: (e) => { e.marche *= 0.6; bouger(e, { investisseurs: -10 }); } },
+    options: [
+      { label: 'Couper le burn de 30 %', effet: (e) => { e.marche *= 0.6; e.burn *= 0.7; bouger(e, { equipe: -15 }); e.croissanceBonus -= 0.02; } },
+      { label: 'Garder le cap', effet: (e) => { e.marche *= 0.6; bouger(e, { investisseurs: -10 }); } },
+      { label: 'Passer à quatre jours payés quatre', effet: (e) => { e.marche *= 0.6; e.burn *= 0.85; bouger(e, { equipe: -5, produit: -6 }); } },
+    ],
   },
   {
     id: 'bulle', qui: 'marche', delai: 30, cond: (e) => e.mois >= 6 && e.marche < 1.2, poids: 0.6,
@@ -220,8 +228,11 @@ export const CARTES = [
   {
     id: 'concurrent', qui: 'marche', delai: 24,
     texte: 'Un concurrent américain lève 80 M$. Son PDG explique sur un podcast que votre marché « est déjà gagné ».',
-    g: { label: 'Se concentrer sur une niche', effet: (e) => { bouger(e, { produit: 10, investisseurs: -5 }); e.croissanceBonus -= 0.01; } },
-    d: { label: 'Accélérer', effet: (e) => { e.burn += 18_000; e.croissanceBonus += 0.03; } },
+    options: [
+      { label: 'Se concentrer sur une niche', effet: (e) => { bouger(e, { produit: 10, investisseurs: -5 }); e.croissanceBonus -= 0.01; } },
+      { label: 'Ignorer et continuer', effet: (e) => bouger(e, { investisseurs: -3, equipe: 2 }) },
+      { label: 'Accélérer', effet: (e) => { e.burn += 18_000; e.croissanceBonus += 0.03; } },
+    ],
   },
   {
     id: 'reglementation', qui: 'avocat', unique: true, cond: (e) => e.mois >= 12,
@@ -302,8 +313,8 @@ export const CARTES = [
         });
         bouger(e, { investisseurs: -4, equipe: 4 });
       },
+      diluteVisible: true,
     },
-    diluteVisible: (cote) => cote === 'droite',
   },
   {
     id: 'crowdfunding', qui: 'cto', unique: true, cond: (e) => e.etape <= 1 && e.mois >= 4,
@@ -321,8 +332,8 @@ export const CARTES = [
         });
         bouger(e, { produit: 5, investisseurs: -10 });
       },
+      diluteVisible: true,
     },
-    diluteVisible: (cote) => cote === 'droite',
   },
 ];
 
