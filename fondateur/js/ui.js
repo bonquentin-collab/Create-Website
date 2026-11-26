@@ -2,7 +2,7 @@
 import { nouvellePartie, partVous, runway, jauges, feve } from './etat.js';
 import { piocher, jouer, apercu, decrypter, options, agirLevee, composerTour, SEUIL_SUIVEUR } from './moteur.js';
 import { cascade } from './captable.js';
-import { contenus, lignesTermSheet, ACCROCHES, ISSUES_NEGO } from './contenus/fr/index.js';
+import { contenus, lignesTermSheet, ACCROCHES, ISSUES_NEGO, semaines } from './contenus/fr/index.js';
 import { terme } from './contenus/fr/lexique.js';
 import { euros, eurosPrecis, pct, nombre, mois } from './contenus/fr/format.js';
 import { portrait } from './portraits.js';
@@ -19,6 +19,8 @@ let e;
 let carte;
 let prof = stock.lire('dilution-prof') === '1';
 let selection = []; // offres choisies pendant une levée, le chef de file en premier
+let appris = stock.lire('dilution-glisse') === '1'; // le joueur a déjà tiré une carte : plus besoin d'aide
+let voirChoix = false; // « Afficher les choix » demandé pour la carte en cours
 
 const points = (x) => `${x > 0 ? '+' : '−'}${pct(Math.abs(x)).replace(' %', '')} pt`;
 const texteRiche = (t) => (typeof t === 'function' ? t(e) : t ?? '')
@@ -37,6 +39,7 @@ function demarrer() {
 function suivante() {
   carte = piocher(e, contenus, Math.random);
   selection = [];
+  voirChoix = false;
   rendre();
   if (e.fin) afficherFin();
 }
@@ -123,24 +126,28 @@ function rendre() {
   void el.offsetWidth;
   el.style.transition = '';
   el.classList.add('entre');
-  // Choix binaire (ou carte d'information) : la carte se tire à gauche ou à droite, le choix apparaît en bandeau.
+  // La carte se tire : à gauche la première option, vers le haut l'option du milieu, à droite la dernière.
   const opts = carte.type === 'levee' ? [] : options(carte);
-  const glissable = opts.length === 2 || (opts.length === 1 && carte.info);
+  const sens = sensOptions(opts.length, carte.info);
+  const glissable = opts.length > 0;
   el.classList.toggle('glissable', glissable);
-  const bandeaux = glissable
-    ? (opts.length === 2 ? `<div class="bandeau-choix gauche" aria-hidden="true">← ${libelle(opts[0].label)}</div>` : '')
-      + `<div class="bandeau-choix droite" aria-hidden="true">${libelle(opts[opts.length - 1].label)} →</div>`
+  el.classList.toggle('trois', opts.length === 3);
+  const bandeau = (cote, fleche) => (sens[cote] !== undefined ? `<div class="bandeau-choix ${cote}" aria-hidden="true">${cote === 'gauche' ? `${fleche} ` : ''}${libelle(opts[sens[cote]].label)}${cote !== 'gauche' ? ` ${fleche}` : ''}</div>` : '');
+  const indice = glissable && !appris
+    ? `<p class="indice" aria-hidden="true">${opts.length === 1 ? `Tirez la carte vers la droite pour continuer.` : `Tirez la carte${['gauche', 'haut', 'droite'].filter((c) => sens[c] !== undefined).map((c) => ` ${({ gauche: 'à gauche', haut: 'vers le haut', droite: 'à droite' })[c]} pour « ${libelle(opts[sens[c]].label)} »`).join(',')}.`}</p>`
     : '';
-  el.innerHTML = bandeaux + corpsCarte() + (glissable ? '<p class="indice" aria-hidden="true">Tirez la carte vers la gauche ou la droite pour voir les choix</p>' : '');
-
+  el.innerHTML = (glissable ? bandeau('gauche', '←') + bandeau('haut', '↑') + bandeau('droite', '→') : '') + corpsCarte() + indice;
   $('options').className = carte.type === 'levee' ? 'options levee' : 'options';
   if (carte.type === 'levee') rendreLevee();
   else {
-    const opts = options(carte);
-    $('options').innerHTML = opts.map((o, i) => `<button type="button" class="option${opts.length === 1 ? ' seule' : ''}" data-choix="${i}"><kbd>${i + 1}</kbd>${libelle(o.label)}</button>`).join('');
+    const fleches = Object.fromEntries(Object.entries(sens).map(([c, i]) => [i, ({ gauche: '←', haut: '↑', droite: '→' })[c]]));
+    $('options').innerHTML = opts.map((o, i) => `<button type="button" class="option${opts.length === 1 ? ' seule' : ''}" data-choix="${i}"><kbd>${fleches[i] ?? i + 1}</kbd>${libelle(o.label)}</button>`).join('');
+    // Une fois le geste appris, les choix ne s'affichent que sur demande.
+    $('options').classList.toggle('masque', appris && !voirChoix);
   }
 
   const outils = [];
+  if (appris && carte.type !== 'levee' && !voirChoix) outils.push('<button class="lien-discret" type="button" data-action="voir-choix">Afficher les choix</button>');
   if (carte.type === 'sortie') outils.push('<button class="outil" type="button" data-action="sortie">Qui toucherait quoi ?</button>');
   if (carte.calcul) outils.push('<button class="outil" type="button" data-action="calcul">Voir le calcul</button>');
   $('outils').innerHTML = outils.join('');
@@ -162,7 +169,7 @@ function statutOffre(o) {
 
 function rendreLevee() {
   const dernier = e.levee.messages[e.levee.messages.length - 1];
-  const nego = dernier && dernier.mois === e.mois - 1 ? `<p class="nego">${ISSUES_NEGO[dernier.issue](dernier.nom)}</p>` : '';
+  const nego = dernier ? `<p class="nego">${ISSUES_NEGO[dernier.issue](dernier.nom)}${dernier.semaines ? ` (${semaines(dernier.semaines)} de discussions)` : ''}${e.levee.semaines ? ` Ce mois-ci, ${semaines(e.levee.semaines)} déjà passées à négocier.` : ''}</p>` : '';
   const cartes = e.levee.offres.map((o) => {
     const st = statutOffre(o);
     const lignes = lignesTermSheet(o).map((l) => `<tr><th>${l.cle}</th><td>${prof && l.piege ? `<span class="piege">${l.val}</span>` : l.val}</td></tr>`).join('');
@@ -174,8 +181,9 @@ function rendreLevee() {
       <p class="citation">${ACCROCHES[o.profil]}</p>
       <div class="actions">
         <button type="button" class="prendre" data-offre="${o.id}">${st ? 'Retirer' : selection.length ? 'Ajouter au tour' : 'Choisir comme chef de file'}</button>
-        <button type="button" data-negocier="${o.id}" ${o.dernierMot ? 'disabled title="Le fonds a donné son dernier mot"' : ''}>Négocier (1 mois)</button>
+        <button type="button" data-negocier="${o.id}" ${o.dernierMot ? 'disabled title="Le fonds a donné son dernier mot"' : ''}>Négocier</button>
         <button type="button" data-decrypter="${o.id}">Décrypter</button>
+        <button type="button" data-ecarter="${o.id}" title="Retirer cette offre de la table, sans perdre de temps">Écarter</button>
       </div>
     </article>`;
   }).join('');
@@ -200,7 +208,7 @@ function rendreLevee() {
       <div class="boutons">
         <button type="button" class="signer" data-signer ${selection.length ? '' : 'disabled'}>${selection.length > 1 ? `Signer avec ${selection.length} fonds` : 'Signer'}</button>
         ${selection.length ? '<button type="button" class="refuser" data-decrypter-tour>Décrypter ce tour</button>' : ''}
-        <button type="button" class="refuser" data-refuser>Refuser toutes les offres</button>
+        <button type="button" class="refuser" data-refuser title="${runway(e) < 4 ? `Sans levée, il vous reste ${mois(runway(e))} : il faudra couper fort dans les dépenses.` : 'Sans levée, il faudra réduire les dépenses ou trouver un pont.'}">Refuser toutes les offres</button>
       </div>
     </div>`;
 }
@@ -227,11 +235,17 @@ function choisir(index) {
   suivante();
 }
 
-// Tirer la carte : à gauche la première option, à droite la dernière. Le bandeau du choix apparaît en tirant.
+// Tirer la carte : le bandeau du choix apparaît, et au-delà du seuil le choix est validé.
 function brancherGlisser() {
   const el = $('carte');
   const SEUIL = 90;
-  let x0 = null; let y0 = 0; let dx = 0; let horizontal = null;
+  let x0 = null; let y0 = 0; let dx = 0; let dy = 0; let axe = null; let deplace = false;
+  const sens = () => sensOptions(options(carte).length, carte.info);
+  const cote = () => {
+    if (axe === 'x') return Math.abs(dx) > 20 ? (dx < 0 ? 'gauche' : 'droite') : null;
+    if (axe === 'y') return dy < -20 ? 'haut' : null;
+    return null;
+  };
   const remettre = () => {
     el.classList.remove('tire');
     el.style.transform = '';
@@ -241,52 +255,76 @@ function brancherGlisser() {
   el.addEventListener('pointerdown', (ev) => {
     const bouton = ev.target.closest('button');
     if (!el.classList.contains('glissable') || (bouton && !bouton.classList.contains('terme')) || ev.button > 0) return;
-    x0 = ev.clientX; y0 = ev.clientY; dx = 0; horizontal = null;
+    x0 = ev.clientX; y0 = ev.clientY; dx = 0; dy = 0; axe = null; deplace = false;
   });
   el.addEventListener('pointermove', (ev) => {
     if (x0 === null) return;
     const ddx = ev.clientX - x0;
     const ddy = ev.clientY - y0;
-    if (horizontal === null && Math.hypot(ddx, ddy) > 8) {
-      horizontal = Math.abs(ddx) > Math.abs(ddy);
-      if (!horizontal) { x0 = null; return; } // geste vertical : on laisse défiler la page
+    const s = sens();
+    if (axe === null && Math.hypot(ddx, ddy) > 8) {
+      if (Math.abs(ddx) > Math.abs(ddy)) axe = 'x';
+      else if (ddy < 0 && s.haut !== undefined) axe = 'y';
+      else { x0 = null; return; } // geste vers le bas, ou vertical sans option du haut : la page défile
+      deplace = true;
       el.setPointerCapture(ev.pointerId);
       el.classList.add('tire');
     }
-    if (!horizontal) return;
-    const n = options(carte).length;
-    dx = n === 1 ? Math.max(0, ddx) : ddx;
-    // La carte suit le doigt avec un peu de résistance : elle reste lisible à l'écran.
-    el.style.transform = `translateX(${dx * 0.55}px) rotate(${dx / 40}deg)`;
-    const g = el.querySelector('.bandeau-choix.gauche');
-    const d = el.querySelector('.bandeau-choix.droite');
-    if (g) g.style.opacity = dx < 0 ? Math.min(1, -dx / 60) : 0;
-    if (d) d.style.opacity = dx > 0 ? Math.min(1, dx / 60) : 0;
-    montrerApercu(Math.abs(dx) > 20 ? (dx < 0 ? 0 : n - 1) : null);
+    if (!axe) return;
+    if (axe === 'x') {
+      dx = s.gauche === undefined ? Math.max(0, ddx) : ddx;
+      // La carte suit le doigt avec un peu de résistance : elle reste lisible à l'écran.
+      el.style.transform = `translateX(${dx * 0.55}px) rotate(${dx / 40}deg)`;
+    } else {
+      dy = Math.min(0, ddy);
+      el.style.transform = `translateY(${dy * 0.5}px)`;
+    }
+    const c = cote();
+    el.querySelectorAll('.bandeau-choix').forEach((b) => {
+      const k = b.classList.contains('gauche') ? 'gauche' : b.classList.contains('haut') ? 'haut' : 'droite';
+      const force = k === 'gauche' ? -dx : k === 'droite' ? dx : -dy;
+      b.style.opacity = c === k ? Math.min(1, force / 60) : 0;
+    });
+    montrerApercu(c ? s[c] : null);
   });
   const lacher = () => {
     if (x0 === null) return;
     x0 = null;
-    if (!horizontal) return;
-    if (Math.abs(dx) > SEUIL) {
-      const index = dx < 0 ? 0 : options(carte).length - 1;
-      const sens = Math.sign(dx);
+    if (!axe) return;
+    const force = axe === 'x' ? Math.abs(dx) : -dy;
+    const c = cote();
+    if (force > SEUIL && c && sens()[c] !== undefined) {
+      const index = sens()[c];
       el.classList.remove('tire');
       el.classList.add('part');
-      el.style.transform = `translateX(${sens * 120}%) rotate(${sens * 14}deg)`;
+      el.style.transform = c === 'haut' ? 'translateY(-60%)' : `translateX(${c === 'gauche' ? -120 : 120}%) rotate(${c === 'gauche' ? -14 : 14}deg)`;
       el.style.opacity = '0';
-      setTimeout(() => { el.classList.remove('part'); el.style.opacity = ''; choisir(index); }, matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 220);
+      if (!appris) { appris = true; stock.ecrire('dilution-glisse', '1'); }
+      setTimeout(() => { el.classList.remove('part'); choisir(index); }, matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 220);
     } else remettre();
   };
   el.addEventListener('pointerup', lacher);
-  // Un geste parti d'un mot du lexique ne doit pas ouvrir le lexique en plus.
-  el.addEventListener('click', (ev) => { if (Math.abs(dx) > 8) { ev.stopPropagation(); ev.preventDefault(); dx = 0; } }, true);
   el.addEventListener('pointercancel', () => { x0 = null; remettre(); });
+  // Un geste parti d'un mot du lexique ne doit pas ouvrir le lexique en plus.
+  el.addEventListener('click', (ev) => { if (deplace) { ev.stopPropagation(); ev.preventDefault(); deplace = false; } }, true);
 }
 
 function actionLevee(action) {
+  const garde = action.type === 'signer' || action.type === 'refuser' ? [] : selection;
   agirLevee(e, action, Math.random);
   suivante();
+  if (carte?.type === 'levee') {
+    selection = garde.filter((id) => e.levee.offres.some((o) => o.id === id));
+    rendreLevee();
+  }
+}
+
+// Quelle direction pour quelle option : gauche la première, haut celle du milieu, droite la dernière.
+function sensOptions(n) {
+  if (n === 1) return { droite: 0 };
+  if (n === 2) return { gauche: 0, droite: 1 };
+  if (n === 3) return { gauche: 0, haut: 1, droite: 2 };
+  return {};
 }
 
 // ───────── Fenêtres ─────────
@@ -468,7 +506,7 @@ function afficherFin() {
 // ───────── Délégation des clics et du clavier ─────────
 
 document.addEventListener('click', (ev) => {
-  const t = ev.target.closest('[data-terme],[data-action],[data-onglet],[data-journal],[data-fermer],[data-choix],[data-offre],[data-negocier],[data-decrypter],[data-decrypter-tour],[data-signer],[data-refuser]');
+  const t = ev.target.closest('[data-terme],[data-action],[data-onglet],[data-journal],[data-fermer],[data-choix],[data-offre],[data-negocier],[data-decrypter],[data-decrypter-tour],[data-signer],[data-refuser],[data-ecarter]');
   if (!t) return;
   const ds = t.dataset;
   if (ds.fermer !== undefined) $('fenetre').close();
@@ -482,6 +520,7 @@ document.addEventListener('click', (ev) => {
     selection = selection.includes(ds.offre) ? selection.filter((x) => x !== ds.offre) : [...selection, ds.offre];
     rendreLevee();
   } else if (ds.negocier) actionLevee({ type: 'negocier', id: ds.negocier });
+  else if (ds.ecarter) { selection = selection.filter((x) => x !== ds.ecarter); actionLevee({ type: 'ecarter', id: ds.ecarter }); }
   else if (ds.decrypter) {
     const o = e.levee.offres.find((x) => x.id === ds.decrypter);
     decryptage = { tour: o, titre: `Décrypter l'offre de ${o.nom}` };
@@ -492,6 +531,7 @@ document.addEventListener('click', (ev) => {
     ouvrirDecrypter();
   } else if (ds.signer !== undefined) { if (selection.length) actionLevee({ type: 'signer', ids: selection }); }
   else if (ds.refuser !== undefined) actionLevee({ type: 'refuser' });
+  else if (ds.action === 'voir-choix') { voirChoix = true; $('options').classList.remove('masque'); t.remove(); $('options').querySelector('button')?.focus(); }
   else if (ds.action === 'sortie') ouvrirSortie();
   else if (ds.action === 'calcul') ouvrirCalcul(carte.calcul, { titre: 'Le calcul de cette levée', mois: e.mois });
   else if (ds.action === 'journal') ouvrirJournal();
@@ -512,6 +552,11 @@ addEventListener('keydown', (ev) => {
   }
   if ($('fenetre').open || ev.altKey || ev.ctrlKey || ev.metaKey || ev.target.matches('input, textarea')) return;
   if (/^[1-9]$/.test(ev.key)) choisir(Number(ev.key) - 1);
+  const direction = { ArrowLeft: 'gauche', ArrowUp: 'haut', ArrowRight: 'droite' }[ev.key];
+  if (direction && carte && carte.type !== 'levee') {
+    const i = sensOptions(options(carte).length, carte.info)[direction];
+    if (i !== undefined) { ev.preventDefault(); choisir(i); }
+  }
 });
 $('fenetre').addEventListener('click', (ev) => { if (ev.target === $('fenetre')) $('fenetre').close(); });
 

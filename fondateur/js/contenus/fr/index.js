@@ -18,7 +18,9 @@ export const ISSUES_NEGO = {
   mieux: (n) => `${n} fait un geste : une clause s'améliore.`,
   pareil: (n) => `${n} ne bouge pas : « C'est notre dernier mot. »`,
   retrait: (n) => `${n} se retire : « Ce n'est pas vous, c'est notre thèse d'investissement. »`,
+  ecartee: (n) => `Vous avez écarté ${n}.`,
 };
+export const semaines = (n) => `${n} semaine${n > 1 ? 's' : ''}`;
 
 const info = (qui, texte, label = 'Continuer', extra = {}) => ({
   qui, texte, info: true, sansTemps: true,
@@ -43,11 +45,11 @@ export function lignesTermSheet(o) {
 function carteSortie(c, e) {
   const s = c.sortie;
   const pctVous = partVous(e);
-  return {
+  const carte = {
     type: 'sortie', qui: 'avocat', sortie: s,
     texte: s.acquihire
       ? `« ${s.acheteur} propose de racheter l'entreprise pour ${euros(s.prix)}, surtout pour récupérer l'équipe. Vous détenez ${pct(pctVous)}. Avant de rêver, regardons les préférences : il y en a pour ${euros(preferencesTotales(e.table))}. »`
-      : `« ${s.acheteur} propose de racheter 100 % de l'entreprise pour ${euros(s.prix)}. Vous détenez ${pct(pctVous)}, soit ${euros(pctVous * s.prix)} sur le papier. Sur le papier. »`,
+      : `« ${s.negociee ? `Après négociation, ${s.acheteur} monte à` : `${s.acheteur} propose de racheter 100 % de l'entreprise pour`} ${euros(s.prix)}. Vous détenez ${pct(pctVous)}, soit ${euros(pctVous * s.prix)} sur le papier. Sur le papier. »`,
     g: {
       label: 'Refuser',
       effet: (et, rng) => {
@@ -56,8 +58,18 @@ function carteSortie(c, e) {
         } else bouger(et, { investisseurs: -6 });
       },
     },
+    h: {
+      label: 'Négocier le prix',
+      effet: (et, rng) => {
+        if (rng() < 0.5) {
+          et.file.unshift({ special: 'sortie', sortie: { ...s, prix: Math.round(s.prix * 1.15 / 1e5) * 1e5, negociee: true } });
+        } else noter(et, { type: 'evenement', titre: `${s.acheteur} se retire`, texte: 'L’acheteur a trouvé une autre cible pendant que vous négociiez.' });
+      },
+    },
     d: { label: 'Vendre', effet: (et) => vendre(et, s) },
   };
+  if (s.negociee || s.acquihire) delete carte.h;
+  return carte;
 }
 
 export const contenus = {
@@ -74,7 +86,9 @@ export const contenus = {
         if (!e.levee) return null;
         return {
           type: 'levee', qui: 'claire', sansTemps: true, options: [],
-          texte: `Il vous reste ${mois(runway(e))} de trésorerie. Levée ${cadreFr.etapes[e.levee.etapeCible]} : choisissez un fonds chef de file, et éventuellement des fonds qui le suivent au même prix. Chaque négociation prend un mois.`,
+          texte: runway(e) < 4
+            ? `Levée ${cadreFr.etapes[e.levee.etapeCible]}. Il vous reste ${mois(runway(e))} de trésorerie : vous n'avez pas vraiment le luxe de refuser. Choisissez un chef de file, et éventuellement des fonds qui le suivent au même prix.`
+            : `Levée ${cadreFr.etapes[e.levee.etapeCible]}. Il vous reste ${mois(runway(e))} de trésorerie. Choisissez un chef de file, et éventuellement des fonds qui le suivent au même prix. Chaque négociation prend une à trois semaines.`,
         };
       case 'echecLevee': {
         if (!e.levee) return null;

@@ -93,11 +93,12 @@ export function doitLever(e) {
   if (e.etape > 0 && e.mois - e.moisDerniereLevee < 9 && runway(e) >= 3) return false;
   if (e.mois - (e.drapeaux.moisEchecLevee ?? -99) < 6) return false;
   const r = runway(e);
+  if (e.drapeaux.leverVite) { e.drapeaux.leverVite = false; return true; }
   return r < 7 || (e.mois - e.moisDerniereLevee >= 18 && r < 18);
 }
 
 function ouvrirLevee(e, cadre, rng) {
-  e.levee = { etapeCible: Math.min(4, e.etape + 1), debut: e.mois, offres: genererOffres(e, cadre, rng), messages: [] };
+  e.levee = { etapeCible: Math.min(4, e.etape + 1), debut: e.mois, offres: genererOffres(e, cadre, rng), messages: [], semaines: 0 };
   ajouterFile(e, { special: 'levee' });
 }
 
@@ -176,21 +177,33 @@ export function negocier(e, id, rng) {
     o.negociee += 1;
   } else if (issue === 'pareil') o.dernierMot = true;
   else e.levee.offres = e.levee.offres.filter((x) => x.id !== id);
-  e.levee.messages.push({ mois: e.mois, id, nom: o.nom, perso: o.perso, issue });
-  return issue;
+  const duree = 1 + Math.floor(rng() * 3);
+  e.levee.messages.push({ id, nom: o.nom, perso: o.perso, issue, semaines: duree });
+  return { issue, duree };
 }
 
-// Les actions possibles pendant une levée. Chacune prend un mois, sauf la signature (le mois passe aussi).
+// Les actions possibles pendant une levée. Négocier prend une à trois semaines : le mois ne passe qu'une fois
+// quatre semaines écoulées. Écarter une offre ne prend pas de temps. Signer ou tout refuser fait passer le mois.
 export function agirLevee(e, action, rng) {
+  let passe = true;
   if (action.type === 'signer') {
     const c = composerTour(e, action.ids);
     for (const o of c.refus) noter(e, { type: 'evenement', titre: `${o.nom} ne suit pas`, texte: `Le chef de file valorise l'entreprise ${Math.round((c.chef.preMoney / o.preMoney - 1) * 100)} % au-dessus de son offre : trop cher pour ${o.nom}.` });
     signerOffre(e, c.tour);
-  } else if (action.type === 'negocier') negocier(e, action.id, rng);
-  else if (action.type === 'refuser') {
+  } else if (action.type === 'negocier') {
+    const { duree } = negocier(e, action.id, rng);
+    e.levee.semaines += duree;
+    passe = e.levee.semaines >= 4;
+    if (passe) e.levee.semaines -= 4;
+  } else if (action.type === 'ecarter') {
+    const o = e.levee.offres.find((x) => x.id === action.id);
+    e.levee.offres = e.levee.offres.filter((x) => x.id !== action.id);
+    e.levee.messages.push({ id: action.id, nom: o.nom, perso: o.perso, issue: 'ecartee', semaines: 0 });
+    passe = false;
+  } else if (action.type === 'refuser') {
     e.levee.offres = [];
   }
-  if (!e.fin) passerMois(e);
+  if (!e.fin && passe) passerMois(e);
   verifierFin(e);
   if (e.levee && !e.fin) ajouterFile(e, { special: e.levee.offres.length ? 'levee' : 'echecLevee' }, true);
 }
@@ -302,7 +315,8 @@ export function piocher(e, contenus, rng) {
 }
 
 // Les options d'une carte : `options` si la carte en a plusieurs, sinon gauche / droite.
-export const options = (carte) => carte.options ?? (carte.info ? [carte.d] : [carte.g, carte.d]);
+// Avec trois options : gauche, haut (l'option intermédiaire), droite.
+export const options = (carte) => carte.options ?? (carte.info ? [carte.d] : carte.h ? [carte.g, carte.h, carte.d] : [carte.g, carte.d]);
 
 // Applique un choix (index de l'option) puis fait passer un mois (sauf pour les cartes d'information).
 export function jouer(e, carte, index, rng) {

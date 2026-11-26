@@ -56,6 +56,7 @@ export const CARTES = [
         }
       },
     },
+    h: { label: 'Refuser : pas d’angels pour l’instant', effet: (e) => { bouger(e, { investisseurs: -3, equipe: 3 }); noter(e, { type: 'evenement', titre: 'Pas de BSA AIR', texte: 'Vous gardez 60 %, mais avec très peu de trésorerie : la Seed arrivera vite.' }); } },
     d: {
       label: 'Signer à 2 M€ de plafond',
       effet: (e) => {
@@ -73,6 +74,7 @@ export const CARTES = [
     cond: (e) => e.mois >= 9 && e.mois <= 40 && !!ines(e) && !e.drapeaux.inesPartie,
     texte: "« J'ai reçu une offre d'un grand groupe. Un vrai salaire, des tickets resto, une mutuelle. Je crois que j'ai besoin de dormir. Je pars. »",
     g: { label: 'La laisser partir', effet: (e) => departInes(e) },
+    h: { label: 'Lui proposer un temps partiel', effet: (e, rng) => { if (rng() < 0.7) { e.burn -= 2_000; bouger(e, { equipe: -4, produit: -4 }); noter(e, { type: 'evenement', titre: 'Inès passe à mi-temps', texte: 'Elle garde ses actions et son vesting continue. Les investisseurs n’adorent pas une cofondatrice à mi-temps.' }); bouger(e, { investisseurs: -5 }); } else departInes(e); } },
     d: {
       label: 'La retenir : salaire et BSPCE',
       effet: (e, rng) => {
@@ -85,6 +87,7 @@ export const CARTES = [
     id: 'vp-sales', qui: 'cto', cond: (e) => e.etape >= 1, unique: true,
     texte: "« J'ai rencontré une VP Sales incroyable. Elle a doublé le chiffre d'affaires de sa dernière boîte. Elle veut 180 k€ par an et 2 % en [[bspce|BSPCE]]. »",
     g: { label: 'Trop cher', effet: (e) => bouger(e, { equipe: -5 }) },
+    h: { label: 'Un profil junior, sans BSPCE', effet: (e) => { e.burn += 6_000; e.croissanceBonus += 0.02; } },
     d: {
       label: "L'embaucher",
       effet: (e) => {
@@ -105,6 +108,7 @@ export const CARTES = [
     id: 'dev-gafam', qui: 'cto', delai: 14,
     texte: "« Ta meilleure développeuse a une offre d'un géant américain : +40 % de salaire et un toboggan dans les bureaux. »",
     g: { label: 'On ne peut pas suivre', effet: (e) => bouger(e, { equipe: -14, produit: -10 }) },
+    h: { label: 'Augmentation de 15 %', effet: (e) => { e.burn += 1_500; bouger(e, { equipe: 3 }); } },
     d: { label: 'Contre-offre en BSPCE', effet: (e) => { e.burn += 2_000; bouger(e, { equipe: 8 }); } },
   },
   {
@@ -123,6 +127,7 @@ export const CARTES = [
     id: 'pool-refresh', qui: 'claire', unique: true, cond: (e) => e.etape >= 2,
     texte: "« Pour recruter les profils seniors du plan, il faut recharger le [[bspce|pool BSPCE]] de 5 %. Maintenant, avant la prochaine levée. »",
     g: { label: 'Refuser', effet: (e) => bouger(e, { equipe: -10, investisseurs: -8 }) },
+    h: { label: 'Recharger de 2 % seulement', effet: (e) => { const T = total(e.table); diluer(e, emettre(e.table, { id: 'esop', nom: 'Pool BSPCE (salariés)', categorie: 'esop', actions: T * 0.02 / 0.98 }), { titre: 'Recharge du pool BSPCE (+2 %)', texte: 'Un compromis : moins de dilution, mais moins de marge pour recruter.' }); bouger(e, { equipe: 4, investisseurs: -2 }); } },
     d: {
       label: 'Recharger le pool',
       effet: (e) => {
@@ -171,6 +176,7 @@ export const CARTES = [
     id: 'client-grand-compte', qui: 'corporate', delai: 18,
     texte: "« Notre groupe veut signer 300 k€ par an. Il nous faut juste six fonctionnalités sur mesure, et nous payons à 120 jours, comme toujours. »",
     g: { label: 'Rester sur notre produit', effet: (e) => bouger(e, { produit: 4 }) },
+    h: { label: 'Signer sans sur-mesure, prix réduit', effet: (e, rng) => { if (rng() < 0.5) { e.mrr += 12_000; bouger(e, { produit: -3 }); } else bouger(e, { investisseurs: -2 }); } },
     d: { label: 'Signer le grand compte', effet: (e) => { e.mrr += 25_000; e.tresorerie -= 75_000; bouger(e, { produit: -12, equipe: -6 }); } },
   },
 
@@ -188,6 +194,7 @@ export const CARTES = [
     id: 'prix', qui: 'claire', delai: 14, cond: aInvestisseurs,
     texte: "« Vos prix sont trop bas. Augmentez-les de 30 %. Les bons clients resteront. »",
     g: { label: 'Ne pas toucher aux prix', effet: (e) => bouger(e, { investisseurs: -4 }) },
+    h: { label: 'Augmenter pour les nouveaux clients', effet: (e) => { e.mrr *= 1.06; } },
     d: { label: 'Augmenter de 30 %', effet: (e, rng) => { if (rng() < 0.6) e.mrr *= 1.2; else { e.mrr *= 0.9; bouger(e, { produit: -5 }); } } },
   },
   {
@@ -223,6 +230,7 @@ export const CARTES = [
     id: 'bulle', qui: 'marche', delai: 30, cond: (e) => e.mois >= 6 && e.marche < 1.2, poids: 0.6,
     texte: "Le marché s'emballe : les fonds se battent pour les deals et signent en 48 heures. Votre stagiaire reçoit des messages d'investisseurs.",
     g: { label: 'Rester frugal', effet: (e) => { e.marche *= 1.4; bouger(e, { equipe: 4, investisseurs: -4 }); } },
+    h: { label: 'Lever vite tant que c’est cher', effet: (e) => { e.marche *= 1.4; e.drapeaux.leverVite = true; bouger(e, { investisseurs: 5 }); } },
     d: { label: 'Recruter dix personnes', effet: (e) => { e.marche *= 1.4; e.burn += 30_000; e.croissanceBonus += 0.04; } },
   },
   {
@@ -246,12 +254,14 @@ export const CARTES = [
     id: 'allemagne', qui: 'claire', unique: true, cond: (e) => e.etape >= 1,
     texte: "« L'Allemagne, c'est le plus gros marché d'Europe. Ouvrez Berlin. Prévoyez juste quelqu'un qui parle allemand. »",
     g: { label: 'Pas maintenant', effet: (e) => bouger(e, { produit: 4, investisseurs: -4 }) },
+    h: { label: 'Passer par un partenaire local', effet: (e) => { e.burn += 6_000; e.croissanceBonus += 0.02; e.mrr *= 0.98; } },
     d: { label: 'Ouvrir Berlin', effet: (e, rng) => { e.burn += 22_000; if (rng() < 0.6) e.croissanceBonus += 0.05; else bouger(e, { equipe: -10 }); } },
   },
   {
     id: 'usa', qui: 'marcantoine', unique: true, cond: (e) => e.etape >= 2,
     texte: "« Les vraies valos, c'est aux States. On crée une holding au Delaware, tu déménages à New York, et on parle de Série B à 100 M$. »",
     g: { label: "Rester en Europe", effet: (e) => bouger(e, { investisseurs: -12 }) },
+    h: { label: 'Envoyer un commercial à New York', effet: (e, rng) => { e.burn += 18_000; if (rng() < 0.5) e.croissanceBonus += 0.025; bouger(e, { investisseurs: 3 }); } },
     d: { label: 'Partir à New York', effet: (e) => { e.drapeaux.us = true; e.burn += 55_000; e.croissanceBonus += 0.05; bouger(e, { equipe: -10 }); e.tresorerie -= 80_000; } },
   },
   {
@@ -266,12 +276,14 @@ export const CARTES = [
     id: 'couper-burn', qui: 'claire', delai: 12, cond: (e) => aInvestisseurs(e) && e.burn > e.mrr * 1.5,
     texte: "« Votre burn n'est pas soutenable. Le board vous demande de le réduire de 25 %. Ce n'est pas une suggestion. »",
     g: { label: 'Refuser', effet: (e) => bouger(e, { investisseurs: -15 }) },
+    h: { label: 'Contre-proposer 10 % de baisse', effet: (e) => { e.burn *= 0.9; bouger(e, { equipe: -6, investisseurs: -3 }); } },
     d: { label: "Licencier 20 % de l'équipe", effet: (e) => { e.burn *= 0.75; bouger(e, { equipe: -18, investisseurs: 10 }); e.croissanceBonus -= 0.02; } },
   },
   {
     id: 'cfo', qui: 'marcantoine', unique: true, cond: (e) => e.board.investisseurs >= 2,
     texte: "« Je te présente Hugues, un CFO de mon réseau. Brillant. Il commence lundi, j'ai déjà prévenu ton équipe. »",
     g: { label: 'Je choisis mon CFO', effet: (e) => bouger(e, { investisseurs: -12 }) },
+    h: { label: 'Hugues, mais à temps partagé', effet: (e) => { e.burn += 6_000; bouger(e, { investisseurs: 4 }); } },
     d: { label: 'Bienvenue, Hugues', effet: (e) => { e.burn += 14_000; bouger(e, { investisseurs: 10, equipe: -6 }); } },
   },
   {
@@ -284,6 +296,7 @@ export const CARTES = [
     id: 'venture-debt', qui: 'claire', unique: true, cond: (e) => e.etape >= 1 && e.derniere,
     texte: (e) => `« Une banque peut vous prêter ${k(Math.min(2e6, e.derniere.montant * 0.4))} en [[venturedebt|venture debt]], sur 36 mois, avec des BSA lui donnant 1 % du capital. Presque pas de dilution. »`,
     g: { label: 'Pas de dette', effet: () => {} },
+    h: { label: 'Un prêt deux fois plus petit', effet: (e) => { const montant = Math.min(1e6, e.derniere.montant * 0.2); e.tresorerie += montant; e.dette = { montant, mensualite: (montant * 1.12) / 36, restant: 36 }; noter(e, { type: 'clause', titre: `Venture debt de ${k(montant)}`, texte: 'Sans BSA cette fois : la banque se contente des intérêts sur un petit montant.', terme: 'venturedebt' }); } },
     d: {
       label: 'Signer le prêt',
       effet: (e) => {

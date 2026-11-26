@@ -1,7 +1,8 @@
 # Dilution, le jeu du fondateur
 
-Un jeu de cartes sur le parcours d'un fondateur de startup : chaque mois, une situation et deux ou trois cartes de
-choix. Vous levez des fonds, choisissez vos investisseurs, recrutez, survivez aux crises… et découvrez à la vente ce que
+Un jeu de cartes sur le parcours d'un fondateur de startup : chaque mois, une situation qu'on tire à gauche, à droite
+ou, quand il y a une option intermédiaire, vers le haut. Les choix sont expliqués la première fois, puis la carte suffit
+(« Afficher les choix » et les flèches du clavier restent disponibles). Vous levez des fonds, choisissez vos investisseurs, recrutez, survivez aux crises… et découvrez à la vente ce que
 vous touchez vraiment.
 
 Le sujet central est la dilution qu'on ne voit pas venir : un BSA AIR qui ne change rien le jour de la signature, un pool
@@ -16,7 +17,9 @@ En ligne : https://bonquentin-collab.github.io/Create-Website/fondateur/
   club d'angels, fonds de croissance), avec des valorisations proches du marché français (Seed de 2 à 9 M€ de
   pré-money, Série A de 8 à 40 M€…). On choisit un **chef de file**, qui fixe la valorisation et les conditions, et
   éventuellement des fonds qui le **suivent** au même prix avec un ticket réduit. Un suiveur dont l'offre est plus de
-  15 % sous la valorisation du chef de file refuse de suivre. Négocier une offre prend un mois.
+  15 % sous la valorisation du chef de file refuse de suivre. Négocier une offre prend une à trois semaines ; écarter
+  une offre ne prend pas de temps. Le texte rappelle la trésorerie restante, et quand elle est courte, qu'on n'a pas
+  vraiment le choix.
 - **Quatre jauges** (Trésorerie, Équipe, Produit, Investisseurs) : si l'une tombe à zéro, la partie s'arrête.
 - **La galette** : votre part du capital. La fève indique qui contrôle le board. Au survol d'une carte de choix, un
   point annonce les jauges qui vont bouger ; sur la galette, seule la dilution visible est annoncée.
