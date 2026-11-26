@@ -172,3 +172,31 @@ test('valorisations dans les fourchettes du marché pour chaque étape', () => {
   e.etape = 0;
   assert.ok(genererOffres(e, contenus.cadre, Math.random).length >= 3);
 });
+
+test('conséquences : chaque lien pointe vers une carte, une option et une suite qui existent', async () => {
+  const { LIENS, CARTES_SUITES } = await import('../fondateur/js/contenus/fr/suites.js');
+  const ids = new Set(contenus.cartes.map((c) => c.id));
+  for (const [id, cle, suite] of LIENS) {
+    assert.ok(ids.has(id), `carte ${id}`);
+    const c = contenus.cartes.find((x) => x.id === id);
+    assert.ok(typeof cle === 'number' ? c.options?.[cle] : c[cle], `option ${cle} de ${id}`);
+    assert.ok(CARTES_SUITES.some((x) => x.id === suite), `suite ${suite}`);
+  }
+  for (const s of CARTES_SUITES) assert.ok(s.force, `${s.id} ne doit jamais sortir au hasard`);
+});
+
+test('conséquences : un choix programme sa suite, qui revient avec le rappel du choix', () => {
+  const e = nouvellePartie();
+  e.file = [];
+  const pub = contenus.cartes.find((c) => c.id === 'pub');
+  jouer(e, pub, 2, () => 0.5);
+  assert.equal(e.suites[0].id, 'cac-explose');
+  let vue = null;
+  for (let i = 0; i < 6 && !vue; i++) {
+    const c = piocher(e, contenus, () => 0.99);
+    if (c.id === 'cac-explose') vue = c;
+    else jouer(e, c, 0, () => 0.5);
+  }
+  assert.ok(vue, 'la suite est revenue');
+  assert.match(vue.cause, /budget publicitaire/);
+});

@@ -1,6 +1,7 @@
 // Contenus français : cartes, cartes générées (levées, ventes), textes de fin, lexique.
 import cadreFr from '../../cadres/fr.js';
 import { CARTES, ROLES } from './cartes.js';
+import { brancherSuites } from './suites.js';
 import { LEXIQUE } from './lexique.js';
 import { euros, pct, mois } from './format.js';
 import { vendre, valoMarche, runway, partVous } from '../../moteur.js';
@@ -74,7 +75,7 @@ function carteSortie(c, e) {
 
 export const contenus = {
   cadre: cadreFr,
-  cartes: CARTES,
+  cartes: brancherSuites(CARTES),
   roles: ROLES,
   lexique: LEXIQUE,
   debut(e) {

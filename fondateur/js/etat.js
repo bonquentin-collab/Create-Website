@@ -23,6 +23,7 @@ export function nouvellePartie() {
     drapeaux: {},
     vus: {},
     file: [],
+    suites: [], // cartes programmées par un choix : { id, mois, cause }
     journal: [],
     historique: [{ mois: 0, part: 0.6 }],
     levee: null,
@@ -74,6 +75,12 @@ export function diluer(e, table, { titre, texte, calcul = null, cachee = false }
   const apres = partVous(e);
   noter(e, { type: 'dilution', titre, texte, avant, apres, calcul, cachee });
   return { avant, apres };
+}
+
+// Programme une carte « suite » : elle reviendra dans `delai` mois, en rappelant le choix qui l'a causée.
+export function programmer(e, id, delai, cause = null) {
+  if (e.suites.some((x) => x.id === id) || e.vus[id] !== undefined) return;
+  e.suites.push({ id, mois: e.mois + delai, cause });
 }
 
 export const ajouterFile = (e, carte, enTete = false) => (enTete ? e.file.unshift(carte) : e.file.push(carte));

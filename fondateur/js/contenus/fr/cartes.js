@@ -90,7 +90,8 @@ export const CARTES = [
     h: { label: 'Un profil junior, sans BSPCE', effet: (e) => { e.burn += 6_000; e.croissanceBonus += 0.02; } },
     d: {
       label: "L'embaucher",
-      effet: (e) => {
+      effet: (e, rng) => {
+        e.drapeaux.vpPerf = rng() < 0.5; // on saura dans six mois si c'était un bon recrutement
         e.burn += 15_000;
         e.croissanceBonus += 0.05;
         const pool = e.table.find((d) => d.id === 'esop');
@@ -315,6 +316,19 @@ export const CARTES = [
     id: 'secondaire', qui: 'croissance', unique: true, cond: (e) => e.etape >= 2 && e.derniere,
     texte: (e) => `« Je vous rachète 10 % de vos actions à 80 % du prix de la dernière levée. Soit ${k(e.table.find((d) => d.id === 'vous').actions * 0.1 * e.derniere.prix * 0.8)} pour vous, pas pour la boîte. Pour souffler un peu. »`,
     g: { label: 'Tout garder', effet: () => {} },
+    h: {
+      label: 'Vendre 5 % seulement',
+      effet: (e) => {
+        const n = e.table.find((d) => d.id === 'vous').actions * 0.05;
+        e.encaisse += n * e.derniere.prix * 0.8;
+        diluer(e, ceder(e.table, 'vous', 'secondaire', 'Altitude (secondaire)', n), {
+          titre: 'Vente secondaire de 5 % de vos actions',
+          texte: "Ce n'est pas une dilution : vous avez vendu. L'argent est dans votre poche et vous restera quoi qu'il arrive.",
+        });
+        bouger(e, { investisseurs: -2, equipe: 2 });
+      },
+      diluteVisible: true,
+    },
     d: {
       label: 'Vendre 10 % de mes actions',
       effet: (e) => {

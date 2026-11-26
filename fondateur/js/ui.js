@@ -105,6 +105,11 @@ function etapeEnCours() {
 }
 
 function corpsCarte() {
+  const cause = carte.cause ? `<p class="cause">Suite de votre choix : ${carte.cause.charAt(0).toLowerCase()}${carte.cause.slice(1)}.</p>` : '';
+  return cause + corpsSansCause();
+}
+
+function corpsSansCause() {
   if (carte.type === 'sortie') {
     return `<p class="ts-titre">Offre de rachat${carte.sortie.acquihire ? ' (acqui-hire)' : ''}</p><p class="prix-sortie">${euros(carte.sortie.prix)}</p><p>${texteRiche(carte.texte)}</p>`;
   }

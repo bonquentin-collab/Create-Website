@@ -20,6 +20,10 @@ En ligne : https://bonquentin-collab.github.io/Create-Website/fondateur/
   15 % sous la valorisation du chef de file refuse de suivre. Négocier une offre prend une à trois semaines ; écarter
   une offre ne prend pas de temps. Le texte rappelle la trésorerie restante, et quand elle est courte, qu'on n'a pas
   vraiment le choix.
+- **Les conséquences** : une trentaine de cartes ne sortent jamais au hasard. Un choix les programme et elles reviennent
+  quelques mois plus tard, avec un rappel du choix d'origine (« Suite de votre choix : … ») : le grand compte devient
+  exigeant, la pub coûte de plus en plus cher, le fonds flatteur veut caser son neveu, la banque invoque ses covenants,
+  le ratchet se rappelle à vous pendant la crise… Les liens choix → conséquence sont dans `js/contenus/fr/suites.js`.
 - **Quatre jauges** (Trésorerie, Équipe, Produit, Investisseurs) : si l'une tombe à zéro, la partie s'arrête.
 - **La galette** : votre part du capital. La fève indique qui contrôle le board. Au survol d'une carte de choix, un
   point annonce les jauges qui vont bouger ; sur la galette, seule la dilution visible est annoncée.
@@ -42,7 +46,7 @@ En ligne : https://bonquentin-collab.github.io/Create-Website/fondateur/
 | `js/etat.js` | état d'une partie et petits outils (jauges, journal, dilution expliquée) |
 | `js/moteur.js` | règles : mois qui passent, levées et offres, ventes, fins, aperçus, décryptage |
 | `js/cadres/` | cadres nationaux (`fr.js`) : noms des instruments, usages, financements locaux |
-| `js/contenus/fr/` | cartes, personnages, textes, lexique et mise en forme en français |
+| `js/contenus/fr/` | cartes, cartes de conséquences (`suites.js`), personnages, textes, lexique et mise en forme en français |
 | `js/ui.js` | interface : situation, cartes de choix, table des offres, fenêtres pédagogiques |
 | `js/portraits.js`, `js/galette.js`, `js/icones.js` | dessins en SVG |
 | `maquettes/` | maquettes d'intention (HTML et captures) |

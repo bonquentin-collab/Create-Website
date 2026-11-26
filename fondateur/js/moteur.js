@@ -1,7 +1,7 @@
 // Règles du jeu : le temps qui passe, les levées, les offres de rachat, les fins de partie.
 // Indépendant de la langue : les textes viennent de `contenus` (contenus/<langue>/index.js).
 import { lever, cascade, part, total, preferencesTotales } from './captable.js';
-import { clamp, bouger, diluer, noter, partVous, runway, jauges, feve, ajouterFile } from './etat.js';
+import { clamp, bouger, diluer, noter, partVous, runway, jauges, feve, ajouterFile, programmer } from './etat.js';
 
 const copie = (x) => JSON.parse(JSON.stringify(x));
 const arrondi = (x, pas) => Math.max(pas, Math.round(x / pas) * pas);
@@ -156,6 +156,11 @@ export function signerOffre(e, o) {
   e.burn *= 1.3;
   e.croissanceBonus += 0.03;
   ajouterFile(e, { special: 'bilanLevee', calcul }, true);
+  // Ce que la levée déclenche dans les mois qui suivent.
+  programmer(e, `apres-levee-${o.profil}`, 2 + Math.floor(e.mois % 3), `Levée avec ${o.nom}`);
+  if (e.drapeaux.vesting === false && o.etapeCible === 1) programmer(e, 're-vesting', 0, 'Pas de vesting entre fondateurs');
+  if (e.drapeaux.capitalMort) programmer(e, 'racheter-ines', 1, 'Inès est partie avec ses actions');
+  if (e.table.some((d) => d.id === 'foule')) programmer(e, 'holding-crowdfunding', 1, 'Le crowdfunding');
   return r;
 }
 
@@ -298,6 +303,15 @@ export function piocher(e, contenus, rng) {
     const c = e.file.shift();
     const carte = c.special ? contenus.special(c, e) : contenus.cartes.find((x) => x.id === c.id);
     if (carte && (!carte.cond || carte.cond(e))) return carte;
+  }
+  // Les conséquences de vos choix passent avant le hasard, quand leur heure est venue.
+  if (!e.levee) {
+    e.suites.sort((a, b) => a.mois - b.mois);
+    while (e.suites.length && e.suites[0].mois <= e.mois) {
+      const s = e.suites.shift();
+      const carte = contenus.cartes.find((x) => x.id === s.id);
+      if (carte && (!carte.cond || carte.cond(e))) return { ...carte, cause: s.cause };
+    }
   }
   const eligibles = contenus.cartes.filter((c) => !c.force && (!c.unique || !e.vus[c.id])
     && (e.mois - (e.vus[c.id] ?? -99) >= (c.delai ?? 8)) && (!c.cond || c.cond(e)));
