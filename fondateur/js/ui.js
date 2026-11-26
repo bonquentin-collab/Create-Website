@@ -115,10 +115,23 @@ function rendre() {
   const r = contenus.roles[carte.qui] ?? contenus.roles.marche;
   $('qui').innerHTML = `${portrait(carte.qui, 52)}<div><strong>${r.nom}</strong><span>${r.role}</span></div>`;
   const el = $('carte');
+  // La nouvelle carte apparaît directement au centre, sans revenir de là où l'ancienne est partie.
   el.className = `carte${carte.info ? ' info' : ''}`;
+  el.style.transition = 'none';
+  el.style.transform = '';
+  el.style.opacity = '';
   void el.offsetWidth;
+  el.style.transition = '';
   el.classList.add('entre');
-  el.innerHTML = corpsCarte();
+  // Choix binaire (ou carte d'information) : la carte se tire à gauche ou à droite, le choix apparaît en bandeau.
+  const opts = carte.type === 'levee' ? [] : options(carte);
+  const glissable = opts.length === 2 || (opts.length === 1 && carte.info);
+  el.classList.toggle('glissable', glissable);
+  const bandeaux = glissable
+    ? (opts.length === 2 ? `<div class="bandeau-choix gauche" aria-hidden="true">← ${libelle(opts[0].label)}</div>` : '')
+      + `<div class="bandeau-choix droite" aria-hidden="true">${libelle(opts[opts.length - 1].label)} →</div>`
+    : '';
+  el.innerHTML = bandeaux + corpsCarte() + (glissable ? '<p class="indice" aria-hidden="true">Tirez la carte vers la gauche ou la droite pour voir les choix</p>' : '');
 
   $('options').className = carte.type === 'levee' ? 'options levee' : 'options';
   if (carte.type === 'levee') rendreLevee();
@@ -212,6 +225,63 @@ function choisir(index) {
   if (index >= options(carte).length) return;
   jouer(e, carte, index, Math.random);
   suivante();
+}
+
+// Tirer la carte : à gauche la première option, à droite la dernière. Le bandeau du choix apparaît en tirant.
+function brancherGlisser() {
+  const el = $('carte');
+  const SEUIL = 90;
+  let x0 = null; let y0 = 0; let dx = 0; let horizontal = null;
+  const remettre = () => {
+    el.classList.remove('tire');
+    el.style.transform = '';
+    el.querySelectorAll('.bandeau-choix').forEach((b) => { b.style.opacity = 0; });
+    montrerApercu(null);
+  };
+  el.addEventListener('pointerdown', (ev) => {
+    const bouton = ev.target.closest('button');
+    if (!el.classList.contains('glissable') || (bouton && !bouton.classList.contains('terme')) || ev.button > 0) return;
+    x0 = ev.clientX; y0 = ev.clientY; dx = 0; horizontal = null;
+  });
+  el.addEventListener('pointermove', (ev) => {
+    if (x0 === null) return;
+    const ddx = ev.clientX - x0;
+    const ddy = ev.clientY - y0;
+    if (horizontal === null && Math.hypot(ddx, ddy) > 8) {
+      horizontal = Math.abs(ddx) > Math.abs(ddy);
+      if (!horizontal) { x0 = null; return; } // geste vertical : on laisse défiler la page
+      el.setPointerCapture(ev.pointerId);
+      el.classList.add('tire');
+    }
+    if (!horizontal) return;
+    const n = options(carte).length;
+    dx = n === 1 ? Math.max(0, ddx) : ddx;
+    // La carte suit le doigt avec un peu de résistance : elle reste lisible à l'écran.
+    el.style.transform = `translateX(${dx * 0.55}px) rotate(${dx / 40}deg)`;
+    const g = el.querySelector('.bandeau-choix.gauche');
+    const d = el.querySelector('.bandeau-choix.droite');
+    if (g) g.style.opacity = dx < 0 ? Math.min(1, -dx / 60) : 0;
+    if (d) d.style.opacity = dx > 0 ? Math.min(1, dx / 60) : 0;
+    montrerApercu(Math.abs(dx) > 20 ? (dx < 0 ? 0 : n - 1) : null);
+  });
+  const lacher = () => {
+    if (x0 === null) return;
+    x0 = null;
+    if (!horizontal) return;
+    if (Math.abs(dx) > SEUIL) {
+      const index = dx < 0 ? 0 : options(carte).length - 1;
+      const sens = Math.sign(dx);
+      el.classList.remove('tire');
+      el.classList.add('part');
+      el.style.transform = `translateX(${sens * 120}%) rotate(${sens * 14}deg)`;
+      el.style.opacity = '0';
+      setTimeout(() => { el.classList.remove('part'); el.style.opacity = ''; choisir(index); }, matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 220);
+    } else remettre();
+  };
+  el.addEventListener('pointerup', lacher);
+  // Un geste parti d'un mot du lexique ne doit pas ouvrir le lexique en plus.
+  el.addEventListener('click', (ev) => { if (Math.abs(dx) > 8) { ev.stopPropagation(); ev.preventDefault(); dx = 0; } }, true);
+  el.addEventListener('pointercancel', () => { x0 = null; remettre(); });
 }
 
 function actionLevee(action) {
@@ -458,6 +528,7 @@ btnProf.addEventListener('click', () => {
 });
 addEventListener('resize', () => rendreJauges());
 
+brancherGlisser();
 demarrer();
 
 // Accès pour les tests de bout en bout.
