@@ -83,6 +83,7 @@ jobs:
           cp -r financements-ue _site/financements-ue
           cp -r atlas-renaissance _site/atlas-renaissance
           cp -r fondateur _site/fondateur
+          cp -r felice-simonelli _site/felice-simonelli
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
