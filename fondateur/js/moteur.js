@@ -145,7 +145,7 @@ export function signerOffre(e, o) {
   e.board.investisseurs += o.sieges;
   e.board.independants += o.independant ?? 0;
   e.etape = o.etapeCible;
-  e.derniere = { prix: r.prix, postMoney: r.postMoney, mois: e.mois, montant: o.montant };
+  e.derniere = { prix: r.prix, postMoney: r.postMoney, mois: e.mois, montant: o.montant, perso: o.perso, lead: o.id, conditions: copie({ multiple: o.multiple, participatif: o.participatif, plafond: o.plafond, antiDilution: o.antiDilution }) };
   e.moisDerniereLevee = e.mois;
   for (const a of o.autres) e.drapeaux[a] = true;
   if (o.participatif) e.drapeaux.participatif = true;
@@ -231,7 +231,8 @@ export function genererSortie(e, cadre, rng, { acquihire = false } = {}) {
 
 export function vendre(e, s, contexte = 'vente') {
   const c = cascade(e.table, s.prix);
-  const vous = c.find((d) => d.id === 'vous');
+  // Vous pouvez ne plus figurer au capital (départ avant la fin du cliff : tout est annulé).
+  const vous = c.find((d) => d.id === 'vous') ?? { pct: 0, montant: 0 };
   e.fin = {
     type: contexte, prix: s.prix, acheteur: s.acheteur, cascade: c,
     naif: vous.pct * s.prix, reel: vous.montant + e.encaisse, encaisse: e.encaisse,
@@ -252,9 +253,10 @@ export function passerMois(e) {
   if (e.dette) { e.dette.restant -= 1; if (e.dette.restant <= 0) e.dette = null; }
   // Une startup embauche à mesure qu'elle grandit : les dépenses suivent le chiffre d'affaires.
   e.burn += Math.max(0, e.mrr * 1.3 + 15_000 - e.burn) * 0.08;
-  e.jauges.produit = clamp(e.jauges.produit - 0.15);
-  e.jauges.equipe = clamp(e.jauges.equipe + (55 - e.jauges.equipe) * 0.05);
-  e.jauges.investisseurs = clamp(e.jauges.investisseurs + (55 - e.jauges.investisseurs) * 0.04);
+  // Usure de fond : la concurrence rattrape le produit, l'équipe se fatigue, la confiance s'érode.
+  e.jauges.produit = clamp(e.jauges.produit - 0.5);
+  e.jauges.equipe = clamp(e.jauges.equipe - 0.4 + (48 - e.jauges.equipe) * 0.03);
+  e.jauges.investisseurs = clamp(e.jauges.investisseurs - 0.3 + (48 - e.jauges.investisseurs) * 0.03);
   e.croissanceBonus *= 0.85;
   e.marche += (1 - e.marche) * 0.04;
   e.historique.push({ mois: e.mois, part: partVous(e) });

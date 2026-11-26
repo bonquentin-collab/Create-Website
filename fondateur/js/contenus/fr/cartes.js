@@ -1,6 +1,6 @@
 // Cartes ordinaires du jeu. Dans les textes, [[id|mot]] renvoie au lexique.
 // Une carte : { id, qui, texte, g: { label, effet(e, rng) }, d: {…}, cond(e), poids, unique, delai, force }
-import { bouger, diluer, noter, partVous } from '../../etat.js';
+import { bouger, diluer, noter, partVous, voixDuBoard, investi } from '../../etat.js';
 import { annuler, emettre, ceder, part, total } from '../../captable.js';
 
 const k = (x) => `${Math.round(x / 1000).toLocaleString('fr-FR')} k€`;
@@ -38,7 +38,7 @@ export const CARTES = [
     id: 'pacte-vesting', qui: 'ines', force: true, unique: true, sansTemps: false,
     texte: "« Avant d'aller voir des investisseurs, je propose qu'on mette nos actions sous [[vesting|vesting]] : 4 ans, avec 1 an de [[cliff|cliff]]. Si l'un de nous part tôt, il rend ce qui n'est pas acquis. Ce n'est pas que je doute de toi. Enfin, un peu de moi. »",
     g: { label: 'On se fait confiance', effet: (e) => { e.drapeaux.vesting = false; bouger(e, { equipe: 5 }); noter(e, { type: 'clause', titre: 'Pas de vesting', texte: "Vos actions et celles d'Inès vous sont acquises dès aujourd'hui. Si l'une de vous part, elle garde tout.", terme: 'vesting' }); } },
-    d: { label: 'Signer le vesting', effet: (e) => { e.drapeaux.vesting = true; bouger(e, { investisseurs: 8 }); noter(e, { type: 'clause', titre: 'Vesting de 4 ans, cliff de 1 an', texte: 'Vos actions vous sont acquises au fil du temps. Les investisseurs adorent : ça protège la boîte si un fondateur part.', terme: 'vesting' }); } },
+    d: { label: 'Signer le vesting', effet: (e) => { e.drapeaux.vesting = true; e.drapeaux.debutVesting = e.mois; bouger(e, { investisseurs: 8 }); noter(e, { type: 'clause', titre: 'Vesting de 4 ans, cliff de 1 an', texte: 'Vos actions vous sont acquises au fil du temps. Les investisseurs adorent : ça protège la boîte si un fondateur part.', terme: 'vesting' }); } },
   },
   {
     id: 'bsa-air', qui: 'gerard', force: true, unique: true,
@@ -125,7 +125,7 @@ export const CARTES = [
     d: { label: 'Full remote', effet: (e) => { e.burn = Math.max(5_000, e.burn - 4_000); bouger(e, { equipe: 10, produit: -4 }); } },
   },
   {
-    id: 'pool-refresh', qui: 'claire', unique: true, cond: (e) => e.etape >= 2,
+    id: 'pool-refresh', qui: voixDuBoard, unique: true, cond: (e) => e.etape >= 2,
     texte: "« Pour recruter les profils seniors du plan, il faut recharger le [[bspce|pool BSPCE]] de 5 %. Maintenant, avant la prochaine levée. »",
     g: { label: 'Refuser', effet: (e) => bouger(e, { equipe: -10, investisseurs: -8 }) },
     h: { label: 'Recharger de 2 % seulement', effet: (e) => { const T = total(e.table); diluer(e, emettre(e.table, { id: 'esop', nom: 'Pool BSPCE (salariés)', categorie: 'esop', actions: T * 0.02 / 0.98 }), { titre: 'Recharge du pool BSPCE (+2 %)', texte: 'Un compromis : moins de dilution, mais moins de marge pour recruter.' }); bouger(e, { equipe: 4, investisseurs: -2 }); } },
@@ -192,7 +192,7 @@ export const CARTES = [
     ],
   },
   {
-    id: 'prix', qui: 'claire', delai: 14, cond: aInvestisseurs,
+    id: 'prix', qui: voixDuBoard, delai: 14, cond: aInvestisseurs,
     texte: "« Vos prix sont trop bas. Augmentez-les de 30 %. Les bons clients resteront. »",
     g: { label: 'Ne pas toucher aux prix', effet: (e) => bouger(e, { investisseurs: -4 }) },
     h: { label: 'Augmenter pour les nouveaux clients', effet: (e) => { e.mrr *= 1.06; } },
@@ -219,7 +219,7 @@ export const CARTES = [
 
   // ───────── Marché ─────────
   {
-    id: 'crise', qui: 'marche', delai: 30, cond: (e) => e.mois >= 14 && e.marche > 0.85, poids: 0.8,
+    id: 'crise', qui: 'marche', delai: 22, cond: (e) => e.mois >= 12 && e.marche > 0.85, poids: 1.2,
     texte: "Les taux montent, les fonds gèlent leurs investissements et les valorisations s'effondrent de 40 %. Sur LinkedIn, tout le monde parle soudain de « rentabilité ».",
     options: [
       { label: 'Couper le burn de 30 %', effet: (e) => { e.marche *= 0.6; e.burn *= 0.7; bouger(e, { equipe: -15 }); e.croissanceBonus -= 0.02; } },
@@ -252,7 +252,7 @@ export const CARTES = [
 
   // ───────── Expansion ─────────
   {
-    id: 'allemagne', qui: 'claire', unique: true, cond: (e) => e.etape >= 1,
+    id: 'allemagne', qui: voixDuBoard, unique: true, cond: (e) => e.etape >= 1,
     texte: "« L'Allemagne, c'est le plus gros marché d'Europe. Ouvrez Berlin. Prévoyez juste quelqu'un qui parle allemand. »",
     g: { label: 'Pas maintenant', effet: (e) => bouger(e, { produit: 4, investisseurs: -4 }) },
     h: { label: 'Passer par un partenaire local', effet: (e) => { e.burn += 6_000; e.croissanceBonus += 0.02; e.mrr *= 0.98; } },
@@ -274,14 +274,14 @@ export const CARTES = [
 
   // ───────── Board et financement ─────────
   {
-    id: 'couper-burn', qui: 'claire', delai: 12, cond: (e) => aInvestisseurs(e) && e.burn > e.mrr * 1.5,
+    id: 'couper-burn', qui: voixDuBoard, delai: 12, cond: (e) => aInvestisseurs(e) && e.burn > e.mrr * 1.5,
     texte: "« Votre burn n'est pas soutenable. Le board vous demande de le réduire de 25 %. Ce n'est pas une suggestion. »",
     g: { label: 'Refuser', effet: (e) => bouger(e, { investisseurs: -15 }) },
     h: { label: 'Contre-proposer 10 % de baisse', effet: (e) => { e.burn *= 0.9; bouger(e, { equipe: -6, investisseurs: -3 }); } },
     d: { label: "Licencier 20 % de l'équipe", effet: (e) => { e.burn *= 0.75; bouger(e, { equipe: -18, investisseurs: 10 }); e.croissanceBonus -= 0.02; } },
   },
   {
-    id: 'cfo', qui: 'marcantoine', unique: true, cond: (e) => e.board.investisseurs >= 2,
+    id: 'cfo', qui: 'marcantoine', unique: true, cond: (e) => e.board.investisseurs >= 2 && investi(e, 'ma-'),
     texte: "« Je te présente Hugues, un CFO de mon réseau. Brillant. Il commence lundi, j'ai déjà prévenu ton équipe. »",
     g: { label: 'Je choisis mon CFO', effet: (e) => bouger(e, { investisseurs: -12 }) },
     h: { label: 'Hugues, mais à temps partagé', effet: (e) => { e.burn += 6_000; bouger(e, { investisseurs: 4 }); } },
@@ -294,7 +294,7 @@ export const CARTES = [
     d: { label: 'Remplir le dossier', effet: (e) => { e.tresorerie += 150_000; bouger(e, { equipe: -4 }); noter(e, { type: 'clause', titre: 'Aide Bpifrance de 150 k€', texte: "De l'argent non dilutif : il ne coûte aucune part du capital. Toujours à prendre avant de lever.", }); } },
   },
   {
-    id: 'venture-debt', qui: 'claire', unique: true, cond: (e) => e.etape >= 1 && e.derniere,
+    id: 'venture-debt', qui: voixDuBoard, unique: true, cond: (e) => e.etape >= 1 && e.derniere,
     texte: (e) => `« Une banque peut vous prêter ${k(Math.min(2e6, e.derniere.montant * 0.4))} en [[venturedebt|venture debt]], sur 36 mois, avec des BSA lui donnant 1 % du capital. Presque pas de dilution. »`,
     g: { label: 'Pas de dette', effet: () => {} },
     h: { label: 'Un prêt deux fois plus petit', effet: (e) => { const montant = Math.min(1e6, e.derniere.montant * 0.2); e.tresorerie += montant; e.dette = { montant, mensualite: (montant * 1.12) / 36, restant: 36 }; noter(e, { type: 'clause', titre: `Venture debt de ${k(montant)}`, texte: 'Sans BSA cette fois : la banque se contente des intérêts sur un petit montant.', terme: 'venturedebt' }); } },

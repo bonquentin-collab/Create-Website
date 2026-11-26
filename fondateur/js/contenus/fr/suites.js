@@ -1,7 +1,7 @@
 // Cartes de conséquences : elles ne sortent jamais au hasard. Un choix les programme (table LIENS ci-dessous),
 // ou une levée signée (moteur.signerOffre), et elles reviennent quelques mois plus tard.
 // L'interface rappelle alors le choix d'origine (« Suite de votre choix : … »).
-import { bouger, diluer, noter, programmer } from '../../etat.js';
+import { bouger, diluer, noter, programmer, voixDuBoard, investi } from '../../etat.js';
 import { annuler, total } from '../../captable.js';
 
 const k = (x) => `${Math.round(x / 1000).toLocaleString('fr-FR')} k€`;
@@ -44,11 +44,11 @@ export const CARTES_SUITES = [
 
   // ───────── Le pacte entre fondateurs ─────────
   suite({
-    id: 're-vesting', qui: 'claire',
-    texte: "« Vous n'avez pas de [[vesting|vesting]] entre fondateurs ? Pour nous, c'est une condition : vos actions sont remises sous vesting sur quatre ans, à partir d'aujourd'hui. »",
+    id: 're-vesting', qui: voixDuBoard,
+    texte: "« Petit point juridique après le closing : vous n'avez pas de [[vesting|vesting]] entre fondateurs. Pour nous, c'est une condition : vos actions sont remises sous vesting sur quatre ans, à partir d'aujourd'hui. »",
     g: { label: 'Refuser', effet: (e) => { e.drapeaux.sansVesting = true; bouger(e, { investisseurs: -15 }); noter(e, { type: 'clause', titre: 'Refus du re-vesting', texte: 'Les fonds n’aiment pas les fondateurs qui peuvent partir avec tout : votre crédibilité en prend un coup.', terme: 'vesting' }); } },
-    h: { label: 'Négocier deux ans', effet: (e) => { e.drapeaux.vesting = true; bouger(e, { investisseurs: 3 }); noter(e, { type: 'clause', titre: 'Re-vesting sur deux ans', texte: 'Vos actions ne vous sont de nouveau acquises qu’au fil de deux années de travail.', terme: 'vesting' }); } },
-    d: { label: 'Accepter quatre ans', effet: (e) => { e.drapeaux.vesting = true; bouger(e, { investisseurs: 8 }); noter(e, { type: 'clause', titre: 'Re-vesting sur quatre ans', texte: 'Ce que vous croyiez posséder redevient « à gagner » : si vous partez dans deux ans, vous perdez la moitié de vos actions.', terme: 'vesting' }); } },
+    h: { label: 'Négocier deux ans', effet: (e) => { e.drapeaux.vesting = true; e.drapeaux.debutVesting = e.mois - 24; bouger(e, { investisseurs: 3 }); noter(e, { type: 'clause', titre: 'Re-vesting sur deux ans', texte: 'Vos actions ne vous sont de nouveau acquises qu’au fil de deux années de travail.', terme: 'vesting' }); } },
+    d: { label: 'Accepter quatre ans', effet: (e) => { e.drapeaux.vesting = true; e.drapeaux.debutVesting = e.mois; bouger(e, { investisseurs: 8 }); noter(e, { type: 'clause', titre: 'Re-vesting sur quatre ans', texte: 'Ce que vous croyiez posséder redevient « à gagner » : si vous partez dans deux ans, vous perdez la moitié de vos actions.', terme: 'vesting' }); } },
   }),
   suite({
     id: 'racheter-ines', qui: 'avocat', cond: (e) => e.table.some((d) => d.id === 'ines'),
@@ -135,7 +135,7 @@ export const CARTES_SUITES = [
     d: { label: 'Augmenter les salaires d’embauche', effet: (e) => { e.burn += 6_000; bouger(e, { equipe: 6 }); } },
   }),
   suite({
-    id: 'vp-sales-bilan', qui: 'claire',
+    id: 'vp-sales-bilan', qui: voixDuBoard,
     texte: (e) => e.drapeaux.vpPerf
       ? "« Votre VP Sales a dépassé ses objectifs de 40 %. Elle demande à passer COO, avec 1 % de BSPCE en plus. »"
       : "« Votre VP Sales n'a fait que 40 % de ses objectifs en six mois. Elle accuse le produit, le produit l'accuse elle. »",
@@ -172,7 +172,7 @@ export const CARTES_SUITES = [
 
   // ───────── Expansion et financement ─────────
   suite({
-    id: 'berlin-bilan', qui: 'claire',
+    id: 'berlin-bilan', qui: voixDuBoard,
     texte: (e) => (e.croissanceBonus > 0.02
       ? "« Berlin décolle : trois grands comptes signés. Votre country manager veut ouvrir Munich. »"
       : "« Berlin ne décolle pas. Votre country manager allemand a démissionné et le bureau coûte 22 k€ par mois. »"),
@@ -186,7 +186,7 @@ export const CARTES_SUITES = [
     d: { label: 'Tout faire proprement', effet: (e) => { e.tresorerie -= 120_000; bouger(e, { equipe: -3, investisseurs: 5 }); } },
   }),
   suite({
-    id: 'hugues-espion', qui: 'cto', cond: (e) => e.board.investisseurs >= 2,
+    id: 'hugues-espion', qui: 'cto', cond: (e) => investi(e, 'ma-'),
     texte: "« Hugues, le CFO, envoie nos chiffres à Marc-Antoine avant même qu'on les voie. Hier, Marc-Antoine m'a félicité pour un contrat que je n'avais pas encore signé. »",
     g: { label: 'Recadrer Hugues', effet: (e) => bouger(e, { investisseurs: -8, equipe: 4 }) },
     d: { label: 'Laisser faire', effet: (e) => bouger(e, { equipe: -8, investisseurs: 4 }) },
@@ -198,7 +198,7 @@ export const CARTES_SUITES = [
     d: { label: 'Respecter le contrat', effet: (e) => { e.mrr += 7_000; bouger(e, { investisseurs: -3 }); } },
   }),
   suite({
-    id: 'covenant', qui: 'claire', cond: (e) => e.dette && e.mrr < e.burn * 0.6,
+    id: 'covenant', qui: voixDuBoard, cond: (e) => e.dette && e.mrr < e.burn * 0.6,
     texte: "« La banque a regardé vos chiffres : vous ne respectez plus les covenants du prêt, le ratio revenus sur dépenses est sous le seuil. Elle peut exiger le remboursement immédiat. »",
     g: { label: 'Rembourser maintenant', effet: (e) => { e.tresorerie -= e.dette.mensualite * e.dette.restant; e.dette = null; } },
     h: { label: 'Négocier un délai (BSA en plus)', effet: (e) => { const T = total(e.table); diluer(e, e.table.map((x) => (x.id === 'banque' ? { ...x, actions: x.actions + T * 0.01 } : x)), { titre: 'BSA supplémentaires pour la banque (+1 %)', texte: 'Le délai se paie en capital : la banque reçoit 1 % de plus.' }); } },
@@ -248,8 +248,8 @@ export const LIENS = [
 ];
 
 // Branche les liens sur les cartes : l'effet d'origine est conservé, la suite est programmée en plus.
-export function brancherSuites(cartes) {
-  for (const [id, cle, suiteId, delai, cause] of LIENS) {
+export function brancherSuites(cartes, liensEnPlus = []) {
+  for (const [id, cle, suiteId, delai, cause] of [...LIENS, ...liensEnPlus]) {
     const carte = cartes.find((c) => c.id === id);
     if (!carte) continue;
     const option = typeof cle === 'number' ? carte.options?.[cle] : carte[cle];

@@ -120,8 +120,10 @@ function rendre() {
   $('calendrier').innerHTML = `<strong>Mois ${e.mois}</strong>${etapeEnCours()}`;
   rendreJauges();
   if (!carte) return;
-  const r = contenus.roles[carte.qui] ?? contenus.roles.marche;
-  $('qui').innerHTML = `${portrait(carte.qui, 52)}<div><strong>${r.nom}</strong><span>${r.role}</span></div>`;
+  // Le personnage peut dépendre de la partie (le fonds qui parle au nom du board, par exemple).
+  const qui = typeof carte.qui === 'function' ? carte.qui(e) : carte.qui;
+  const r = contenus.roles[qui] ?? contenus.roles.marche;
+  $('qui').innerHTML = `${portrait(qui, 52)}<div><strong>${r.nom}</strong><span>${r.role}</span></div>`;
   const el = $('carte');
   // La nouvelle carte apparaît directement au centre, sans revenir de là où l'ancienne est partie.
   el.className = `carte${carte.info ? ' info' : ''}`;

@@ -83,6 +83,11 @@ export function programmer(e, id, delai, cause = null) {
   e.suites.push({ id, mois: e.mois + delai, cause });
 }
 
+// Le fonds qui parle au nom du board : celui qui a mené la dernière levée.
+export const voixDuBoard = (e) => e.derniere?.perso ?? 'claire';
+// Un fonds donné est-il au capital ? (préfixe de son identifiant : 'ma-', 'granit-', 'corpo-', 'altitude-', 'angels-')
+export const investi = (e, prefixe) => e.table.some((d) => d.id.startsWith(prefixe));
+
 export const ajouterFile = (e, carte, enTete = false) => (enTete ? e.file.unshift(carte) : e.file.push(carte));
 
 export const actionsTotales = (e) => total(e.table);

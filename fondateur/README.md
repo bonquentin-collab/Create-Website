@@ -24,6 +24,14 @@ En ligne : https://bonquentin-collab.github.io/Create-Website/fondateur/
   quelques mois plus tard, avec un rappel du choix d'origine (« Suite de votre choix : … ») : le grand compte devient
   exigeant, la pub coûte de plus en plus cher, le fonds flatteur veut caser son neveu, la banque invoque ses covenants,
   le ratchet se rappelle à vous pendant la crise… Les liens choix → conséquence sont dans `js/contenus/fr/suites.js`.
+- **Les dilemmes** (`js/contenus/fr/dilemmes.js`) : des choix sans bonne réponse évidente, où l'option la plus
+  tentante coûte cher plus tard. Quitter la boîte pour un géant américain avant la fin de son vesting, hypothéquer son
+  appartement, céder la place à un « CEO expérimenté », donner 5 % au CTO, protéger un commercial accusé de
+  harcèlement, payer une rançon, déclarer 100 % de R&D pour la JEI, accepter un down round de ses propres
+  investisseurs… Chacun programme ses conséquences.
+- **La difficulté** : le produit s'use face à la concurrence, l'équipe se fatigue et la confiance s'érode chaque mois.
+  En simulation (200 parties par profil), un joueur au hasard atteint une vente dans environ 30 % des cas, un joueur
+  attentif dans environ 85 %.
 - **Quatre jauges** (Trésorerie, Équipe, Produit, Investisseurs) : si l'une tombe à zéro, la partie s'arrête.
 - **La galette** : votre part du capital. La fève indique qui contrôle le board. Au survol d'une carte de choix, un
   point annonce les jauges qui vont bouger ; sur la galette, seule la dilution visible est annoncée.
@@ -46,7 +54,7 @@ En ligne : https://bonquentin-collab.github.io/Create-Website/fondateur/
 | `js/etat.js` | état d'une partie et petits outils (jauges, journal, dilution expliquée) |
 | `js/moteur.js` | règles : mois qui passent, levées et offres, ventes, fins, aperçus, décryptage |
 | `js/cadres/` | cadres nationaux (`fr.js`) : noms des instruments, usages, financements locaux |
-| `js/contenus/fr/` | cartes, cartes de conséquences (`suites.js`), personnages, textes, lexique et mise en forme en français |
+| `js/contenus/fr/` | cartes, dilemmes (`dilemmes.js`), cartes de conséquences (`suites.js`), personnages, textes, lexique et mise en forme en français |
 | `js/ui.js` | interface : situation, cartes de choix, table des offres, fenêtres pédagogiques |
 | `js/portraits.js`, `js/galette.js`, `js/icones.js` | dessins en SVG |
 | `maquettes/` | maquettes d'intention (HTML et captures) |

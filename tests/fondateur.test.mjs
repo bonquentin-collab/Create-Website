@@ -200,3 +200,17 @@ test('conséquences : un choix programme sa suite, qui revient avec le rappel du
   assert.ok(vue, 'la suite est revenue');
   assert.match(vue.cause, /budget publicitaire/);
 });
+
+test('cohérence : toute carte programmée par programmer(…) existe, et toute suite a un rappel', async () => {
+  const { readFileSync } = await import('node:fs');
+  const ids = new Set(contenus.cartes.map((c) => c.id));
+  for (const f of ['cartes', 'suites', 'dilemmes', 'index']) {
+    const src = readFileSync(new URL(`../fondateur/js/contenus/fr/${f}.js`, import.meta.url), 'utf8');
+    for (const [, id, cause] of src.matchAll(/programmer\((?:e|et), '([a-z0-9-]+)', \d+(?:, '([^']*)')?/g)) {
+      assert.ok(ids.has(id), `${f}.js programme « ${id} », qui n'existe pas`);
+      assert.ok(cause, `${f}.js programme « ${id} » sans rappel du choix d'origine`);
+    }
+  }
+  const src = readFileSync(new URL('../fondateur/js/moteur.js', import.meta.url), 'utf8');
+  for (const [, id] of src.matchAll(/programmer\(e, '([a-z0-9-]+)'/g)) assert.ok(ids.has(id), `moteur.js programme « ${id} »`);
+});

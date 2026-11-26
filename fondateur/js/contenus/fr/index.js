@@ -2,10 +2,11 @@
 import cadreFr from '../../cadres/fr.js';
 import { CARTES, ROLES } from './cartes.js';
 import { brancherSuites } from './suites.js';
+import { DILEMMES, SUITES_DILEMMES, LIENS_DILEMMES } from './dilemmes.js';
 import { LEXIQUE } from './lexique.js';
 import { euros, pct, mois } from './format.js';
 import { vendre, valoMarche, runway, partVous } from '../../moteur.js';
-import { bouger, noter } from '../../etat.js';
+import { bouger, noter, voixDuBoard, programmer } from '../../etat.js';
 import { preferencesTotales } from '../../captable.js';
 
 export const ACCROCHES = {
@@ -75,7 +76,7 @@ function carteSortie(c, e) {
 
 export const contenus = {
   cadre: cadreFr,
-  cartes: brancherSuites(CARTES),
+  cartes: [...brancherSuites(CARTES, LIENS_DILEMMES), ...DILEMMES, ...SUITES_DILEMMES],
   roles: ROLES,
   lexique: LEXIQUE,
   debut(e) {
@@ -86,7 +87,7 @@ export const contenus = {
       case 'levee':
         if (!e.levee) return null;
         return {
-          type: 'levee', qui: 'claire', sansTemps: true, options: [],
+          type: 'levee', qui: 'avocat', sansTemps: true, options: [],
           texte: runway(e) < 4
             ? `Levée ${cadreFr.etapes[e.levee.etapeCible]}. Il vous reste ${mois(runway(e))} de trésorerie : vous n'avez pas vraiment le luxe de refuser. Choisissez un chef de file, et éventuellement des fonds qui le suivent au même prix.`
             : `Levée ${cadreFr.etapes[e.levee.etapeCible]}. Il vous reste ${mois(runway(e))} de trésorerie. Choisissez un chef de file, et éventuellement des fonds qui le suivent au même prix. Chaque négociation prend une à trois semaines.`,
@@ -96,11 +97,11 @@ export const contenus = {
         e.levee.offres = [];
         const avecInvestisseurs = e.table.some((d) => d.categorie === 'investisseur' && d.pref);
         return {
-          qui: avecInvestisseurs ? 'claire' : 'mere',
+          qui: avecInvestisseurs ? voixDuBoard(e) : 'mere',
           texte: avecInvestisseurs
             ? "« Aucun fonds ne signe. Vos investisseurs actuels peuvent faire un pont : un BSA AIR avec 25 % de décote, converti à la prochaine levée. Sinon, il faut couper les dépenses. »"
             : "« Personne n'a voulu de ta start-up ? Ton père et moi pouvons te prêter 50 000 €. Ou alors tu réduis les frais, comme tout le monde. »",
-          g: { label: 'Couper le burn de 40 %', effet: (et) => { et.burn *= 0.6; bouger(et, { equipe: -22, produit: -8 }); et.levee = null; et.drapeaux.moisEchecLevee = et.mois; } },
+          g: { label: 'Couper le burn de 40 %', effet: (et) => { et.burn *= 0.6; bouger(et, { equipe: -22, produit: -8 }); et.levee = null; et.drapeaux.moisEchecLevee = et.mois; programmer(et, 'epargne-perso', 2, 'Aucun fonds n’a signé'); } },
           d: {
             label: avecInvestisseurs ? 'Accepter le pont' : "Accepter l'aide familiale",
             effet: (et) => {
@@ -115,6 +116,7 @@ export const contenus = {
               }
               et.levee = null;
               et.drapeaux.moisEchecLevee = et.mois;
+              programmer(et, 'epargne-perso', 1, 'Aucun fonds n’a signé');
             },
           },
         };
@@ -133,7 +135,7 @@ export const contenus = {
         });
       case 'liquidite': {
         const s = { prix: Math.round(valoMarche(e, Math.max(1, e.etape)) / 1e5) * 1e5, acheteur: 'un fonds de rachat' };
-        return info('claire', `Neuf ans. Les fonds doivent rendre l'argent à leurs propres investisseurs : l'entreprise est vendue à ${s.acheteur} pour ${euros(s.prix)}.`, 'Signer la vente', {
+        return info(voixDuBoard(e), `Neuf ans. Les fonds doivent rendre l'argent à leurs propres investisseurs : l'entreprise est vendue à ${s.acheteur} pour ${euros(s.prix)}.`, 'Signer la vente', {
           g: { label: 'Signer la vente', effet: (et) => vendre(et, s, 'liquidite') },
           d: { label: 'Signer la vente', effet: (et) => vendre(et, s, 'liquidite') },
         });
@@ -149,6 +151,7 @@ export const contenus = {
     faillite: (f) => ({ titre: `Mois ${f.mois} : liquidation judiciaire`, texte: "Plus un euro en banque. Vos actions ne valent plus rien, les préférences non plus, pour une fois tout le monde est à égalité." }),
     equipe: (f) => ({ titre: `Mois ${f.mois} : l'équipe démissionne`, texte: "Un vendredi, tout le monde envoie sa lettre en même temps. Ils ont créé une coopérative." }),
     produit: (f) => ({ titre: `Mois ${f.mois} : votre produit est dépassé`, texte: "Plus personne ne s'en sert. Même votre mère est passée chez le concurrent." }),
+    depart: (f) => ({ titre: `Mois ${f.mois} : vous quittez votre entreprise`, texte: `Vous gardez les actions qui vous étaient acquises. Ce qu'elles vaudraient si l'entreprise était vendue à sa dernière valorisation (${euros(f.prix)}) est calculé ci-dessous ; elle continue sans vous.` }),
     revoque: (f) => ({ titre: `Mois ${f.mois} : le board vous remplace`, texte: "Les investisseurs ont la majorité du board. Ils nomment un « CEO expérimenté ». Vous gardez vos actions, mais plus votre entreprise." }),
   },
 };
