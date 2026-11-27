@@ -36,6 +36,7 @@ export default {
   // Fonds et sociétés fictifs du monde du jeu.
   noms: {
     angels: 'Gérard & co',
+    clubAngels: 'Club des angels de Gérard',
     fondsPropre: 'Granit Ventures',
     fondsFlatteur: 'Marc-Antoine Capital',
     corporate: 'Hexaflow Ventures',

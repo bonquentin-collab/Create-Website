@@ -1,29 +1,30 @@
 // Règles du jeu : le temps qui passe, les levées, les offres de rachat, les fins de partie.
 // Indépendant de la langue : les textes viennent de `contenus` (contenus/<langue>/index.js).
 import { lever, cascade, part, total, preferencesTotales } from './captable.js';
-import { clamp, bouger, diluer, noter, partVous, runway, jauges, feve, ajouterFile } from './etat.js';
+import { clamp, bouger, diluer, noter, partVous, runway, jauges, feve, ajouterFile, programmer } from './etat.js';
 
 const copie = (x) => JSON.parse(JSON.stringify(x));
 const arrondi = (x, pas) => Math.max(pas, Math.round(x / pas) * pas);
 
 // ───────── Valorisation de marché ─────────
 
+// Repères du marché français par étape : multiple du revenu annuel récurrent (ARR) et fourchette de pré-money.
 const MULTIPLE_ARR = [0, 22, 14, 10, 8];
-const PLANCHER = [0, 3e6, 12e6, 40e6, 100e6];
+const FOURCHETTE = [null, [2e6, 9e6], [8e6, 40e6], [30e6, 130e6], [90e6, 400e6]];
+const REPERE = [0, 4.5e6, 20e6, 60e6, 160e6];
 const PART_LEVEE = [0, 0.22, 0.2, 0.18, 0.16];
 
 export function valoMarche(e, etapeCible = Math.min(4, e.etape + 1)) {
-  const arr = e.mrr * 12;
-  const mult = MULTIPLE_ARR[etapeCible];
-  const plancher = PLANCHER[etapeCible];
-  const traction = arr * mult;
-  const qualite = 0.5 + (e.jauges.produit / 100) * 0.45 + (e.jauges.equipe / 100) * 0.25 + (e.jauges.investisseurs / 100) * 0.15;
-  const base = 0.55 * traction + 0.45 * plancher * Math.min(1.4, traction / plancher + 0.35);
-  let v = base * qualite * e.marche;
+  const traction = e.mrr * 12 * MULTIPLE_ARR[etapeCible];
+  const repere = REPERE[etapeCible];
+  const qualite = 0.55 + (e.jauges.produit / 100) * 0.4 + (e.jauges.equipe / 100) * 0.2 + (e.jauges.investisseurs / 100) * 0.15;
+  // Moitié repère de l'étape, moitié traction réelle : une boîte sans revenus ne vaut pas zéro en Seed.
+  let v = (0.5 * repere + 0.5 * traction) * qualite * e.marche;
   if (e.drapeaux.capitalMort) v *= 0.75;
   if (e.drapeaux.ia) v *= 1.15;
   if (e.drapeaux.us) v *= 1.25;
-  return v;
+  const [min, max] = FOURCHETTE[etapeCible];
+  return clamp(v, min * Math.min(1, e.marche), max);
 }
 
 // ───────── Levées ─────────
@@ -35,18 +36,19 @@ function offre(profil, e, v, etapeCible, cadre, rng) {
   const base = Math.min(Math.max(v * PART_LEVEE[etapeCible], besoin), v * 0.5);
   const pool = etapeCible === 1 ? cadre.usages.poolBspce.seed : cadre.usages.poolBspce.serieA;
   const crise = e.marche < 0.8;
-  const o = { profil, serie, etapeCible, negociee: false, autres: [] };
+  const bruit = () => 0.92 + rng() * 0.16; // chaque fonds a sa propre lecture du dossier
+  const o = { profil, serie, etapeCible, negociee: 0, dernierMot: false, autres: [] };
   if (profil === 'propre') {
     Object.assign(o, {
       id: `granit-${etapeCible}`, nom: cadre.noms.fondsPropre, perso: 'claire',
-      montant: arrondi(base, 50_000), preMoney: arrondi(v, 100_000),
+      montant: arrondi(base, 50_000), preMoney: arrondi(v * bruit(), 100_000),
       poolCible: pool, poolPreMoney: true, multiple: 1, participatif: false, plafond: null, antiDilution: 'moyenne',
       sieges: 1, independant: 1,
     });
   } else if (profil === 'flatteur') {
     Object.assign(o, {
       id: `ma-${etapeCible}`, nom: cadre.noms.fondsFlatteur, perso: 'marcantoine',
-      montant: arrondi(base * 1.3, 50_000), preMoney: arrondi(v * (crise ? 1.25 : 1.5), 100_000),
+      montant: arrondi(base * 1.3, 50_000), preMoney: arrondi(v * (crise ? 1.25 : 1.5) * bruit(), 100_000),
       poolCible: 0.15 + (rng() < 0.5 ? 0.03 : 0), poolPreMoney: true,
       multiple: crise || rng() < 0.6 ? 2 : 1.5, participatif: true, plafond: null, antiDilution: 'ratchet',
       sieges: 2, independant: 0, autres: ['drag'],
@@ -54,14 +56,21 @@ function offre(profil, e, v, etapeCible, cadre, rng) {
   } else if (profil === 'corporate') {
     Object.assign(o, {
       id: `corpo-${etapeCible}`, nom: cadre.noms.corporate, perso: 'corporate',
-      montant: arrondi(base, 50_000), preMoney: arrondi(v * 1.2, 100_000),
+      montant: arrondi(base, 50_000), preMoney: arrondi(v * 1.2 * bruit(), 100_000),
       poolCible: pool, poolPreMoney: false, multiple: 1, participatif: false, plafond: null, antiDilution: 'moyenne',
       sieges: 1, independant: 0, autres: ['preemption'],
+    });
+  } else if (profil === 'angels') {
+    Object.assign(o, {
+      id: `angels-${etapeCible}`, nom: cadre.noms.clubAngels, perso: 'gerard',
+      montant: arrondi(base * 0.35, 50_000), preMoney: arrondi(v * 0.9 * bruit(), 100_000),
+      poolCible: 0, poolPreMoney: false, multiple: 1, participatif: false, plafond: null, antiDilution: 'moyenne',
+      sieges: 0, independant: 0,
     });
   } else {
     Object.assign(o, {
       id: `altitude-${etapeCible}`, nom: cadre.noms.fondsCroissance, perso: 'croissance',
-      montant: arrondi(base * 1.15, 100_000), preMoney: arrondi(v * 1.25, 100_000),
+      montant: arrondi(base * 1.15, 100_000), preMoney: arrondi(v * 1.25 * bruit(), 100_000),
       poolCible: pool, poolPreMoney: true, multiple: 1.5, participatif: true, plafond: 3, antiDilution: 'moyenne',
       sieges: 1, independant: 0, autres: ['drag'],
     });
@@ -72,14 +81,9 @@ function offre(profil, e, v, etapeCible, cadre, rng) {
 export function genererOffres(e, cadre, rng) {
   const etapeCible = Math.min(4, e.etape + 1);
   const v = valoMarche(e, etapeCible);
-  const profils = ['propre', 'flatteur', etapeCible === 1 ? 'corporate' : 'croissance'];
-  // Mélange : l'offre flatteuse n'arrive pas toujours en premier.
-  for (let i = profils.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    [profils[i], profils[j]] = [profils[j], profils[i]];
-  }
+  const profils = etapeCible === 1 ? ['propre', 'flatteur', 'corporate', 'angels'] : ['propre', 'flatteur', 'croissance', 'corporate'];
   // En crise, les fonds sérieux se font rares.
-  const retenus = e.marche < 0.8 ? profils.filter((p) => p !== 'propre').concat(rng() < 0.4 ? ['propre'] : []) : profils;
+  const retenus = e.marche < 0.8 ? profils.filter((p) => p !== 'propre' || rng() < 0.4) : profils;
   return retenus.map((p) => offre(p, e, v, etapeCible, cadre, rng));
 }
 
@@ -89,18 +93,43 @@ export function doitLever(e) {
   if (e.etape > 0 && e.mois - e.moisDerniereLevee < 9 && runway(e) >= 3) return false;
   if (e.mois - (e.drapeaux.moisEchecLevee ?? -99) < 6) return false;
   const r = runway(e);
+  if (e.drapeaux.leverVite) { e.drapeaux.leverVite = false; return true; }
   return r < 7 || (e.mois - e.moisDerniereLevee >= 18 && r < 18);
 }
 
 function ouvrirLevee(e, cadre, rng) {
-  const offres = genererOffres(e, cadre, rng);
-  e.levee = { etapeCible: Math.min(4, e.etape + 1), debut: e.mois };
-  ajouterFile(e, { special: 'annonceLevee', levee: true });
-  for (const o of offres) ajouterFile(e, { special: 'offre', offre: o, levee: true });
-  ajouterFile(e, { special: 'echecLevee', levee: true });
+  e.levee = { etapeCible: Math.min(4, e.etape + 1), debut: e.mois, offres: genererOffres(e, cadre, rng), messages: [], semaines: 0 };
+  ajouterFile(e, { special: 'levee' });
 }
 
-// Ce que l'offre ferait à la table, sans rien changer à la partie.
+// Un suiveur accepte le prix du chef de file s'il ne dépasse pas sa propre offre de plus de 15 %.
+export const SEUIL_SUIVEUR = 1.15;
+
+/**
+ * Compose un tour à partir des offres choisies. La première est le chef de file : elle fixe la valorisation
+ * et les conditions. Les autres suivent au même prix avec un ticket réduit (60 % de leur offre), ou se retirent.
+ */
+export function composerTour(e, ids) {
+  const offres = ids.map((id) => e.levee.offres.find((o) => o.id === id)).filter(Boolean);
+  if (!offres.length) return null;
+  const [chef, ...autres] = offres;
+  const suiveurs = [];
+  const refus = [];
+  for (const o of autres) {
+    if (chef.preMoney <= o.preMoney * SEUIL_SUIVEUR) suiveurs.push({ id: o.id, nom: o.nom, montant: arrondi(o.montant * 0.6, 50_000), offre: o });
+    else refus.push(o);
+  }
+  const participants = [{ id: chef.id, nom: chef.nom, montant: chef.montant }, ...suiveurs.map(({ id, nom, montant }) => ({ id, nom, montant }))];
+  const tour = {
+    ...copie(chef),
+    montant: participants.reduce((t, p) => t + p.montant, 0),
+    participants,
+    sieges: chef.sieges + suiveurs.filter((s) => s.offre.sieges > 0).length,
+  };
+  return { tour, chef, suiveurs, refus };
+}
+
+// Ce que le tour ferait à la table, sans rien changer à la partie.
 export function simulerOffre(e, o) {
   return lever(e.table, { ...o, notes: e.notes });
 }
@@ -109,48 +138,79 @@ export function signerOffre(e, o) {
   const r = simulerOffre(e, o);
   // La fiche de calcul gardée au journal est exactement celle du bouton « Décrypter ».
   const calcul = { type: 'levee', ...copie(decrypter(e, o)) };
-  diluer(e, r.table, { titre: `Levée ${o.serie} avec ${o.nom}`, texte: '', calcul });
+  const avec = o.participants?.length > 1 ? ` menée par ${o.nom}, avec ${o.participants.slice(1).map((p) => p.nom).join(' et ')}` : ` avec ${o.nom}`;
+  diluer(e, r.table, { titre: `Levée ${o.serie}${avec}`, texte: '', calcul });
   e.notes = [];
   e.tresorerie += o.montant;
   e.board.investisseurs += o.sieges;
   e.board.independants += o.independant ?? 0;
   e.etape = o.etapeCible;
-  e.derniere = { prix: r.prix, postMoney: r.postMoney, mois: e.mois, montant: o.montant };
+  e.derniere = { prix: r.prix, postMoney: r.postMoney, mois: e.mois, montant: o.montant, perso: o.perso, lead: o.id, conditions: copie({ multiple: o.multiple, participatif: o.participatif, plafond: o.plafond, antiDilution: o.antiDilution }) };
   e.moisDerniereLevee = e.mois;
   for (const a of o.autres) e.drapeaux[a] = true;
   if (o.participatif) e.drapeaux.participatif = true;
   if (o.antiDilution === 'ratchet') e.drapeaux.ratchet = true;
   e.levee = null;
-  e.file = e.file.filter((c) => !c.levee);
   bouger(e, { investisseurs: 15, equipe: 5 });
   // Le business plan promis aux investisseurs : on recrute.
   e.burn *= 1.3;
   e.croissanceBonus += 0.03;
   ajouterFile(e, { special: 'bilanLevee', calcul }, true);
+  // Ce que la levée déclenche dans les mois qui suivent.
+  programmer(e, `apres-levee-${o.profil}`, 2 + Math.floor(e.mois % 3), `Levée avec ${o.nom}`);
+  if (e.drapeaux.vesting === false && o.etapeCible === 1) programmer(e, 're-vesting', 0, 'Pas de vesting entre fondateurs');
+  if (e.drapeaux.capitalMort) programmer(e, 'racheter-ines', 1, 'Inès est partie avec ses actions');
+  if (e.table.some((d) => d.id === 'foule')) programmer(e, 'holding-crowdfunding', 1, 'Le crowdfunding');
   return r;
 }
 
-// Négocier : meilleure offre, offre à prendre ou à laisser, ou retrait du fonds.
-export function negocier(e, o, rng) {
+// Négocier une offre prend un mois. Issue : meilleure offre, dernier mot, ou retrait du fonds.
+export function negocier(e, id, rng) {
+  const o = e.levee.offres.find((x) => x.id === id);
   const t = rng();
-  const nouvelle = copie(o);
-  nouvelle.negociee = true;
-  if (t < 0.45) {
-    if (o.participatif && !o.plafond) nouvelle.plafond = 3;
-    else if (o.participatif) { nouvelle.participatif = false; nouvelle.plafond = null; }
-    else if (o.antiDilution === 'ratchet') nouvelle.antiDilution = 'moyenne';
-    else if (o.multiple > 1) nouvelle.multiple = 1;
-    else if (o.poolPreMoney && o.poolCible > 0.1) nouvelle.poolCible = 0.1;
-    else nouvelle.preMoney = arrondi(o.preMoney * 1.1, 100_000);
-    ajouterFile(e, { special: 'offre', offre: nouvelle, levee: true, issue: 'mieux' }, true);
-    return 'mieux';
+  let issue;
+  if (o.dernierMot || t >= 0.8 + 0.05 * o.negociee) {
+    issue = o.dernierMot ? 'retrait' : t < 0.95 ? 'pareil' : 'retrait';
+  } else issue = t < 0.45 ? 'mieux' : 'pareil';
+  if (issue === 'mieux') {
+    if (o.participatif && !o.plafond) o.plafond = 3;
+    else if (o.participatif) { o.participatif = false; o.plafond = null; }
+    else if (o.antiDilution === 'ratchet') o.antiDilution = 'moyenne';
+    else if (o.multiple > 1) o.multiple = 1;
+    else if (o.poolPreMoney && o.poolCible > 0.1) o.poolCible = 0.1;
+    else o.preMoney = arrondi(o.preMoney * 1.1, 100_000);
+    o.negociee += 1;
+  } else if (issue === 'pareil') o.dernierMot = true;
+  else e.levee.offres = e.levee.offres.filter((x) => x.id !== id);
+  const duree = 1 + Math.floor(rng() * 3);
+  e.levee.messages.push({ id, nom: o.nom, perso: o.perso, issue, semaines: duree });
+  return { issue, duree };
+}
+
+// Les actions possibles pendant une levée. Négocier prend une à trois semaines : le mois ne passe qu'une fois
+// quatre semaines écoulées. Écarter une offre ne prend pas de temps. Signer ou tout refuser fait passer le mois.
+export function agirLevee(e, action, rng) {
+  let passe = true;
+  if (action.type === 'signer') {
+    const c = composerTour(e, action.ids);
+    for (const o of c.refus) noter(e, { type: 'evenement', titre: `${o.nom} ne suit pas`, texte: `Le chef de file valorise l'entreprise ${Math.round((c.chef.preMoney / o.preMoney - 1) * 100)} % au-dessus de son offre : trop cher pour ${o.nom}.` });
+    signerOffre(e, c.tour);
+  } else if (action.type === 'negocier') {
+    const { duree } = negocier(e, action.id, rng);
+    e.levee.semaines += duree;
+    passe = e.levee.semaines >= 4;
+    if (passe) e.levee.semaines -= 4;
+  } else if (action.type === 'ecarter') {
+    const o = e.levee.offres.find((x) => x.id === action.id);
+    e.levee.offres = e.levee.offres.filter((x) => x.id !== action.id);
+    e.levee.messages.push({ id: action.id, nom: o.nom, perso: o.perso, issue: 'ecartee', semaines: 0 });
+    passe = false;
+  } else if (action.type === 'refuser') {
+    e.levee.offres = [];
   }
-  if (t < 0.8) {
-    ajouterFile(e, { special: 'offre', offre: nouvelle, levee: true, issue: 'pareil' }, true);
-    return 'pareil';
-  }
-  ajouterFile(e, { special: 'retrait', offre: o, levee: true }, true);
-  return 'retrait';
+  if (!e.fin && passe) passerMois(e);
+  verifierFin(e);
+  if (e.levee && !e.fin) ajouterFile(e, { special: e.levee.offres.length ? 'levee' : 'echecLevee' }, true);
 }
 
 // ───────── Offres de rachat ─────────
@@ -171,7 +231,8 @@ export function genererSortie(e, cadre, rng, { acquihire = false } = {}) {
 
 export function vendre(e, s, contexte = 'vente') {
   const c = cascade(e.table, s.prix);
-  const vous = c.find((d) => d.id === 'vous');
+  // Vous pouvez ne plus figurer au capital (départ avant la fin du cliff : tout est annulé).
+  const vous = c.find((d) => d.id === 'vous') ?? { pct: 0, montant: 0 };
   e.fin = {
     type: contexte, prix: s.prix, acheteur: s.acheteur, cascade: c,
     naif: vous.pct * s.prix, reel: vous.montant + e.encaisse, encaisse: e.encaisse,
@@ -192,9 +253,10 @@ export function passerMois(e) {
   if (e.dette) { e.dette.restant -= 1; if (e.dette.restant <= 0) e.dette = null; }
   // Une startup embauche à mesure qu'elle grandit : les dépenses suivent le chiffre d'affaires.
   e.burn += Math.max(0, e.mrr * 1.3 + 15_000 - e.burn) * 0.08;
-  e.jauges.produit = clamp(e.jauges.produit - 0.15);
-  e.jauges.equipe = clamp(e.jauges.equipe + (55 - e.jauges.equipe) * 0.05);
-  e.jauges.investisseurs = clamp(e.jauges.investisseurs + (55 - e.jauges.investisseurs) * 0.04);
+  // Usure de fond : la concurrence rattrape le produit, l'équipe se fatigue, la confiance s'érode.
+  e.jauges.produit = clamp(e.jauges.produit - 0.5);
+  e.jauges.equipe = clamp(e.jauges.equipe - 0.4 + (48 - e.jauges.equipe) * 0.03);
+  e.jauges.investisseurs = clamp(e.jauges.investisseurs - 0.3 + (48 - e.jauges.investisseurs) * 0.03);
   e.croissanceBonus *= 0.85;
   e.marche += (1 - e.marche) * 0.04;
   e.historique.push({ mois: e.mois, part: partVous(e) });
@@ -229,6 +291,7 @@ export function verifierFin(e) {
 
 export function piocher(e, contenus, rng) {
   if (e.fin) return null;
+  if (e.levee && !e.file.length) ajouterFile(e, { special: e.levee.offres.length ? 'levee' : 'echecLevee' });
   if (!e.file.length && doitLever(e)) ouvrirLevee(e, contenus.cadre, rng);
   if (!e.file.length && e.mois >= 108) ajouterFile(e, { special: 'liquidite' });
   if (!e.file.length && e.etape >= 1 && runway(e) < 3 && !e.vus.acquihire && !e.levee) {
@@ -242,6 +305,15 @@ export function piocher(e, contenus, rng) {
     const c = e.file.shift();
     const carte = c.special ? contenus.special(c, e) : contenus.cartes.find((x) => x.id === c.id);
     if (carte && (!carte.cond || carte.cond(e))) return carte;
+  }
+  // Les conséquences de vos choix passent avant le hasard, quand leur heure est venue.
+  if (!e.levee) {
+    e.suites.sort((a, b) => a.mois - b.mois);
+    while (e.suites.length && e.suites[0].mois <= e.mois) {
+      const s = e.suites.shift();
+      const carte = contenus.cartes.find((x) => x.id === s.id);
+      if (carte && (!carte.cond || carte.cond(e))) return { ...carte, cause: s.cause };
+    }
   }
   const eligibles = contenus.cartes.filter((c) => !c.force && (!c.unique || !e.vus[c.id])
     && (e.mois - (e.vus[c.id] ?? -99) >= (c.delai ?? 8)) && (!c.cond || c.cond(e)));
@@ -258,11 +330,14 @@ export function piocher(e, contenus, rng) {
   return repetables[0] ?? null;
 }
 
-// Applique un choix puis fait passer un mois (sauf pour les cartes d'information).
-export function jouer(e, carte, cote, rng) {
+// Les options d'une carte : `options` si la carte en a plusieurs, sinon gauche / droite.
+// Avec trois options : gauche, haut (l'option intermédiaire), droite.
+export const options = (carte) => carte.options ?? (carte.info ? [carte.d] : carte.h ? [carte.g, carte.h, carte.d] : [carte.g, carte.d]);
+
+// Applique un choix (index de l'option) puis fait passer un mois (sauf pour les cartes d'information).
+export function jouer(e, carte, index, rng) {
   if (carte.id) e.vus[carte.id] = e.mois;
-  const choix = cote === 'gauche' ? carte.g : carte.d;
-  choix.effet?.(e, rng);
+  options(carte)[index]?.effet?.(e, rng);
   if (!e.fin && !carte.sansTemps) passerMois(e);
   verifierFin(e);
   return e;
@@ -270,20 +345,20 @@ export function jouer(e, carte, cote, rng) {
 
 // Aperçu façon « points au-dessus des jauges » : quelles jauges bougent, pas dans quel sens.
 // La part du fondateur n'apparaît que pour la dilution visible (l'argent du nouvel investisseur).
-export function apercu(e, carte, cote) {
+export function apercu(e, carte, index) {
   const avant = jauges(e);
   const f = copie(e);
-  const choix = cote === 'gauche' ? carte.g : carte.d;
+  const choix = options(carte)[index];
   let seed = 7;
   const rngFixe = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-  try { choix.effet?.(f, rngFixe); } catch { return {}; }
+  try { choix?.effet?.(f, rngFixe); } catch { return {}; }
   const apres = jauges(f);
   const res = {};
   for (const k of Object.keys(avant)) {
     const d = Math.abs(apres[k] - avant[k]);
     if (d >= 1) res[k] = d >= 10 ? 2 : 1;
   }
-  if (carte.diluteVisible?.(cote)) res.part = 2;
+  if (choix?.diluteVisible) res.part = 2;
   // Pour le mode prof : toute la dilution, y compris celle qui ne se verra que plus tard.
   res.partReelle = partVous(f) - partVous(e);
   res.differee = f.notes.length > e.notes.length;
@@ -303,8 +378,9 @@ export function decrypter(e, o) {
   const scenarios = prixVente.map((p) => {
     const c = cascade(r.table, p);
     const v = c.find((d) => d.id === 'vous');
-    const inv = c.find((d) => d.id === o.id);
-    return { prix: p, naif: v.pct * p, reel: v.montant, investisseur: inv.montant, modeInvestisseur: inv.mode };
+    const ids = (o.participants ?? [o]).map((x) => x.id);
+    const inv = c.filter((d) => ids.includes(d.id));
+    return { prix: p, naif: v.pct * p, reel: v.montant, investisseur: inv.reduce((t, d) => t + d.montant, 0), modeInvestisseur: inv[0].mode };
   });
   return {
     offre: o, avant, apres, partNaive, actionsAvant: S,
@@ -315,7 +391,7 @@ export function decrypter(e, o) {
       return { ...c, montant: n.montant, decote: n.decote, plafondValo: n.plafondValo, prixDecote: r.prix * (1 - n.decote), prixPlafond: n.plafondValo ? n.plafondValo / S : null };
     }),
     ajustements: r.ajustements,
-    partInvestisseur: part(r.table, o.id),
+    partInvestisseur: (o.participants ?? [o]).reduce((t, x) => t + part(r.table, x.id), 0),
     scenarios,
   };
 }

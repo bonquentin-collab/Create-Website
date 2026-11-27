@@ -1,41 +1,113 @@
-/* Compléments du jeu : fenêtres, journal, lexique, écran de fin, interactions. */
+/* Mise en page du jeu : une colonne, la situation, puis les cartes de choix.
+   Le détail (cap table, chiffres, board) vit dans le tableau de bord, ouvert à la demande. */
 
 .evitement { position: absolute; left: -9999px; }
 .evitement:focus { left: 16px; top: 12px; z-index: 10; background: var(--stabilo); color: var(--encre); padding: 8px 12px; border-radius: 6px; }
 
-.pied { max-width: 1180px; margin: 0 auto; padding: 0 28px 28px; font: 500 13px/1.45 var(--titre); color: var(--sur-bureau-doux); }
+.entete { flex-wrap: wrap; row-gap: 10px; }
+.menu { display: flex; gap: 8px; flex-wrap: wrap; }
+.calendrier { margin-left: auto; }
 
-/* Mots du lexique cliquables dans les cartes */
+.scene {
+  display: grid; gap: 16px; justify-items: stretch; align-content: start;
+  max-width: 820px; margin: 0 auto;
+  padding-block: 10px 36px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.scene:focus { outline: none; }
+.situation { display: grid; gap: 12px; }
+.qui { width: auto; }
+.carte { width: auto; min-height: 0; cursor: default; touch-action: auto; user-select: text; padding: 22px 24px; }
+.carte p { margin: 0; }
+.carte p + p { margin-top: 10px; }
+.carte.info { background: var(--papier-2); }
+.carte .prix-sortie { font: 800 38px/1 var(--titre); letter-spacing: -.02em; margin: 6px 0 12px; font-variant-numeric: tabular-nums; }
+.carte.entre { animation: entre .28s ease; }
+.carte { position: relative; overflow: hidden; }
+.carte.glissable { touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none; }
+.carte.glissable.trois { touch-action: none; }
+.carte .bandeau-choix.haut { top: auto; bottom: 0; border-radius: 0 0 14px 14px; background: var(--encre); color: var(--papier); text-align: center; }
+.carte.tire { cursor: grabbing; transition: none; animation: none; }
+.carte:not(.tire) { transition: transform .22s ease, opacity .22s ease; }
+.carte .bandeau-choix { opacity: 0; padding: 12px 18px; font: 800 16px/1.25 var(--titre); z-index: 1; }
+/* Le libellé se place du côté de la carte qui reste à l'écran pendant qu'on la tire. */
+.carte .bandeau-choix.droite { text-align: left; padding-right: 35%; }
+.carte .bandeau-choix.gauche { text-align: right; padding-left: 35%; }
+.carte .cause { margin: 0 0 10px; font: 700 13px/1.3 var(--titre); color: var(--encre-douce); border-left: 3px solid var(--stabilo); padding-left: 8px; }
+.carte .indice { display: none; margin-top: 12px; font: 500 13px/1.3 var(--titre); color: var(--encre-douce); }
+.carte.glissable .indice { display: block; }
+.options.masque { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.lien-discret { border: 0; background: none; padding: 0; font: 600 13.5px/1.3 var(--titre); color: var(--sur-bureau-doux); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+@keyframes entre { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
 button.terme { border: 0; background: none; padding: 0; font: inherit; color: inherit; text-decoration: underline dotted 2px; text-underline-offset: 3px; cursor: help; }
 .carte button.terme:hover { background: var(--stabilo); }
 
-.carte { display: flex; flex-direction: column; }
-.carte.info { background: var(--papier-2); }
-.carte .prix-sortie { font: 800 40px/1 var(--titre); letter-spacing: -.02em; margin: 6px 0 14px; font-variant-numeric: tabular-nums; }
-.carte .ts td .piege, .carte .ts td .surligne { box-decoration-break: clone; -webkit-box-decoration-break: clone; }
-.carte.sortie-anim { transition: transform .3s ease, opacity .3s ease; }
-.carte .contenu { margin-top: 0; }
-.carte.drag .contenu, .carte.tilt .contenu { margin-top: 0; }
+/* Cartes de choix */
+.options { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.options.levee { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.option {
+  display: grid; gap: 6px; align-content: start; text-align: left;
+  background: var(--bureau-2); color: var(--sur-bureau); border: 2px solid var(--bureau-trait); border-radius: 12px;
+  padding: 14px 16px; font: 700 16.5px/1.3 var(--titre); min-height: 76px;
+  transition: transform .12s ease, border-color .12s ease, background .12s ease;
+}
+.option kbd { font: 600 12px/1 var(--titre); color: var(--sur-bureau-doux); }
+.option:hover, .option:focus-visible { border-color: var(--sur-bureau); transform: translateY(-2px); background: var(--bureau); }
+.option.seule { justify-self: start; min-height: 0; }
 
-.choix button:hover, .choix button:focus-visible { background: var(--bureau-2); }
-.choix button:disabled { opacity: .4; cursor: default; }
+.outils { display: flex; gap: 10px; flex-wrap: wrap; }
+.outils:empty { display: none; }
+.pourquoi { width: 100%; font: inherit; font-size: 15px; cursor: pointer; text-align: left; color: var(--sur-bureau); }
+.pourquoi:hover { border-color: var(--sur-bureau-doux); }
+.pourquoi b.hausse { color: var(--part-esop); }
+.pourquoi .lien { color: var(--sur-bureau); }
 
-.jauges .apercu.on { opacity: 1; }
-.jauge-galette { position: relative; background: none; border: 0; color: inherit; text-align: left; font: inherit; padding-top: 0; padding-bottom: 0; }
+/* Jauges : la galette */
+.jauge-galette { position: relative; background: none; border: 0; color: inherit; text-align: left; font: inherit; padding-top: 0; padding-bottom: 0; cursor: pointer; }
 .jauge-galette .chiffre, .jauge-galette .legende { display: block; }
 .jauge-galette:hover .chiffre { text-decoration: underline dotted 2px; text-underline-offset: 5px; }
-.carte.sans-transition { transition: none; }
 .jauge-galette .apercu { position: absolute; top: -12px; left: 40px; width: 10px; height: 10px; border-radius: 50%; background: var(--stabilo-rose); opacity: 0; }
 .jauge-galette .apercu.on { opacity: 1; }
 .jauge-galette .chiffre.bouge { animation: bouge .6s ease; }
 @keyframes bouge { 0% { color: var(--stabilo-rose); transform: translateY(-3px); } 100% { color: inherit; transform: none; } }
 
-.pourquoi { cursor: pointer; text-align: left; color: var(--sur-bureau); }
-.pourquoi:hover { border-color: var(--sur-bureau-doux); }
-.pourquoi b.hausse { color: var(--part-esop); }
+/* ───────── Table des offres (levées) ───────── */
+.nego { margin: 0; font-size: 15px; color: var(--sur-bureau); background: var(--bureau-2); border-left: 4px solid var(--stabilo); border-radius: 6px; padding: 8px 12px; }
+.offres { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 14px; }
+.offre {
+  position: relative; display: grid; gap: 10px; align-content: start;
+  background: var(--papier); color: var(--encre); border-radius: 12px; padding: 16px; border: 3px solid transparent;
+}
+.offre.choisie { border-color: var(--stabilo); }
+.offre.refuse { opacity: .78; }
+.offre .tete { display: flex; gap: 10px; align-items: center; }
+.offre .tete .portrait { background: var(--papier-2); border-radius: 50%; flex: none; }
+.offre .tete strong { display: block; font: 800 16px/1.15 var(--titre); }
+.offre .tete span { font: 500 12.5px/1.2 var(--titre); color: var(--encre-douce); }
+.offre .badge { position: absolute; top: -11px; right: 12px; font: 800 12px/1 var(--titre); background: var(--stabilo); color: var(--encre); border-radius: 999px; padding: 5px 9px; }
+.offre .badge.non { background: var(--stabilo-rose); }
+.offre .ts { font-size: 14px; margin: 0; }
+.offre .ts th { font-size: 12.5px; width: 46%; padding: 4px 8px 4px 0; }
+.offre .ts td { padding: 4px 0; }
+.offre .ts tr:first-child td { font-size: 16px; }
+.offre .citation { font-size: 14px; color: var(--encre-douce); margin: 0; }
+.offre .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.offre .actions button { border-radius: 999px; padding: 7px 11px; font: 700 13.5px/1 var(--titre); border: 1px solid var(--trait); background: var(--papier); color: var(--encre); }
+.offre .actions .prendre { background: var(--encre); color: var(--papier); border-color: var(--encre); }
+.offre.choisie .actions .prendre { background: var(--papier); color: var(--encre); border-color: var(--encre); }
+.offre .actions button:disabled { opacity: .45; cursor: default; }
 
-.captable li.vous { font-weight: 700; }
-.captable .attente { opacity: .75; }
+.recap { background: var(--bureau-2); border: 1px solid var(--bureau-trait); border-radius: 12px; padding: 14px 16px; display: grid; gap: 12px; }
+.recap dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px 16px; margin: 0; }
+.recap dt { font: 500 12.5px/1.2 var(--titre); color: var(--sur-bureau-doux); }
+.recap dd { margin: 2px 0 0; font: 700 18px/1.15 var(--titre); font-variant-numeric: tabular-nums; }
+.recap dd.prof { color: var(--stabilo); }
+.recap p { margin: 0; font-size: 14.5px; color: var(--sur-bureau-doux); }
+.recap .boutons { display: flex; gap: 10px; flex-wrap: wrap; }
+.recap .signer { border: 0; border-radius: 10px; padding: 12px 18px; font: 800 15.5px/1 var(--titre); background: var(--stabilo); color: var(--encre); }
+.recap .signer:disabled { opacity: .45; cursor: default; }
+.recap .refuser { border: 1px solid var(--bureau-trait); border-radius: 10px; padding: 12px 16px; font: 700 15px/1 var(--titre); background: transparent; color: var(--sur-bureau); }
 
 /* ───────── Fenêtres ───────── */
 .fenetre {
@@ -45,21 +117,28 @@ button.terme { border: 0; background: none; padding: 0; font: inherit; color: in
 .fenetre::backdrop { background: rgba(8, 11, 40, .62); }
 .fenetre-corps { position: relative; background: var(--papier); border-radius: 16px; padding: 26px 28px; box-shadow: var(--ombre); overflow: auto; max-height: calc(100dvh - 32px); }
 .fenetre.large { max-width: min(1040px, calc(100vw - 24px)); }
-.fenetre h2 { font: 800 26px/1.1 var(--titre); margin: 0 36px 6px 0; letter-spacing: -.01em; }
+.fenetre h2 { font: 800 26px/1.1 var(--titre); margin: 0 36px 6px 0; letter-spacing: -.01em; text-wrap: balance; }
+.fenetre h3 { font: 800 18px/1.2 var(--titre); margin: 20px 0 10px; }
 .fenetre .sous { margin: 0 0 18px; color: var(--encre-douce); }
-.fermer {
-  position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 50%;
-  border: 1px solid var(--trait); background: var(--papier); font: 600 22px/1 var(--titre);
-}
-.fenetre .onglets button { cursor: pointer; }
+.fermer { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--trait); background: var(--papier); color: var(--encre); font: 600 22px/1 var(--titre); }
 .fenetre p { margin: 0 0 12px; }
 .fenetre .note { font-size: 14.5px; color: var(--encre-douce); }
+.defile { overflow-x: auto; }
 .lignes-ts { display: grid; gap: 14px; margin: 0; }
 .lignes-ts div { border-left: 4px solid var(--trait); padding-left: 14px; }
 .lignes-ts div.piege-ligne { border-left-color: var(--stabilo-rose); }
 .lignes-ts dt { font: 700 15px/1.3 var(--titre); }
 .lignes-ts dd { margin: 2px 0 0; }
 .lignes-ts .explique { font-size: 15px; color: var(--encre-douce); }
+
+/* Tableau de bord (dans une fenêtre, sur papier) */
+.tableau { display: grid; grid-template-columns: 1.2fr 1fr; gap: 26px; }
+.tableau .captable { color: var(--encre); }
+.tableau .captable .pref { color: var(--refuser); }
+.tableau .kpis dt { color: var(--encre-douce); }
+.tableau .board { color: var(--encre-douce); }
+.tableau .siege.i { background: var(--part-inv); }
+.tableau .siege.n { background: var(--trait); }
 
 /* Journal */
 .journal { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
@@ -70,11 +149,11 @@ button.terme { border: 0; background: none; padding: 0; font: inherit; color: in
 .journal .delta.baisse { color: var(--refuser); }
 .journal .delta.hausse { color: var(--signer); }
 .journal .etiquette-cachee { font: 700 12px/1 var(--titre); background: var(--stabilo-rose); color: var(--encre); border-radius: 4px; padding: 3px 6px; margin-left: 6px; }
-.lien { border: 0; background: none; padding: 0; font: 700 14px/1.3 var(--titre); color: var(--encre); text-decoration: underline; text-underline-offset: 3px; }
+.lien { border: 0; background: none; padding: 0; font: 700 14px/1.3 var(--titre); color: var(--encre); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 
 /* Lexique */
 .lexique-nav { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
-.lexique-nav button { border: 1px solid var(--trait); background: var(--papier); border-radius: 999px; padding: 6px 11px; font: 600 13.5px/1 var(--titre); }
+.lexique-nav button { border: 1px solid var(--trait); background: var(--papier); color: var(--encre); border-radius: 999px; padding: 6px 11px; font: 600 13.5px/1 var(--titre); }
 .lexique-nav button[aria-current="true"] { background: var(--encre); color: var(--papier); border-color: var(--encre); }
 .definition .piege-texte { margin-top: 4px; }
 
@@ -87,20 +166,23 @@ button.terme { border: 0; background: none; padding: 0; font: inherit; color: in
 .fin .actions { margin: 26px 0 0; display: flex; gap: 10px; flex-wrap: wrap; }
 .fin .actions .outil.discret { color: var(--encre); border-color: var(--trait); }
 
+.pied {
+  max-width: 820px; margin: 0 auto; font: 500 13px/1.45 var(--titre); color: var(--sur-bureau-doux);
+  padding-block: 0 24px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
 @media (max-width: 900px) {
   .fenetre-corps { padding: 20px 18px; }
   .fenetre h2 { font-size: 22px; }
   .journal li { grid-template-columns: 1fr auto; }
   .journal .m { grid-column: 1 / -1; }
-  .pied { padding: 0 16px 20px; }
+  .tableau { grid-template-columns: 1fr; }
   .calendrier { font-size: 13px; }
   .calendrier strong { font-size: 17px; }
   .bouton-entete { padding: 7px 10px; font-size: 13px; }
-  .entete { flex-wrap: wrap; }
-  .table { order: 2; }
+  .menu { order: 3; width: 100%; }
+  .menu .bouton-entete { flex: 1; }
 }
-@media (max-width: 520px) {
-  .entete .calendrier { margin-left: auto; }
-  #btn-journal, #btn-lexique, #btn-prof { flex: 1; }
-  .entete { row-gap: 10px; }
+@media (prefers-reduced-motion: reduce) {
+  .carte.entre { animation: none; }
 }

@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Dilution, le jeu du fondateur</title>
-<meta name="description" content="Un jeu de cartes à deux choix : vous fondez une startup, levez des fonds, signez des term sheets… et découvrez à la vente ce que vous touchez vraiment. Avec les calculs expliqués pas à pas.">
+<meta name="description" content="Un jeu de cartes : vous fondez une startup, levez des fonds, choisissez entre plusieurs term sheets… et découvrez à la vente ce que vous touchez vraiment. Avec les calculs expliqués pas à pas.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Dilution, le jeu du fondateur">
-<meta property="og:description" content="Fondez une startup, signez des term sheets, et découvrez ce que vous touchez vraiment à la vente.">
+<meta property="og:description" content="Fondez une startup, choisissez vos investisseurs, et découvrez ce que vous touchez vraiment à la vente.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232b3a8c'/%3E%3Ccircle cx='16' cy='16' r='11' fill='%23e2a548'/%3E%3Cpath d='M16 16V5a11 11 0 0 1 10.4 14.6z' fill='%238e9ad8'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,42 +16,28 @@
 <link rel="stylesheet" href="css/jeu.css">
 </head>
 <body>
-<a class="evitement" href="#carte">Aller à la carte</a>
+<a class="evitement" href="#scene">Aller au jeu</a>
 <header class="entete">
-  <h1 class="marque">Dilution<small>le jeu du fondateur qui ne lisait pas ses term sheets</small></h1>
+  <h1 class="marque">Dilution</h1>
   <div class="calendrier" id="calendrier" aria-live="polite"></div>
-  <button class="bouton-entete" id="btn-journal" type="button">Journal</button>
-  <button class="bouton-entete" id="btn-lexique" type="button">Lexique</button>
-  <button class="bouton-entete" id="btn-prof" type="button" aria-pressed="false" title="Surligne les pièges et montre toute la dilution, même cachée">Mode prof</button>
+  <nav class="menu" aria-label="Outils">
+    <button class="bouton-entete" id="btn-tableau" type="button">Tableau de bord</button>
+    <button class="bouton-entete" id="btn-journal" type="button">Journal</button>
+    <button class="bouton-entete" id="btn-lexique" type="button">Lexique</button>
+    <button class="bouton-entete" id="btn-prof" type="button" aria-pressed="false" title="Surligne les pièges et montre toute la dilution, même cachée">Mode prof</button>
+  </nav>
 </header>
 
 <div class="jauges" id="jauges"></div>
 
-<main class="plateau">
-  <div class="scene">
+<main class="scene" id="scene" tabindex="-1">
+  <section class="situation" aria-live="polite">
     <div class="qui" id="qui"></div>
-    <article class="carte" id="carte" tabindex="-1" aria-live="polite"></article>
-    <div class="choix">
-      <button class="g" id="btn-g" type="button"></button>
-      <button class="d" id="btn-d" type="button"></button>
-    </div>
-    <div class="outils" id="outils"></div>
-    <div class="pourquoi" id="pourquoi" hidden></div>
-  </div>
-  <aside class="table">
-    <section class="bloc">
-      <h2>La table de capitalisation</h2>
-      <ul class="captable" id="captable"></ul>
-    </section>
-    <section class="bloc">
-      <h2>Les chiffres</h2>
-      <dl class="kpis" id="kpis"></dl>
-    </section>
-    <section class="bloc">
-      <h2>Le board</h2>
-      <div class="board" id="board"></div>
-    </section>
-  </aside>
+    <article class="carte" id="carte"></article>
+  </section>
+  <div class="options" id="options" role="group" aria-label="Vos choix"></div>
+  <div class="outils" id="outils"></div>
+  <button class="pourquoi" id="pourquoi" type="button" hidden></button>
 </main>
 
 <dialog class="fenetre" id="fenetre">
